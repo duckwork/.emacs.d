@@ -6,24 +6,27 @@
 ;;; bootstrap packages
 (require 'package)
 (setq package-user-dir (concat user-emacs-directory "elpa"))
-(add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/"))
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/"))
-(add-to-list 'package-archives '("org" . "https://orgmode.org/elpa/"))
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+			 ("melpa" . "https://melpa.org/packages/")
+			 ("org" . "https://orgmode.org/elpa/")))
 (unless package--initialized (package-initialize))
-;; bootstrap quelpa
-(unless (package-installed-p 'quelpa)
-  (with-temp-buffer
-    (url-insert-file-contents "https://raw.githubusercontent.com/quelpa/quelpa/master/quelpa.el")
-    (eval-buffer)
-    (quelpa-self-upgrade)))
-;; quelpa config
-(setq quelpa-git-clone-depth nil)
-;; quelpa-use-package
-(quelpa
- '(quelpa-use-package
-   :fetcher git
-   :url "https://github.com/quelpa/quelpa-use-package.git"))
-(require 'quelpa-use-package)
+
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
+(eval-when-compile
+  (require 'use-package))
+
+(use-package use-package
+  :ensure
+  :config
+  (require 'use-package))
+
+(use-package quelpa
+  :ensure)
+
+(use-package quelpa-use-package
+  :ensure)
 
 ;;; packages
 ;; use-package helpers
@@ -42,8 +45,6 @@
    '((:eval (if (buffer-file-name)
                  (abbreviate-file-name (buffer-file-name))
               "%b"))))
-  (display-time-format " %H:%M ")
-  (display-time-default-load-average nil)
   (show-paren-style 'mixed)
   (backup-directory-alist
    `((".*" . ,(concat user-emacs-directory "saves/"))))
@@ -55,13 +56,12 @@
    `((".*" ,(concat user-emacs-directory "saves/") t)))
   (create-lockfiles nil)
   (scroll-conservatively 100)
+  (calendar-location-name "Baton Rouge, LA")
   (calendar-latitude 30.39)
   (calendar-longitude -91.83)
   (show-paren-style 'mixed)
+  (save-place-file (expand-file-name "places" user-emacs-directory))
   :config
-  (display-time-mode 1)
-  (line-number-mode 1)
-  (column-number-mode 1)
   (blink-cursor-mode 0)
   (delete-selection-mode 1)
   (global-auto-revert-mode t)
@@ -76,6 +76,8 @@
   (scroll-bar-mode -1)
   (fringe-mode 1)
   (show-paren-mode 1)
+  (global-visual-line-mode 1)
+  (save-place-mode 1)
   :hook
   ((beforpe-save . delete-trailing-whitespace)
    (prog-mode . (lambda ()
@@ -84,11 +86,25 @@
                       #'display-line-numbers-mode
                     #'linum-mode))))
   :bind
-  (("C-z" . nil)))
+  (("C-z" . nil)
+   ("M-1" . delete-other-windows)
+   ("M-o" . mode-line-other-buffer)))
+
+;; async
+(use-package async
+  :ensure)
 
 ;; delight
 (use-package delight
   :ensure)
+
+;; startup buffer
+(use-package dashboard
+  :ensure
+  :custom
+  (initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
+  :config
+  (dashboard-setup-startup-hook))
 
 ;; modeline
 (use-package all-the-icons
@@ -108,6 +124,10 @@
   (doom-modeline-gnus nil)
   (doom-modeline-irc t)
   :config
+  (display-time-mode 1)
+  (line-number-mode 1)
+  (column-number-mode 1)
+  (display-battery-mode 1)
   (doom-modeline-mode t))
 
 ;; themes
@@ -243,6 +263,8 @@
 (use-package mu4e
   :ensure-system-package mu ; TODO ensure mu4e is also installed
   :load-path "/usr/share/emacs/site-lisp/mu4e"
+  :init
+  (require 'smtpmail-async)
   :custom
   (mu4e-headers-skip-duplicates t)
   (mu4e-view-show-images t)
@@ -259,7 +281,7 @@
   (mu4e-sent-folder "/Sent")
   (mu4e-drafts-folder "/Drafts")
   (mu4e-trash-folder "/Trash")
-  (message-send-mail-function 'smtpmail-send-it)
+  (message-send-mail-function 'async-smtpmail-send-it)
   (smtpmail-default-smtp-server "smtp.fastmail.com")
   (smtpmail-smtp-server "smtp.fastmail.com")
   (smtpmail-smtp-service 465)
@@ -338,7 +360,14 @@
 		       (lambda () "Disable simulation keys for Firefox"
 			 (when (and exwm-class-name
 				    (string= exwm-class-name "Firefox"))
-			   (exwm-input-set-local-simulation-keys nil)))))
+			   (exwm-input-set-local-simulation-keys nil))))
+   (exwm-init .
+	      (lambda () "Autostart"
+		(start-process-shell-command "cmst" nil "cmst -m -w 5")
+		(start-process-shell-command "keepassxc" nil "keepassxc")
+		(start-process-shell-command "pa-applet" nil
+					     "pa-applet --disable-key-grabbing --disable-notifications")
+		(start-process-shell-command "picom" nil "picom"))))
   :config
   (exwm-enable)
   (require 'exwm-systemtray)
