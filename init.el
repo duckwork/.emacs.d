@@ -1,6 +1,5 @@
 ;; init.el ~ acdw
 
-(server-start)
 (setq custom-file (concat user-emacs-directory "custom.el"))
 
 ;;; bootstrap packages
@@ -94,6 +93,12 @@
 (use-package async
   :ensure)
 
+;; sudo
+(use-package su
+  :ensure
+  :config
+  (su-mode 1))
+
 ;; delight
 (use-package delight
   :ensure)
@@ -155,7 +160,18 @@
   (load-theme 'modus-vivendi t t)
   (run-at-time (nth 4 (split-string (sunrise-sunset)))
 	       (* 60 60 24)
-	       (lambda () (enable-theme 'modus-vivendi))))
+	       (lambda () (enable-theme 'modus-vivendi)))
+  (run-at-time "12am" (* 60 60 24) (lambda () (enable-theme 'modus-vivendi))))
+
+;; dired hacks: https://github.com/Fuco1/dired-hacks
+(use-package dired-hacks-utils
+  :ensure)
+
+(use-package dired-subtree
+  :ensure
+  :bind (:map dired-mode-map
+	      ("i" . dired-subtree-insert)
+	      (";" . dired-subtree-remove)))
 
 ;; minibuffer completion
 (use-package ivy
@@ -318,7 +334,7 @@
   (exwm-layout-show-all-buffers t)
   (mouse-autoselect-window t)
   (focus-follows-mouse t)
-  (exwm-workspace-number 1)
+  (exwm-workspace-number 4)
   (exwm-input-global-keys
 	`(
 	  ([?\s-r] . exwm-reset)
