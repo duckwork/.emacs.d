@@ -192,11 +192,6 @@
   :config
   (savehist-mode 1))
 
-(use-package ivy-dired-history
-  :after (ivy)
-  :config
-  (add-to-list 'savehist-additional-variables 'ivy-dired-history-variable))
-
 ;; completion
 (use-package company
   :ensure
