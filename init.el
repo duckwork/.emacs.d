@@ -1,8 +1,90 @@
-;; init.el ~ acdw
+;; init.el ~ acdw -*- lexical-binding: t -*-
 
-(setq custom-file (concat user-emacs-directory "custom.el"))
+(setq gc-cons-threshold (* 256 1024 1024))
+(defvar file-name-handler-alist-old file-name-handler-alist)
+(setq file-name-handler-alist nil)
+(setq message-log-max 16384)
+(setq byte-compile-warnings '(not free-vars unresolved noruntime lexical make-local))
+;; post-init
+(add-hook 'after-init-hook
+	  (lambda ()
+	    (setq file-name-handler-alist file-name-handler-alist-old)
+	    (setq gc-cons-threshold (* 32 1024 1024)))
+	  t)
 
-;;; bootstrap packages
+(unless (display-graphic-p)
+  (tool-bar-mode -1)
+  (menu-bar-mode -1))
+(scroll-bar-mode -1)
+(fringe-mode '(7 . 1))
+
+(setq inhibit-startup-buffer-menu t)
+(setq inhibit-startup-screen t)
+(setq inhibit-startup-echo-area-message "acdw")
+(setq initial-buffer-choice t)
+(setq initial-scratch-message nil)
+
+(server-start)
+
+(setq confirm-kill-processes nil)
+
+(setq user-full-name "Case Duckworth")
+(setq user-mail-address "acdw@acdw.net")
+(setq calendar-location-name "Baton Rouge, LA")
+(setq calendar-latitude 30.39)
+(setq calendar-longitude -91.83)
+
+(setq show-paren-style 'mixed)
+(show-paren-mode 1)
+
+(setq backup-directory-alist
+      `((".*" . ,(concat user-emacs-directory "saves/"))))
+(setq delete-old-versions t)
+(setq kept-new-versions 6)
+(setq kept-old-versions 4)
+(setq version-control t)
+
+(setq auto-save-file-name-transforms
+      `((".*" ,(concat user-emacs-directory "saves/") t)))
+(auto-save-mode 1)
+
+(defun full-auto-save ()
+  (interactive)
+  (save-excursion
+    (dolist (buf (buffer-list))
+      (set-buffer buf)
+      (if (and (buffer-file-name) (buffer-modified-p))
+	  (basic-save-buffer)))))
+(add-hook 'auto-save-hook 'full-auto-save)
+(add-hook 'focus-out-hook 'full-auto-save) ;; this might be resource intensive?
+
+(setq save-place-file (expand-file-name "places" user-emacs-directory))
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+
+(blink-cursor-mode 0)
+
+(prefer-coding-system 'utf-8)
+(set-default-coding-systems 'utf-8)
+(set-terminal-coding-system 'utf-8)
+(set-keyboard-coding-system 'utf-8)
+(fset 'yes-or-no-p 'y-or-n-p)
+(global-prettify-symbols-mode t)
+
+(save-place-mode 1)
+
+(global-visual-line-mode 1)
+(delight 'global-visual-line-mode)
+
+(display-battery-mode 1)
+(display-time-mode 1)
+
+(add-hook 'before-save-hook #'delete-trailing-whitespace)
+(add-hook 'prog-mode-hook (lambda ()
+			    (if (and (fboundp 'display-line-numbers-mode)
+				     (display-graphic-p))
+				#'display-line-numbers-mode
+			      #'linum-mode)))
+
 (require 'package)
 (setq package-user-dir (concat user-emacs-directory "elpa"))
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
@@ -22,7 +104,9 @@
   (require 'use-package))
 
 (use-package quelpa
-  :ensure)
+  :ensure
+  :custom
+  (quelpa-git-clone-depth nil))
 
 (use-package quelpa-use-package
   :ensure)
@@ -32,84 +116,107 @@
 (use-package use-package-ensure-system-package
   :ensure)
 
-;; emacs
-(use-package emacs
-  :custom
-  (user-full-name "Case Duckworth")
-  (user-mail-address "acdw@acdw.net")
-  (inhibit-startup-screen t)
-  (initial-scratch-message "")
-  (visible-bell nil)
-  (frame-title-format
-   '((:eval (if (buffer-file-name)
-                 (abbreviate-file-name (buffer-file-name))
-              "%b"))))
-  (show-paren-style 'mixed)
-  (backup-directory-alist
-   `((".*" . ,(concat user-emacs-directory "saves/"))))
-  (delete-old-versions t)
-  (kept-new-versions 10)
-  (kept-old-versions 10)
-  (version-control t)
-  (auto-save-file-name-transforms
-   `((".*" ,(concat user-emacs-directory "saves/") t)))
-  (create-lockfiles nil)
-  (scroll-conservatively 100)
-  (calendar-location-name "Baton Rouge, LA")
-  (calendar-latitude 30.39)
-  (calendar-longitude -91.83)
-  (show-paren-style 'mixed)
-  (save-place-file (expand-file-name "places" user-emacs-directory))
-  :config
-  (blink-cursor-mode 0)
-  (delete-selection-mode 1)
-  (global-auto-revert-mode t)
-  (prefer-coding-system 'utf-8)
-  (set-default-coding-systems 'utf-8)
-  (set-terminal-coding-system 'utf-8)
-  (set-keyboard-coding-system 'utf-8)
-  (fset 'yes-or-no-p 'y-or-n-p)
-  (global-prettify-symbols-mode t)
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-  (fringe-mode 1)
-  (show-paren-mode 1)
-  (global-visual-line-mode 1)
-  (save-place-mode 1)
-  :hook
-  ((beforpe-save . delete-trailing-whitespace)
-   (prog-mode . (lambda ()
-                  (if (and (fboundp 'display-line-numbers-mode)
-                           (display-graphic-p))
-                      #'display-line-numbers-mode
-                    #'linum-mode))))
-  :bind
-  (("C-z" . nil)
-   ("M-1" . delete-other-windows)
-   ("M-o" . mode-line-other-buffer)))
-
-;; async
-(use-package async
-  :ensure)
-
-;; sudo
-(use-package su
-  :ensure
-  :config
-  (su-mode 1))
-
-;; delight
 (use-package delight
   :ensure)
 
-;; startup buffer
-(use-package dashboard
+;; exwm
+(use-package exwm
+  :ensure
+  :demand
+  :custom
+  (exwm-layout-show-all-buffers t)
+  (mouse-autoselect-window t)
+  (exwm-workspace-number 4)
+  (exwm-input-global-keys
+	`(
+	  ([?\s-r] . exwm-reset)
+	  ([?\s-w] . exwm-workspace-switch)
+	  ([?\s-&] . (lambda (command)
+		       (interactive (list (read-shell-command "$ ")))
+		       (start-process-shell-command command nil command)))
+	  ,@(mapcar (lambda (i)
+		      `(,(kbd (format "s-%d" i)) .
+			(lambda ()
+			  (interactive)
+			  (exwm-workspace-switch-create ,i))))
+		    (number-sequence 0 9))))
+  (exwm-input-simulation-keys
+   '(([?\C-b] . [left])
+     ([?\M-b] . [C-left])
+     ([?\C-f] . [right])
+     ([?\M-f] . [C-right])
+     ([?\C-p] . [up])
+     ([?\C-n] . [down])
+     ([?\C-a] . [home])
+     ([?\C-e] . [end])
+     ([?\M-v] . [prior])
+     ([?\C-v] . [next])
+     ([?\C-d] . [delete])
+     ([?\C-k] . [S-end delete])
+     ([?\C-s] . [?\C-f])
+     ([?\C-w] . [?\C-x])
+     ([?\M-w] . [?\C-c])
+     ([?\C-y] . [?\C-v])))
+  :hook
+  ((exwm-update-class .
+		      (lambda () "Rename buffer to window's class name"
+			(exwm-workspace-rename-buffer exwm-class-name)))
+   (exwm-update-title .
+		      (lambda () "Update workspace name to window title"
+			(when (not exwm-instance-name)
+			  (exwm-workspace-rename-buffer exwm-title))))
+   (exwm-init .
+	      (lambda () "Autostart"
+		(start-process-shell-command "cmst" nil "cmst -m -w 5")
+		(start-process-shell-command "keepassxc" nil "keepassxc")
+		(start-process-shell-command "pa-applet" nil
+					     "pa-applet --disable-key-grabbing --disable-notifications"))))
+  :config
+  (require 'exwm)
+  (exwm-enable)
+  (require 'exwm-systemtray)
+  (exwm-systemtray-enable))
+
+(use-package mini-modeline
+  :quelpa (mini-modeline
+	   :repo "kiennq/emacs-mini-modeline"
+	   :fetcher github)
+  :delight
+  :custom
+  (mini-modeline-enhance-viusual t)
+  (mini-modeline-display-gui-line t)
+  (mini-modeline-right-padding 7) ;; characters -- for systemtray
+  :config
+  (mini-modeline-mode t))
+
+(use-package desktop-environment
+  :ensure
+  :delight
+  :hook (exwm-init . desktop-environment-mode)
+  :custom
+  (desktop-environment-update-exwm-global-keys :global)
+  (desktop-environment-brightness-get-command "light")
+  (desktop-environment-brightness-set-command "light %s")
+  (desktop-environment-brightness-get-regexp "^\\([0-9]+\\)")
+  (desktop-environment-brightness-normal-increment "-A 10")
+  (desktop-environment-brightness-normal-decrement "-U 10")
+  (desktop-environment-brightness-small-increment "-A 5")
+  (desktop-environment-brightness-small-decrement "-U 5")
+  (desktop-environment-volume-get-command "pavolume get")
+  (desktop-environment-volume-set-command "pavolume %s")
+  (desktop-environment-volume-toggle-command "pavolume mute toggle")
+  (desktop-environment-volume-get-regexp "^\\([0-9]+\\)")
+  (desktop-environment-volume-normal-increment "inc 10")
+  (desktop-environment-volume-normal-decrement "dec 10")
+  (desktop-environment-volume-small-increment "inc 5")
+  (desktop-environment-volume-small-decrement "dec 5"))
+
+(use-package switch-window
   :ensure
   :custom
-  (initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
-  :config
-  (dashboard-setup-startup-hook))
+  (switch-window-shortcut-style 'qwerty)
+  :bind
+  ("M-o" . switch-window))
 
 ;; modeline
 (use-package all-the-icons
@@ -120,20 +227,27 @@
   :custom
   (all-the-icons-scale-factor 1.0))
 
-(use-package doom-modeline
+;; (use-package doom-modeline
+;;    :ensure
+;;    :custom
+;;    (doom-modeline-height 16)
+;;    (doom-modeline-icon nil)
+;;    (doom-modeline-enable-word-count t)
+;;    (doom-modeline-mu4e t)
+;;    (doom-modeline-gnus nil)
+;;    (doom-modeline-irc t)
+;;    :custom-face
+;;    (doom-modeline-vspc-face ((t (:inherit nil))))
+;;    :config
+;;    (doom-modeline-mode t))
+
+(use-package zoom
   :ensure
+  :delight
   :custom
-  (doom-modeline-height 16)
-  (doom-modeline-enable-word-count t)
-  (doom-modeline-mu4e t)
-  (doom-modeline-gnus nil)
-  (doom-modeline-irc t)
+  (zoom-size '(0.618 . 0.618))
   :config
-  (display-time-mode 1)
-  (line-number-mode 1)
-  (column-number-mode 1)
-  (display-battery-mode 1)
-  (doom-modeline-mode t))
+  (zoom-mode 1))
 
 ;; themes
 (use-package modus-operandi-theme
@@ -163,15 +277,11 @@
 	       (lambda () (enable-theme 'modus-vivendi)))
   (run-at-time "12am" (* 60 60 24) (lambda () (enable-theme 'modus-vivendi))))
 
-;; dired hacks: https://github.com/Fuco1/dired-hacks
-(use-package dired-hacks-utils
-  :ensure)
-
-(use-package dired-subtree
+;; sudo
+(use-package su
   :ensure
-  :bind (:map dired-mode-map
-	      ("i" . dired-subtree-insert)
-	      (";" . dired-subtree-remove)))
+  :config
+  (su-mode 1))
 
 ;; minibuffer completion
 (use-package ivy
@@ -208,69 +318,7 @@
   :config
   (savehist-mode 1))
 
-;; completion
-(use-package company
-  :ensure
-  :delight
-  :custom
-  (company-idle-delay 0.2)
-  :hook
-  (after-init . global-company-mode))
-
-;; undo
-(use-package undo-tree
-  :ensure
-  :config
-  (global-undo-tree-mode))
-
-;; git
-(use-package magit
-  :ensure
-  :custom
-  (magit-push-always-verify nil)
-  (git-commit-summary-max-length 50)
-  :bind
-  ("M-g" . magit-status))
-
-;; irc
-(defun my/fetch-password (&rest params)
-  "fetch a password from auth-sources"
-  (require 'auth-source)
-  (let ((match (car (apply 'auth-source-search params))))
-    (if match
-	(let ((secret (plist-get match :secret)))
-	  (if (functionp secret)
-	      (funcall secret)
-	    secret))
-      (error "Password not found for %S" params))))
-
-(defun my/sasl-password (nick server)
-  "fetch an sasl password for $server"
-  (my/fetch-password :user nick :host server))
-
-(use-package circe
-  :ensure
-  :custom
-  (circe-network-options
-   `(("Freenode"
-      :tls t
-      :port 6697
-      :nick "acdw"
-      :sasl-username "acdw"
-      :sasl-password ,(my/sasl-password "acdw" "irc.freenode.net")
-      :channels ("#emacs" "#emacs-circe" "#daydreams"))
-     ("Tilde.chat"
-      :tls t
-      :port 6697
-      :nick "acdw"
-      :sasl-username "acdw"
-      :sasl-password ,(my/sasl-password "acdw" "irc.tilde.chat")
-      :channels ("#gemini" "#meta"))))
-  :custom-face
-  (circe-my-message-face ((t (:foreground "dark violet")))))
-      
-
-;; mail
+;; mu4e
 (use-package mu4e
   :ensure-system-package mu ; TODO ensure mu4e is also installed
   :load-path "/usr/share/emacs/site-lisp/mu4e"
@@ -302,112 +350,10 @@
   (define-key mu4e-headers-mode-map (kbd "d") 'my-move-to-trash)
   (define-key mu4e-view-mode-map (kbd "d") 'my-move-to-trash))
 
-;; gemini/gopher
-(use-package elpher
-  :quelpa
-  (elpher
-    :fetcher git
-    :url "git://thelambdalab.xyz/elpher.git"))
-
-(use-package visual-fill-column
+;; try packages out
+(use-package try
   :ensure)
 
-(use-package gemini-mode
-  :after visual-fill-column
-  :quelpa
-  (gemini-mode
-    :fetcher git
-    :url "https://git.carcosa.net/jmcbray/gemini.el.git"))
-
-(use-package gemini-write
-  :after gemini-mode
-  :quelpa
-  (gemini-write
-    :fetcher git
-    :url "https://alexschroeder.ch/cgit/gemini-write"))
-
-;; window manager
-(use-package exwm
-  :ensure
-  :demand
-  :custom
-  (exwm-layout-show-all-buffers t)
-  (mouse-autoselect-window t)
-  (focus-follows-mouse t)
-  (exwm-workspace-number 4)
-  (exwm-input-global-keys
-	`(
-	  ([?\s-r] . exwm-reset)
-	  ([?\s-w] . exwm-workspace-switch)
-	  ([?\s-&] . (lambda (command)
-		       (interactive (list (read-shell-command "$ ")))
-		       (start-process-shell-command command nil command)))
-	  ,@(mapcar (lambda (i)
-		      `(,(kbd (format "s-%d" i)) .
-			(lambda ()
-			  (interactive)
-			  (exwm-workspace-switch-create ,i))))
-		    (number-sequence 0 9))))
-  (exwm-input-simulation-keys
-	'(([?\C-b] . [left])
-	  ([?\C-f] . [right])
-	  ([?\C-p] . [up])
-	  ([?\C-n] . [down])
-	  ([?\C-a] . [home])
-	  ([?\C-e] . [end])
-	  ([?\M-v] . [prior])
-	  ([?\C-v] . [next])
-	  ([?\C-d] . [delete])
-	  ([?\C-k] . [S-end delete])))
-  :hook
-  ((exwm-update-class .
-		      (lambda () "Rename buffer to window's class name"
-			(exwm-workspace-rename-buffer exwm-class-name)))
-   (exwm-update-title .
-		      (lambda () "Update workspace name to window title"
-			(when (not exwm-instance-name)
-			  (exwm-workspace-rename-buffer exwm-title))))
-   (exwm-manage-finish .
-		       (lambda () "Disable simulation keys for Firefox"
-			 (when (and exwm-class-name
-				    (string= exwm-class-name "Firefox"))
-			   (exwm-input-set-local-simulation-keys nil))))
-   (exwm-init .
-	      (lambda () "Autostart"
-		(start-process-shell-command "cmst" nil "cmst -m -w 5")
-		(start-process-shell-command "keepassxc" nil "keepassxc")
-		(start-process-shell-command "pa-applet" nil
-					     "pa-applet --disable-key-grabbing --disable-notifications")
-		(start-process-shell-command "picom" nil "picom"))))
-  :config
-  (exwm-enable)
-  (require 'exwm-systemtray)
-  (exwm-systemtray-enable))
-
-(use-package exwm-mff
-  :ensure
-  :hook (exwm-init . exwm-mff-mode))
-
-(use-package exwm-edit
+;; vterm babeee
+(use-package vterm
   :ensure)
-
-(use-package desktop-environment
-  :ensure
-  :hook (exwm-init . desktop-environment-mode)
-  :custom
-  (desktop-environment-update-exwm-global-keys :global)
-  (desktop-environment-brightness-get-command "light")
-  (desktop-environment-brightness-set-command "light %s")
-  (desktop-environment-brightness-get-regexp "^\\([0-9]+\\)")
-  (desktop-environment-brightness-normal-increment "-A 10")
-  (desktop-environment-brightness-normal-decrement "-U 10")
-  (desktop-environment-brightness-small-increment "-A 5")
-  (desktop-environment-brightness-small-decrement "-U 5")
-  (desktop-environment-volume-get-command "pavolume get")
-  (desktop-environment-volume-set-command "pavolume %s")
-  (desktop-environment-volume-toggle-command "pavolume mute toggle")
-  (desktop-environment-volume-get-regexp "^\\([0-9]+\\)")
-  (desktop-environment-volume-normal-increment "inc 10")
-  (desktop-environment-volume-normal-decrement "dec 10")
-  (desktop-environment-volume-small-increment "inc 5")
-  (desktop-environment-volume-small-decrement "dec 5"))
