@@ -75,7 +75,6 @@
 (global-visual-line-mode 1)
 (delight 'global-visual-line-mode)
 
-(display-battery-mode 1)
 (display-time-mode 1)
 
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
@@ -169,25 +168,28 @@
 	      (lambda () "Autostart"
 		(start-process-shell-command "cmst" nil "cmst -m -w 5")
 		(start-process-shell-command "keepassxc" nil "keepassxc")
-		(start-process-shell-command "pa-applet" nil
-					     "pa-applet --disable-key-grabbing --disable-notifications"))))
+		(start-process-shell-command
+		 "pa-applet" nil
+		 "pa-applet --disable-key-grabbing --disable-notifications")
+		(start-process-shell-command "cbatticon" nil "cbatticon"))))
   :config
   (require 'exwm)
   (exwm-enable)
   (require 'exwm-systemtray)
   (exwm-systemtray-enable))
 
-(use-package mini-modeline
-  :quelpa (mini-modeline
-	   :repo "kiennq/emacs-mini-modeline"
-	   :fetcher github)
-  :delight
-  :custom
-  (mini-modeline-enhance-viusual t)
-  (mini-modeline-display-gui-line t)
-  (mini-modeline-right-padding 7) ;; characters -- for systemtray
-  :config
-  (mini-modeline-mode t))
+;; (use-package mini-modeline
+;;   :quelpa (mini-modeline
+;; 	   :repo "kiennq/emacs-mini-modeline"
+;; 	   :fetcher github)
+;;   :delight
+;;   :custom
+;;   (mini-modeline-enhance-viusual t)
+;;   (mini-modeline-display-gui-line t)
+;;   (mini-modeline-right-padding 7) ;; characters -- for systemtray
+;;   (mini-modeline-face-attr nil)
+;;   :config
+;;   (mini-modeline-mode t))
 
 (use-package desktop-environment
   :ensure
@@ -211,6 +213,11 @@
   (desktop-environment-volume-small-increment "inc 5")
   (desktop-environment-volume-small-decrement "dec 5"))
 
+(use-package trashed
+  :ensure
+  :custom
+  (delete-by-moving-to-trash t))
+
 (use-package switch-window
   :ensure
   :custom
@@ -227,29 +234,31 @@
   :custom
   (all-the-icons-scale-factor 1.0))
 
-;; (use-package doom-modeline
-;;    :ensure
-;;    :custom
-;;    (doom-modeline-height 16)
-;;    (doom-modeline-icon nil)
-;;    (doom-modeline-enable-word-count t)
-;;    (doom-modeline-mu4e t)
-;;    (doom-modeline-gnus nil)
-;;    (doom-modeline-irc t)
-;;    :custom-face
-;;    (doom-modeline-vspc-face ((t (:inherit nil))))
-;;    :config
-;;    (doom-modeline-mode t))
+(use-package doom-modeline
+   :ensure
+   :custom
+   (doom-modeline-height 16)
+   (doom-modeline-icon nil)
+   (doom-modeline-enable-word-count t)
+   (doom-modeline-mu4e t)
+   (doom-modeline-gnus nil)
+   (doom-modeline-irc t)
+   :custom-face
+   (doom-modeline-vspc-face ((t (:inherit nil))))
+   :config
+   (doom-modeline-mode t))
 
 (use-package zoom
   :ensure
   :delight
   :custom
-  (zoom-size '(0.618 . 0.618))
-  :config
-  (zoom-mode 1))
+  (zoom-size '(0.618 . 0.618)))
 
 ;; themes
+(defun my/sunrise ()
+  (enable-theme 'modus-operandi)
+  (desktop-environment-brightness-set 60))
+
 (use-package modus-operandi-theme
   :if window-system
   :ensure
@@ -260,8 +269,11 @@
   :config
   (load-theme 'modus-operandi t t)
   (run-at-time (nth 1 (split-string (sunrise-sunset)))
-	       (* 60 60 24)
-	       (lambda () (enable-theme 'modus-operandi))))
+	       (* 60 60 24) #'my/sunrise))
+
+(defun my/sunset ()
+  (enable-theme 'modus-vivendi)
+  (desktop-environment-brightness-set 35))
 
 (use-package modus-vivendi-theme
   :if window-system
@@ -273,9 +285,8 @@
   :config
   (load-theme 'modus-vivendi t t)
   (run-at-time (nth 4 (split-string (sunrise-sunset)))
-	       (* 60 60 24)
-	       (lambda () (enable-theme 'modus-vivendi)))
-  (run-at-time "12am" (* 60 60 24) (lambda () (enable-theme 'modus-vivendi))))
+	       (* 60 60 24) #'my/sunset)
+  (run-at-time "12am" (* 60 60 24) #'my/sunset))
 
 ;; sudo
 (use-package su
@@ -317,6 +328,11 @@
   :ensure
   :config
   (savehist-mode 1))
+
+(use-package magit
+  :ensure
+  :bind
+  ("M-g" . magit))
 
 ;; mu4e
 (use-package mu4e
