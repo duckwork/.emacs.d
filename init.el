@@ -1,29 +1,5 @@
 ;; init.el ~ acdw -*- lexical-binding: t -*-
 
-(setq gc-cons-threshold (* 256 1024 1024))
-(defvar file-name-handler-alist-old file-name-handler-alist)
-(setq file-name-handler-alist nil)
-(setq message-log-max 16384)
-(setq byte-compile-warnings '(not free-vars unresolved noruntime lexical make-local))
-;; post-init
-(add-hook 'after-init-hook
-	  (lambda ()
-	    (setq file-name-handler-alist file-name-handler-alist-old)
-	    (setq gc-cons-threshold (* 32 1024 1024)))
-	  t)
-
-(unless (display-graphic-p)
-  (tool-bar-mode -1)
-  (menu-bar-mode -1))
-(scroll-bar-mode -1)
-(fringe-mode '(7 . 1))
-
-(setq inhibit-startup-buffer-menu t)
-(setq inhibit-startup-screen t)
-(setq inhibit-startup-echo-area-message "acdw")
-(setq initial-buffer-choice t)
-(setq initial-scratch-message nil)
-
 (server-start)
 
 (setq confirm-kill-processes nil)
@@ -73,7 +49,6 @@
 (save-place-mode 1)
 
 (global-visual-line-mode 1)
-(delight 'global-visual-line-mode)
 
 (display-time-mode 1)
 
@@ -84,43 +59,12 @@
 				#'display-line-numbers-mode
 			      #'linum-mode)))
 
-(require 'package)
-(setq package-user-dir (concat user-emacs-directory "elpa"))
-(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
-			 ("melpa" . "https://melpa.org/packages/")
-			 ("org" . "https://orgmode.org/elpa/")))
-(unless package--initialized (package-initialize))
-
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-(eval-when-compile
-  (require 'use-package))
-
-(use-package use-package
-  :ensure
-  :config
-  (require 'use-package))
-
-(use-package quelpa
-  :ensure
-  :custom
-  (quelpa-git-clone-depth nil))
-
-(use-package quelpa-use-package
-  :ensure)
+(set-face-attribute 'default nil :font "GoMono Nerd Font-11")
 
 ;;; packages
-;; use-package helpers
-(use-package use-package-ensure-system-package
-  :ensure)
-
-(use-package delight
-  :ensure)
 
 ;; exwm
 (use-package exwm
-  :ensure
   :demand
   :custom
   (exwm-layout-show-all-buffers t)
@@ -178,11 +122,26 @@
   (require 'exwm-systemtray)
   (exwm-systemtray-enable))
 
+(use-package exwm-firefox-core
+  :after exwm
+  :straight (exwm-firefox-core
+	     :type git
+	     :host github
+	     :repo "walseb/exwm-firefox-core"))
+
+(use-package exwm-firefox
+  :after exwm-firefox-core
+  :straight (exwm-firefox
+	     :type git
+	     :host github
+	     :repo "ieure/exwm-firefox")
+  :config
+  (exwm-firefox-mode))
+
 ;; (use-package mini-modeline
 ;;   :quelpa (mini-modeline
 ;; 	   :repo "kiennq/emacs-mini-modeline"
 ;; 	   :fetcher github)
-;;   :delight
 ;;   :custom
 ;;   (mini-modeline-enhance-viusual t)
 ;;   (mini-modeline-display-gui-line t)
@@ -192,8 +151,6 @@
 ;;   (mini-modeline-mode t))
 
 (use-package desktop-environment
-  :ensure
-  :delight
   :hook (exwm-init . desktop-environment-mode)
   :custom
   (desktop-environment-update-exwm-global-keys :global)
@@ -214,28 +171,17 @@
   (desktop-environment-volume-small-decrement "dec 5"))
 
 (use-package trashed
-  :ensure
   :custom
   (delete-by-moving-to-trash t))
 
 (use-package switch-window
-  :ensure
   :custom
   (switch-window-shortcut-style 'qwerty)
   :bind
   ("M-o" . switch-window))
 
 ;; modeline
-(use-package all-the-icons
-  :ensure
-  :config
-  (set-face-attribute 'mode-line nil :height 100)
-  (set-face-attribute 'mode-line-inactive nil :height 100)
-  :custom
-  (all-the-icons-scale-factor 1.0))
-
 (use-package doom-modeline
-   :ensure
    :custom
    (doom-modeline-height 16)
    (doom-modeline-icon nil)
@@ -249,19 +195,16 @@
    (doom-modeline-mode t))
 
 (use-package zoom
-  :ensure
-  :delight
   :custom
   (zoom-size '(0.618 . 0.618)))
 
 ;; themes
 (defun my/sunrise ()
   (enable-theme 'modus-operandi)
-  (desktop-environment-brightness-set 60))
+  (start-process-shell-command "light" nil "light -S 60"))
 
 (use-package modus-operandi-theme
   :if window-system
-  :ensure
   :custom
   (modus-operandi-theme-slanted-constructs t)
   (modus-operandi-theme-bold-constructs t)
@@ -273,11 +216,10 @@
 
 (defun my/sunset ()
   (enable-theme 'modus-vivendi)
-  (desktop-environment-brightness-set 35))
+  (start-process-shell-command "light" nil "light -S 35"))
 
 (use-package modus-vivendi-theme
   :if window-system
-  :ensure
   :custom
   (modus-vivendi-theme-slanted-constructs t)
   (modus-vivendi-theme-bold-constructs t)
@@ -290,14 +232,11 @@
 
 ;; sudo
 (use-package su
-  :ensure
   :config
   (su-mode 1))
 
 ;; minibuffer completion
 (use-package ivy
-  :ensure
-  :delight
   :custom
   (ivy-use-virtual-buffers t)
   (ivy-wrap t)
@@ -307,37 +246,32 @@
   (ivy-mode 1))
 
 (use-package swiper
-  :ensure
-  :delight
   :bind ("C-s" . swiper-isearch))
 
 (use-package counsel
-  :ensure
-  :delight
   :config
   (counsel-mode 1))
 
 (use-package ivy-rich
-  :ensure
   :after (ivy)
   :config
   (ivy-rich-mode 1)
   (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line))
 
 (use-package savehist
-  :ensure
   :config
   (savehist-mode 1))
 
 (use-package magit
-  :ensure
   :bind
   ("M-g" . magit))
 
 ;; mu4e
 (use-package mu4e
-  :ensure-system-package mu ; TODO ensure mu4e is also installed
-  :load-path "/usr/share/emacs/site-lisp/mu4e"
+  :straight (mu4e
+	      :host github
+	      :repo "emacsmirror/mu4e"
+	      :files (:defaults "mu4e/*.el"))
   :init
   (require 'smtpmail-async)
   :custom
@@ -367,9 +301,33 @@
   (define-key mu4e-view-mode-map (kbd "d") 'my-move-to-trash))
 
 ;; try packages out
-(use-package try
-  :ensure)
+;(use-package try)
 
 ;; vterm babeee
-(use-package vterm
-  :ensure)
+;(use-package vterm)
+
+(use-package which-key
+  :custom
+  (which-key-mode 1))
+
+(use-package company
+  :custom
+  (company-idle-delay 0.1)
+  :hook
+  (prog-mode . company-mode))
+
+;;; gemini/gopher
+(use-package elpher
+  :straight
+  (elpher
+   :repo "git://thelambdalab.xyz/elpher.git"))
+
+(use-package gemini-mode
+  :straight
+  (gemini-mode
+   :repo "https://git.carcosa.net/jmcbray/gemini.el.git"))
+
+(use-package gemini-write
+  :straight
+  (gemini-write
+   :repo "https://alexschroeder.ch/cgit/gemini-write"))
