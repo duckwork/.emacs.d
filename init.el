@@ -282,13 +282,15 @@
   (ivy-rich-mode 1)
   (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line))
 
+(use-package ivy-avy)
+
 (use-package savehist
   :config
   (savehist-mode 1))
 
 (use-package magit
   :bind
-  ("M-x g" . magit))
+  ("C-x g" . magit))
 
 ;; mu4e
 (progn
