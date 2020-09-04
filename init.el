@@ -378,3 +378,73 @@
 (use-package rainbow-mode
   :hook
   (prog-mode . rainbow-mode))
+
+(defun my/fetch-password (&rest params)
+  "Fetch a password from auth-sources"
+  (require 'auth-source)
+  (let ((match (car (apply 'auth-source-search params))))
+    (if match
+	(let ((secret (plist-get match :secret)))
+	  (if (functionp secret)
+	      (funcall secret)
+	    secret))
+      (error "Password not found for %S" params))))
+
+(defun my/sasl-password (nick server)
+  "Fetch a password for $server and $nick"
+  (my/fetch-password :user nick :host server))
+
+(use-package circe
+  :init
+  (require 'lui-autopaste)
+  (defun my/circe-prompt ()
+    (lui-set-prompt
+     (concat (propertize (concat (buffer-name) ">")
+			 'face 'circe-prompt-face)
+	     " ")))
+  (defun my/lui-setup ()
+    (setq right-margin-width 5
+	  fringes-outside-margins t
+	  word-wrap t
+	  wrap-prefix "    ")
+    (setf (cdr (assoc 'continuation fringe-indicator-alist)) nil))
+  :hook
+  (circe-channel-mode . enable-lui-autopaste)
+  (circe-chat-mode-hook . my/circe-prompt)
+  (lui-mode-hook . my/circe-set-margin)
+  :custom
+  (circe-reduce-lurker-spam t)
+  (circe-format-say "{nick:-16s} {body}")
+  (lui-time-stamp-position 'right-margin)
+  (lui-fill-type nil)
+  (lui-time-stamp-format "%H:%M")
+  (lui-track-bar-behavior 'before-switch-to-buffer)
+  (circe-network-options
+   `(("Freenode"
+      :tls t
+      :port 6697
+      :nick "acdw"
+      :sasl-username "acdw"
+      :sasl-password ,(my/sasl-password "acdw" "irc.freenode.net")
+      :channels ("#emacs" "#daydreams"))
+     ("Tilde.chat"
+      :tls t
+      :port 6697
+      :nick "acdw"
+      :sasl-username "acdw"
+      :sasl-password ,(my/sasl-password "acdw" "irc.tilde.chat")
+      :channels ("#gemini" "#meta"))))
+  :custom-face
+  (circe-my-message-face ((t (:foreground "dark violet"))))
+  :config
+  (enable-lui-track-bar))
+
+;; elfeed
+(use-package elfeed
+  :custom
+  (elfeed-feeds
+   '("https://planet.emacslife.com/atom.xml")))
+
+(use-package smartparens
+  :config
+  (smartparens-global-mode))
