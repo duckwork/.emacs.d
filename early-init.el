@@ -1,5 +1,15 @@
 ;;; early-init.el ~ acdw
 
+;;; different platforms
+(setq my/is-windows-p (eq system-type 'windows-nt)
+      my/is-linux-p (eq system-type 'gnu/linux)
+      ;; TODO my/is-larry-p, my/is-bax-p (hostname)
+      )
+
+(when my/is-windows-p
+  (setenv "PATH" (concat "path/to/git" ";" (getenv "PATH"))))
+
+
 ;;; gui
 (push '(tool-bar-lines . 0) default-frame-alist)
 (push '(menu-bar-lines . 0) default-frame-alist)
