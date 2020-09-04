@@ -135,21 +135,21 @@
   (require 'exwm-systemtray)
   (exwm-systemtray-enable))
 
-;; (use-package exwm-firefox-core
-;;   :after exwm
-;;   :straight (exwm-firefox-core
-;; 	     :type git
-;; 	     :host github
-;; 	     :repo "walseb/exwm-firefox-core"))
+(use-package exwm-firefox-core
+   :after exwm
+   :straight (exwm-firefox-core
+ 	     :type git
+ 	     :host github
+ 	     :repo "walseb/exwm-firefox-core"))
 
-;; (use-package exwm-firefox
-;;   :after exwm-firefox-core
-;;   :straight (exwm-firefox
-;; 	     :type git
-;; 	     :host github
-;; 	     :repo "ieure/exwm-firefox")
-;;   :config
-;;   (exwm-firefox-mode))
+ (use-package exwm-firefox
+   :after exwm-firefox-core
+   :straight (exwm-firefox
+ 	     :type git
+ 	     :host github
+ 	     :repo "ieure/exwm-firefox")
+   :config
+   (exwm-firefox-mode))
 
 (setq browse-url-browser-function 'browse-url-generic
       browse-url-generic-program "firefox")
