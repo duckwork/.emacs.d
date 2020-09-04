@@ -51,24 +51,36 @@
 (global-visual-line-mode 1)
 
 (display-time-mode 1)
+(setq display-time-format "%R")
 
 (add-hook 'before-save-hook #'delete-trailing-whitespace)
-(add-hook 'prog-mode-hook (lambda ()
-			    (if (and (fboundp 'display-line-numbers-mode)
+(add-hook 'prog-mode-hook
+	  (if (and (fboundp 'display-line-numbers-mode)
 				     (display-graphic-p))
 				#'display-line-numbers-mode
-			      #'linum-mode)))
+			      #'linum-mode))
+
+(setq uniquify-buffer-name-style 'forward)
 
 (set-face-attribute 'default nil :font "GoMono Nerd Font-11")
 
-;;; packages
+(mouse-avoidance-mode 'jump)
+
+;;; Packages
+
+(use-package aggressive-indent
+  :hook
+  (prog-mode . aggressive-indent-mode))
+
+(use-package async
+  :init (dired-async-mode 1))
 
 ;; exwm
 (use-package exwm
   :demand
   :custom
   (exwm-layout-show-all-buffers t)
-  (mouse-autoselect-window t)
+  ;;(mouse-autoselect-window t)
   (exwm-workspace-number 4)
   (exwm-input-global-keys
 	`(
@@ -108,6 +120,7 @@
 		      (lambda () "Update workspace name to window title"
 			(when (not exwm-instance-name)
 			  (exwm-workspace-rename-buffer exwm-title))))
+   (exwm-init . window-divider-mode)
    (exwm-init .
 	      (lambda () "Autostart"
 		(start-process-shell-command "cmst" nil "cmst -m -w 5")
@@ -122,33 +135,29 @@
   (require 'exwm-systemtray)
   (exwm-systemtray-enable))
 
-(use-package exwm-firefox-core
-  :after exwm
-  :straight (exwm-firefox-core
-	     :type git
-	     :host github
-	     :repo "walseb/exwm-firefox-core"))
+;; (use-package exwm-firefox-core
+;;   :after exwm
+;;   :straight (exwm-firefox-core
+;; 	     :type git
+;; 	     :host github
+;; 	     :repo "walseb/exwm-firefox-core"))
 
-(use-package exwm-firefox
-  :after exwm-firefox-core
-  :straight (exwm-firefox
-	     :type git
-	     :host github
-	     :repo "ieure/exwm-firefox")
-  :config
-  (exwm-firefox-mode))
-
-;; (use-package mini-modeline
-;;   :quelpa (mini-modeline
-;; 	   :repo "kiennq/emacs-mini-modeline"
-;; 	   :fetcher github)
-;;   :custom
-;;   (mini-modeline-enhance-viusual t)
-;;   (mini-modeline-display-gui-line t)
-;;   (mini-modeline-right-padding 7) ;; characters -- for systemtray
-;;   (mini-modeline-face-attr nil)
+;; (use-package exwm-firefox
+;;   :after exwm-firefox-core
+;;   :straight (exwm-firefox
+;; 	     :type git
+;; 	     :host github
+;; 	     :repo "ieure/exwm-firefox")
 ;;   :config
-;;   (mini-modeline-mode t))
+;;   (exwm-firefox-mode))
+
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "firefox")
+
+(use-package exwm-mff
+  :after exwm
+  :hook
+  (exwm-init . exwm-mff-mode))
 
 (use-package desktop-environment
   :hook (exwm-init . desktop-environment-mode)
@@ -176,9 +185,24 @@
 
 (use-package switch-window
   :custom
-  (switch-window-shortcut-style 'qwerty)
+   (switch-window-shortcut-style 'qwerty)
   :bind
-  ("M-o" . switch-window))
+  ([remap other-window] . switch-window)
+  ("s-o" . switch-window))
+
+(defun split-and-follow-below ()
+  (interactive)
+  (split-window-below)
+  (balance-windows)
+  (other-window 1))
+(global-set-key [remap split-window-below] 'split-and-follow-below)
+
+(defun split-and-follow-right ()
+  (interactive)
+  (split-window-right)
+  (balance-windows)
+  (other-window 1))
+(global-set-key [remap split-window-right] 'split-and-follow-right)
 
 ;; modeline
 (use-package doom-modeline
@@ -264,41 +288,39 @@
 
 (use-package magit
   :bind
-  ("M-g" . magit))
+  ("M-x g" . magit))
 
 ;; mu4e
-(use-package mu4e
-  :straight (mu4e
-	      :host github
-	      :repo "emacsmirror/mu4e"
-	      :files (:defaults "mu4e/*.el"))
-  :init
+(progn
+  (require 'mu4e)
+  (require 'mu4e-contrib)
   (require 'smtpmail-async)
-  :custom
-  (mu4e-headers-skip-duplicates t)
-  (mu4e-view-show-images t)
-  (mu4e-view-show-addresses t)
-  (mu4e-compose-format-flowed t)
-  (mu4e-date-format "%Y-%m-%d")
-  (mu4e-headers-date-format "%Y-%m-%d")
-  (mu4e-change-filenames-when-moving t)
-  (mu4e-attachments-dir "~/Downloads")
-  (message-kill-buffer-on-exit t)
-  (mu4e-update-interval (* 60 60))
-  (mu4e-maildir "~/Mail/fastmail")
-  (mu4e-refile-folder "/Archive")
-  (mu4e-sent-folder "/Sent")
-  (mu4e-drafts-folder "/Drafts")
-  (mu4e-trash-folder "/Trash")
-  (message-send-mail-function 'async-smtpmail-send-it)
-  (smtpmail-default-smtp-server "smtp.fastmail.com")
-  (smtpmail-smtp-server "smtp.fastmail.com")
-  (smtpmail-smtp-service 465)
-  (smtpmail-stream-type 'ssl)
-  :config
+  (setq mu4e-headers-skip-duplicates t)
+  (setq mu4e-view-show-images t)
+  (setq mu4e-view-show-addresses t)
+  (setq mu4e-compose-format-flowed t)
+  (setq mu4e-date-format "%Y-%m-%d")
+  (setq mu4e-headers-date-format "%Y-%m-%d")
+  (setq mu4e-change-filenames-when-moving t)
+  (setq mu4e-attachments-dir "~/Downloads")
+  (setq message-kill-buffer-on-exit t)
+  (setq mu4e-update-interval (* 60 60))
+  (setq mu4e-maildir "~/Mail/fastmail")
+  (setq mu4e-refile-folder "/Archive")
+  (setq mu4e-sent-folder "/Sent")
+  (setq mu4e-drafts-folder "/Drafts")
+  (setq mu4e-trash-folder "/Trash")
+  (setq message-send-mail-function 'async-smtpmail-send-it)
+  (setq smtpmail-default-smtp-server "smtp.fastmail.com")
+  (setq smtpmail-smtp-server "smtp.fastmail.com")
+  (setq smtpmail-smtp-service 465)
+  (setq smtpmail-stream-type 'ssl)
   (fset 'my-move-to-trash "mTrash")
   (define-key mu4e-headers-mode-map (kbd "d") 'my-move-to-trash)
   (define-key mu4e-view-mode-map (kbd "d") 'my-move-to-trash))
+
+;; tramp
+(setq tramp-terminal-type "tramp")
 
 ;; try packages out
 ;(use-package try)
@@ -331,3 +353,28 @@
   :straight
   (gemini-write
    :repo "https://alexschroeder.ch/cgit/gemini-write"))
+
+;;; better help messages
+(use-package helpful
+  :bind
+  ("C-h f" . helpful-callable)
+  ("C-h v" . helpful-variable)
+  ("C-h k" . helpful-key)
+  ("C-c C-d" . helpful-at-point)
+  ("C-h F" . helpful-function)
+  ("C-h C" . helpful-command)
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable))
+
+;;; eshell
+;; ~ much from http://www.howardism.org/Technical/Emacs/eshell-fun.html
+;;; TODO
+
+(use-package avy
+  :bind
+  ("M-s" . avy-goto-char))
+
+(use-package rainbow-mode
+  :hook
+  (prog-mode . rainbow-mode))
