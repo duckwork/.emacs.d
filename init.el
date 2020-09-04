@@ -335,26 +335,35 @@
   (which-key-mode 1))
 
 (use-package company
+  :commands company-mode
   :custom
   (company-idle-delay 0.1)
   :hook
-  (prog-mode . company-mode))
+  (prog-mode . company-mode)
+  :bind (:map company-active-map
+	      ("C-n" . 'company-select-next)
+	      ("C-p" . 'company-select-previous))
+  :config
+  (use-package company-quickhelp
+    :hook
+    (company-mode . (lambda ()
+		      (company-quickhelp-local-mode)))))
 
 ;;; gemini/gopher
 (use-package elpher
-  :straight
-  (elpher
-   :repo "git://thelambdalab.xyz/elpher.git"))
+  :straight (elpher
+	     :repo "git://thelambdalab.xyz/elpher.git")
+  :bind (:map elpher-mode-map
+	      ("n" . 'elpher-next-link)
+	      ("p" . 'elpher-prev-link)))
 
-(use-package gemini-mode
-  :straight
-  (gemini-mode
-   :repo "https://git.carcosa.net/jmcbray/gemini.el.git"))
+  (use-package gemini-mode
+    :straight (gemini-mode
+	       :repo "https://git.carcosa.net/jmcbray/gemini.el.git"))
 
 (use-package gemini-write
-  :straight
-  (gemini-write
-   :repo "https://alexschroeder.ch/cgit/gemini-write"))
+  :straight (gemini-write
+	     :repo "https://alexschroeder.ch/cgit/gemini-write"))
 
 ;;; better help messages
 (use-package helpful
