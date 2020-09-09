@@ -1,65 +1,59 @@
 ;;; early-init.el ~ acdw
 
+;;; this needs to happen first -- speed up init
+(setq gc-cons-threshold most-positive-fixnum)
+(defvar file-name-handler-alist-old file-name-handler-alist)
+(setq file-name-handler-alist nil)
+(setq message-log-max 16384)
+(setq byte-compile-warnings
+  '(not free-vars unresolved noruntime lexical make-local))
+
+(add-hook 'after-init-hook
+          (lambda ()
+            (setq file-name-handler-alist file-name-handler-alist-old)
+            (setq gc-cons-threshold (* 32 1024 1024)))
+          t)
+
+;;(setq debug-on-error t)
+
 ;;; different platforms
-(setq my/is-windows-p (eq system-type 'windows-nt)
-      my/is-linux-p (eq system-type 'gnu/linux)
-      ;; TODO my/is-larry-p, my/is-bax-p (hostname)
-      )
+(setq acdw/at-work (eq system-type 'windows-nt))
+(setq acdw/at-larry (string= (system-name) "larry"))
+(setq acdw/at-bax (string= (system-name) "bax"))
 
-(when my/is-windows-p
-  (setenv "PATH" (concat "path/to/git" ";" (getenv "PATH"))))
-
+;; this needs to be before bootstrapping straight.el
+(when acdw/at-work
+  (add-to-list 'exec-path "~/bin")
+  (add-to-list 'exec-path "C:/Users/aduckworth/Downloads/PortableGit/bin"))
 
 ;;; gui
-(push '(tool-bar-lines . 0) default-frame-alist)
-(push '(menu-bar-lines . 0) default-frame-alist)
-
-(unless (display-graphic-p)
-  (tool-bar-mode -1)
-  (menu-bar-mode -1))
-(scroll-bar-mode -1)
-(fringe-mode '(7 . 1))
+(add-to-list 'default-frame-alist '(tool-bar-lines . 0))
+(add-to-list 'default-frame-alist '(menu-bar-lines . 0))
 
 (setq inhibit-startup-buffer-menu t)
 (setq inhibit-startup-screen t)
-(setq inhibit-startup-echo-area-message "acdw")
 (setq initial-buffer-choice t)
 (setq initial-scratch-message nil)
 
 ;;; straight.el ~ github.com/raxod502/straight.el
 
-;; use use-package
-(setq straight-use-package-by-default t)
+(setq straight-use-package-by-default t) ; use use-package
+(setq use-package-hook-name-suffix nil) ; don't assume -hook
 
-;; boostrap straight.el
+;; bootstrap
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el"
-			 user-emacs-directory))
+                         user-emacs-directory))
       (bootstrap-version 5))
   (unless (file-exists-p bootstrap-file)
     (with-current-buffer
-	(url-retrieve-synchronously
-	 "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-	 'silent 'inhibit-cookies)
+      (url-retrieve-synchronously
+        "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+        'silent 'inhibit-cookies)
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
 
 ;; install use-package with straight
 (straight-use-package 'use-package)
-
-;;; other init stuff
-
-(setq gc-cons-threshold (* 256 1024 1024))
-(defvar file-name-handler-alist-old file-name-handler-alist)
-(setq file-name-handler-alist nil)
-(setq message-log-max 16384)
-(setq byte-compile-warnings '(not free-vars unresolved noruntime lexical make-local))
-
-;; post-init
-(add-hook 'after-init-hook
-	  (lambda ()
-	    (setq file-name-handler-alist file-name-handler-alist-old)
-	    (setq gc-cons-threshold (* 32 1024 1024)))
-	  t)

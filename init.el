@@ -1,371 +1,231 @@
-;; init.el ~ acdw -*- lexical-binding: t -*-
+;;; init.el ~ acdw -*- lexical-binding: t -*-
 
-(server-start)
+;;; emacs configuration - general
 
-(setq confirm-kill-processes nil)
+(use-package emacs
+  :init
+  (setq calendar-location-name "Baton Rouge, LA")
+  (setq calendar-latitude 30.39)
+  (setq calendar-longitude -91.83)
 
-(setq user-full-name "Case Duckworth")
-(setq user-mail-address "acdw@acdw.net")
-(setq calendar-location-name "Baton Rouge, LA")
-(setq calendar-latitude 30.39)
-(setq calendar-longitude -91.83)
+  (setq browse-url-browser-function 'browse-url-generic)
+  (setq  browse-url-generic-program "firefox"))
 
-(setq show-paren-style 'mixed)
-(show-paren-mode 1)
+(use-package auth-source
+  :init
+  (setq auth-sources '("~/.authinfo")) ;; TODO: gpg
+  (setq user-full-name "Case Duckworth")
+  (setq user-mail-address "acdw@acdw.net"))
 
-(setq backup-directory-alist
-      `((".*" . ,(concat user-emacs-directory "saves/"))))
-(setq delete-old-versions t)
-(setq kept-new-versions 6)
-(setq kept-old-versions 4)
-(setq version-control t)
+(use-package better-defaults
+  :config ; add other "better defaults" of my own
+  (when acdw/at-larry
+    (setq visible-bell nil))
 
-(setq auto-save-file-name-transforms
-      `((".*" ,(concat user-emacs-directory "saves/") t)))
-(auto-save-mode 1)
+  (setq version-control t)
+  (setq delete-old-versions t)
+  (setq kept-new-versions 6)
+  (setq kept-old-versions 4)
+  (setq create-lockfiles nil)
+  (setq auto-save-file-name-transforms
+        `((".*" ,(concat user-emacs-directory "backups/") t)))
+  (auto-save-mode)
 
-(defun full-auto-save ()
-  (interactive)
-  (save-excursion
-    (dolist (buf (buffer-list))
-      (set-buffer buf)
-      (if (and (buffer-file-name) (buffer-modified-p))
-	  (basic-save-buffer)))))
-(add-hook 'auto-save-hook 'full-auto-save)
-(add-hook 'focus-out-hook 'full-auto-save) ;; this might be resource intensive?
+  (defun full-auto-save ()
+    (interactive)
+    (save-excursion
+      (dolist (buf (buffer-list))
+        (set-buffer buf)
+        (if (and (buffer-file-name) (buffer-modified-p))
+            (basic-save-buffer)))))
+  (add-hook 'auto-save-hook 'full-auto-save)
+  (add-hook 'focus-out-hook 'full-auto-save) ; might be resource-intensive
 
-(setq save-place-file (expand-file-name "places" user-emacs-directory))
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+  ;; follow the split!
+  (defun split-and-follow-below ()
+    (interactive)
+    (split-window-below)
+    (balance-windows)
+    (other-window 1))
 
-(blink-cursor-mode 0)
+  (defun split-and-follow-right ()
+    (interactive)
+    (split-window-right)
+    (balance-windows)
+    (other-window 1))
 
-(prefer-coding-system 'utf-8)
-(set-default-coding-systems 'utf-8)
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(fset 'yes-or-no-p 'y-or-n-p)
-(global-prettify-symbols-mode t)
+  (setq save-place-file
+        (expand-file-name "places" user-emacs-directory))
+  (save-place-mode)
 
-(save-place-mode 1)
+  (set-language-environment "UTF-8")
+  (prefer-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (setq default-buffer-file-coding-system 'utf-8)
 
-(global-visual-line-mode 1)
+  (fset 'yes-or-no-p 'y-or-n-p)
 
-(display-time-mode 1)
-(setq display-time-format "%R")
+  (global-visual-line-mode)
+  (mouse-avoidance-mode 'jump)
+  (setq show-paren-style 'mixed)
 
-(add-hook 'before-save-hook #'delete-trailing-whitespace)
-(add-hook 'prog-mode-hook
-	  (if (and (fboundp 'display-line-numbers-mode)
+  ;; TODO figure out how to add this to the :hook block
+  (add-hook 'prog-mode-hook (if (and (fboundp 'display-line-numbers-mode)
 				     (display-graphic-p))
 				#'display-line-numbers-mode
 			      #'linum-mode))
 
-(setq uniquify-buffer-name-style 'forward)
+  (setq completion-ignore-case t)
+  (setq read-buffer-completion-ignore-case t)
+  (setq read-file-name-completion-ignore-case t)
 
-(set-face-attribute 'default nil :font "GoMono Nerd Font-11")
+  ;; don't confirm death
+  (setq confirm-kill-processes nil)
+  (setq confirm-kill-emacs nil)
 
-(mouse-avoidance-mode 'jump)
+  ;; cursor betterment
+  (blink-cursor-mode 0)
+  (setq cursor-type 'bar)
 
-;;; Packages
-
-(use-package aggressive-indent
-  :hook
-  (prog-mode . aggressive-indent-mode))
-
-(use-package async
-  :init (dired-async-mode 1))
-
-;; exwm
-(use-package exwm
-  :demand
-  :custom
-  (exwm-layout-show-all-buffers t)
-  ;;(mouse-autoselect-window t)
-  (exwm-workspace-number 4)
-  (exwm-input-global-keys
-	`(
-	  ([?\s-r] . exwm-reset)
-	  ([?\s-w] . exwm-workspace-switch)
-	  ([?\s-&] . (lambda (command)
-		       (interactive (list (read-shell-command "$ ")))
-		       (start-process-shell-command command nil command)))
-	  ,@(mapcar (lambda (i)
-		      `(,(kbd (format "s-%d" i)) .
-			(lambda ()
-			  (interactive)
-			  (exwm-workspace-switch-create ,i))))
-		    (number-sequence 0 9))))
-  (exwm-input-simulation-keys
-   '(([?\C-b] . [left])
-     ([?\M-b] . [C-left])
-     ([?\C-f] . [right])
-     ([?\M-f] . [C-right])
-     ([?\C-p] . [up])
-     ([?\C-n] . [down])
-     ([?\C-a] . [home])
-     ([?\C-e] . [end])
-     ([?\M-v] . [prior])
-     ([?\C-v] . [next])
-     ([?\C-d] . [delete])
-     ([?\C-k] . [S-end delete])
-     ([?\C-s] . [?\C-f])
-     ([?\C-w] . [?\C-x])
-     ([?\M-w] . [?\C-c])
-     ([?\C-y] . [?\C-v])))
-  :hook
-  ((exwm-update-class .
-		      (lambda () "Rename buffer to window's class name"
-			(exwm-workspace-rename-buffer exwm-class-name)))
-   (exwm-update-title .
-		      (lambda () "Update workspace name to window title"
-			(when (not exwm-instance-name)
-			  (exwm-workspace-rename-buffer exwm-title))))
-   (exwm-init . window-divider-mode)
-   (exwm-init .
-	      (lambda () "Autostart"
-		(start-process-shell-command "cmst" nil "cmst -m -w 5")
-		(start-process-shell-command "keepassxc" nil "keepassxc")
-		(start-process-shell-command
-		 "pa-applet" nil
-		 "pa-applet --disable-key-grabbing --disable-notifications")
-		(start-process-shell-command "cbatticon" nil "cbatticon"))))
-  :config
-  (require 'exwm)
-  (exwm-enable)
-  (require 'exwm-systemtray)
-  (exwm-systemtray-enable))
-
-(use-package exwm-firefox-core
-   :after exwm
-   :straight (exwm-firefox-core
- 	     :type git
- 	     :host github
- 	     :repo "walseb/exwm-firefox-core"))
-
- (use-package exwm-firefox
-   :after exwm-firefox-core
-   :straight (exwm-firefox
- 	     :type git
- 	     :host github
- 	     :repo "ieure/exwm-firefox")
-   :config
-   (exwm-firefox-mode))
-
-(setq browse-url-browser-function 'browse-url-generic
-      browse-url-generic-program "firefox")
-
-(use-package exwm-mff
-  :after exwm
-  :hook
-  (exwm-init . exwm-mff-mode))
-
-(use-package desktop-environment
-  :hook (exwm-init . desktop-environment-mode)
-  :custom
-  (desktop-environment-update-exwm-global-keys :global)
-  (desktop-environment-brightness-get-command "light")
-  (desktop-environment-brightness-set-command "light %s")
-  (desktop-environment-brightness-get-regexp "^\\([0-9]+\\)")
-  (desktop-environment-brightness-normal-increment "-A 10")
-  (desktop-environment-brightness-normal-decrement "-U 10")
-  (desktop-environment-brightness-small-increment "-A 5")
-  (desktop-environment-brightness-small-decrement "-U 5")
-  (desktop-environment-volume-get-command "pavolume get")
-  (desktop-environment-volume-set-command "pavolume %s")
-  (desktop-environment-volume-toggle-command "pavolume mute toggle")
-  (desktop-environment-volume-get-regexp "^\\([0-9]+\\)")
-  (desktop-environment-volume-normal-increment "inc 10")
-  (desktop-environment-volume-normal-decrement "dec 10")
-  (desktop-environment-volume-small-increment "inc 5")
-  (desktop-environment-volume-small-decrement "dec 5"))
-
-(use-package trashed
-  :custom
-  (delete-by-moving-to-trash t))
-
-(use-package switch-window
-  :custom
-   (switch-window-shortcut-style 'qwerty)
   :bind
-  ([remap other-window] . switch-window)
-  ("s-o" . switch-window))
+  ([remap split-window-below] . split-and-follow-below)
+  ([remap split-window-right] . split-and-follow-right)
 
-(defun split-and-follow-below ()
-  (interactive)
-  (split-window-below)
-  (balance-windows)
-  (other-window 1))
-(global-set-key [remap split-window-below] 'split-and-follow-below)
+  :hook
+  (auto-save-hook . full-auto-save)
+  (focus-out-hook . full-auto-save)
+  (before-save-hook . delete-trailing-whitespace))
 
-(defun split-and-follow-right ()
-  (interactive)
-  (split-window-right)
-  (balance-windows)
-  (other-window 1))
-(global-set-key [remap split-window-right] 'split-and-follow-right)
-
-;; modeline
-(use-package doom-modeline
-   :custom
-   (doom-modeline-height 16)
-   (doom-modeline-icon nil)
-   (doom-modeline-enable-word-count t)
-   (doom-modeline-mu4e t)
-   (doom-modeline-gnus nil)
-   (doom-modeline-irc t)
-   :custom-face
-   (doom-modeline-vspc-face ((t (:inherit nil))))
-   :config
-   (doom-modeline-mode t))
-
-(use-package zoom
-  :custom
-  (zoom-size '(0.618 . 0.618)))
-
-;; themes
-(defun my/sunrise ()
-  (enable-theme 'modus-operandi)
-  (start-process-shell-command "light" nil "light -S 60"))
-
-(use-package modus-operandi-theme
-  :if window-system
-  :custom
-  (modus-operandi-theme-slanted-constructs t)
-  (modus-operandi-theme-bold-constructs t)
-  (modus-operandi-theme-3d-modeline t)
+(use-package auto-compile
   :config
-  (load-theme 'modus-operandi t t)
-  (run-at-time (nth 1 (split-string (sunrise-sunset)))
-	       (* 60 60 24) #'my/sunrise))
+  (auto-compile-on-load-mode)
+  (setq load-prefer-newer t))
 
-(defun my/sunset ()
-  (enable-theme 'modus-vivendi)
-  (start-process-shell-command "light" nil "light -S 35"))
+;; start the server when at home
 
-(use-package modus-vivendi-theme
-  :if window-system
-  :custom
-  (modus-vivendi-theme-slanted-constructs t)
-  (modus-vivendi-theme-bold-constructs t)
-  (modus-vivendi-theme-3d-modeline t)
+(if (not acdw/at-work)
+    (server-start))
+
+;;; quality-of-life improvements
+
+(use-package diminish)
+
+(use-package which-key
+  :diminish which-key-mode
   :config
-  (load-theme 'modus-vivendi t t)
-  (run-at-time (nth 4 (split-string (sunrise-sunset)))
-	       (* 60 60 24) #'my/sunset)
-  (run-at-time "12am" (* 60 60 24) #'my/sunset))
+  (which-key-mode))
 
-;; sudo
-(use-package su
+(use-package recentf
+  :init
+  (setq recentf-max-menu-items 100)
+  (setq recentf-max-saved-items 100)
   :config
-  (su-mode 1))
-
-;; minibuffer completion
-(use-package ivy
-  :custom
-  (ivy-use-virtual-buffers t)
-  (ivy-wrap t)
-  (ivy-count-format "(%d/%d) ")
-  (enable-recursive-minibuffers t)
-  :config
-  (ivy-mode 1))
-
-(use-package swiper
-  :bind ("C-s" . swiper-isearch))
-
-(use-package counsel
-  :config
-  (counsel-mode 1))
-
-(use-package ivy-rich
-  :after (ivy)
-  :config
-  (ivy-rich-mode 1)
-  (setcdr (assq t ivy-format-functions-alist) #'ivy-format-function-line))
-
-(use-package ivy-avy)
+  (recentf-mode))
 
 (use-package savehist
   :config
-  (savehist-mode 1))
+  (savehist-mode))
+
+(use-package restart-emacs)
+
+(use-package ivy
+  :init
+  (setq ivy-use-virtual-buffers t)
+  (setq ivy-wrap t)
+  (setq ivy-count-format "(%d/%d) ")
+  (setq enable-recursive-minibuffers t)
+  (setq ivy-re-builders-alist
+        '((read-file-name-internal . ivy--regex-fuzzy)
+          (t . ivy--regex-plus)))
+  :bind
+  ("C-x b" . ivy-switch-buffer)
+  ("C-c v" . ivy-push-view)
+  ("C-c V" . ivy-pop-view)
+  ("C-c C-r" . ivy-resume)
+  :config
+  (ivy-mode))
+
+(use-package swiper
+  :bind
+  ("C-s" . swiper-isearch))
+
+(use-package counsel ; includes ivy, counsel, swiper
+  :bind
+  ("M-x" . counsel-M-x)
+  ("C-x C-f" . counsel-find-file)
+  ("M-y" . counsel-yank-pop)
+  ("<f1> f" . counsel-describe-function)
+  ("<f1> v" . counsel-describe-variable)
+  ("<f1> l" . counsel-find-library)
+  ("<f2> i" . counsel-info-lookup-symbol)
+  ("<f2> u" . counsel-unicode-char)
+  ("<f2> j" . counsel-set-variable)
+  ("C-c c" . counsel-compile)
+  ("C-c g" . counsel-git)
+  ("C-c j" . counsel-git-grep)
+  ("C-c L" . counsel-git-log)
+  ("C-c k" . counsel-rg)
+  ("C-c m" . counsel-linux-app)
+  ("C-c n" . counsel-fzf)
+  ("C-x l" . counsel-locate)
+  ("C-c J" . counsel-file-jump)
+  ("C-S-o" . counsel-rhythmbox)
+  ("C-c w" . counsel-wmctrl)
+  ("C-c b" . counsel-bookmark)
+  ("C-c d" . counsel-descbinds)
+  ("C-c g" . counsel-git)
+  ("C-c o" . counsel-outline)
+  ("C-c t" . counsel-load-theme)
+  ("C-c F" . counsel-org-file))
+
+(use-package ivy-rich
+  :after ivy
+  :config
+  (ivy-rich-mode)
+  (setcdr (assq t ivy-format-functions-alist)
+          #'ivy-format-function-line))
+
+(use-package avy
+  :bind
+  ("M-s" . avy-goto-char-timer)
+  :config
+  (use-package ivy-avy))
+
+;;; programming
+
+(use-package aggressive-indent
+  :diminish aggressive-indent-mode
+  :hook
+  (prog-mode-hook . aggressive-indent-mode))
 
 (use-package magit
+  :if (not acdw/at-work)
   :bind
   ("C-x g" . magit))
 
-;; mu4e
-(progn
-  (require 'mu4e)
-  (require 'mu4e-contrib)
-  (require 'smtpmail-async)
-  (setq mu4e-headers-skip-duplicates t)
-  (setq mu4e-view-show-images t)
-  (setq mu4e-view-show-addresses t)
-  (setq mu4e-compose-format-flowed t)
-  (setq mu4e-date-format "%Y-%m-%d")
-  (setq mu4e-headers-date-format "%Y-%m-%d")
-  (setq mu4e-change-filenames-when-moving t)
-  (setq mu4e-attachments-dir "~/Downloads")
-  (setq message-kill-buffer-on-exit t)
-  (setq mu4e-update-interval (* 60 60))
-  (setq mu4e-maildir "~/Mail/fastmail")
-  (setq mu4e-refile-folder "/Archive")
-  (setq mu4e-sent-folder "/Sent")
-  (setq mu4e-drafts-folder "/Drafts")
-  (setq mu4e-trash-folder "/Trash")
-  (setq message-send-mail-function 'async-smtpmail-send-it)
-  (setq smtpmail-default-smtp-server "smtp.fastmail.com")
-  (setq smtpmail-smtp-server "smtp.fastmail.com")
-  (setq smtpmail-smtp-service 465)
-  (setq smtpmail-stream-type 'ssl)
-  (fset 'my-move-to-trash "mTrash")
-  (define-key mu4e-headers-mode-map (kbd "d") 'my-move-to-trash)
-  (define-key mu4e-view-mode-map (kbd "d") 'my-move-to-trash))
-
-;; tramp
-(setq tramp-terminal-type "tramp")
-
-;; try packages out
-;(use-package try)
-
-;; vterm babeee
-;(use-package vterm)
-
-(use-package which-key
+(use-package forge
+  :if (not acdw/at-work)
+  :after magit
   :custom
-  (which-key-mode 1))
+  (forge-owned-accounts '(("duckwork"))))
 
 (use-package company
   :commands company-mode
-  :custom
-  (company-idle-delay 0.1)
+  :init
+  (setq company-idle-delay 0.1)
   :hook
-  (prog-mode . company-mode)
+  (prog-mode-hook . company-mode)
   :bind (:map company-active-map
-	      ("C-n" . 'company-select-next)
-	      ("C-p" . 'company-select-previous))
+              ("C-n" . company-select-next)
+              ("C-p" . company-select-previous))
   :config
   (use-package company-quickhelp
     :hook
     (company-mode . (lambda ()
-		      (company-quickhelp-local-mode)))))
+                      (company-quickhelp-local-mode)))))
 
-;;; gemini/gopher
-(use-package elpher
-  :straight (elpher
-	     :repo "git://thelambdalab.xyz/elpher.git")
-  :bind (:map elpher-mode-map
-	      ("n" . 'elpher-next-link)
-	      ("p" . 'elpher-prev-link)))
-
-  (use-package gemini-mode
-    :straight (gemini-mode
-	       :repo "https://git.carcosa.net/jmcbray/gemini.el.git"))
-
-(use-package gemini-write
-  :straight (gemini-write
-	     :repo "https://alexschroeder.ch/cgit/gemini-write"))
-
-;;; better help messages
 (use-package helpful
   :bind
   ("C-h f" . helpful-callable)
@@ -378,84 +238,183 @@
   (counsel-describe-function-function #'helpful-callable)
   (counsel-describe-variable-function #'helpful-variable))
 
-;;; eshell
-;; ~ much from http://www.howardism.org/Technical/Emacs/eshell-fun.html
-;;; TODO
+(unless acdw/at-work
+  (use-package su
+    :config
+    (su-mode))
 
-(use-package avy
-  :bind
-  ("M-s" . avy-goto-char))
+  (use-package trashed
+    :init
+    (setq delete-by-moving-to-trash t)))
 
-(use-package rainbow-mode
-  :hook
-  (prog-mode . rainbow-mode))
+;;; writing
 
-(defun my/fetch-password (&rest params)
-  "Fetch a password from auth-sources"
-  (require 'auth-source)
-  (let ((match (car (apply 'auth-source-search params))))
-    (if match
-	(let ((secret (plist-get match :secret)))
-	  (if (functionp secret)
-	      (funcall secret)
-	    secret))
-      (error "Password not found for %S" params))))
-
-(defun my/sasl-password (nick server)
-  "Fetch a password for $server and $nick"
-  (my/fetch-password :user nick :host server))
-
-(use-package circe
+(use-package visual-fill-column
   :init
-  (require 'lui-autopaste)
-  (defun my/circe-prompt ()
-    (lui-set-prompt
-     (concat (propertize (concat (buffer-name) ">")
-			 'face 'circe-prompt-face)
-	     " ")))
-  (defun my/lui-setup ()
-    (setq right-margin-width 5
-	  fringes-outside-margins t
-	  word-wrap t
-	  wrap-prefix "    ")
-    (setf (cdr (assoc 'continuation fringe-indicator-alist)) nil))
-  :hook
-  (circe-channel-mode . enable-lui-autopaste)
-  (circe-chat-mode-hook . my/circe-prompt)
-  (lui-mode-hook . my/circe-set-margin)
-  :custom
-  (circe-reduce-lurker-spam t)
-  (circe-format-say "{nick:-16s} {body}")
-  (lui-time-stamp-position 'right-margin)
-  (lui-fill-type nil)
-  (lui-time-stamp-format "%H:%M")
-  (lui-track-bar-behavior 'before-switch-to-buffer)
-  (circe-network-options
-   `(("Freenode"
-      :tls t
-      :port 6697
-      :nick "acdw"
-      :sasl-username "acdw"
-      :sasl-password ,(my/sasl-password "acdw" "irc.freenode.net")
-      :channels ("#emacs" "#daydreams"))
-     ("Tilde.chat"
-      :tls t
-      :port 6697
-      :nick "acdw"
-      :sasl-username "acdw"
-      :sasl-password ,(my/sasl-password "acdw" "irc.tilde.chat")
-      :channels ("#gemini" "#meta"))))
-  :custom-face
-  (circe-my-message-face ((t (:foreground "dark violet"))))
+  (setq split-window-preferred-function 'visual-fill-column-split-window-sensibly)
+  (setq visual-fill-column-center-text t)
   :config
-  (enable-lui-track-bar))
+  (advice-add 'text-scale-adjust
+              :after #'visual-fill-column-adjust))
 
-;; elfeed
-(use-package elfeed
-  :custom
-  (elfeed-feeds
-   '("https://planet.emacslife.com/atom.xml")))
+;;; window management
 
-(use-package smartparens
+(use-package switch-window
+  :init
+  (setq switch-window-shortcut-style 'qwerty)
+  :bind
+  ([remap other-window] . switch-window)
+  ("s-o" . switch-window))
+
+;;; theming and looks
+
+(use-package doom-modeline
+  :init
+  (setq doom-modeline-icon nil)
+  (setq doom-modeline-enable-word-count t)
+  (when acdw/at-larry
+    (setq display-time-format "%R")
+    (display-time-mode))
   :config
-  (smartparens-global-mode))
+  (doom-modeline-mode))
+
+(when acdw/at-larry
+  (use-package statusbar
+    :straight (statusbar
+               :host github
+               :repo "dakra/statusbar.el")
+    :hook
+    (exwm-init-hook . statusbar-mode)))
+
+;; modus themes
+
+(use-package modus-operandi-theme
+  :if window-system
+  :config
+  (load-theme 'modus-operandi t t)
+
+  (defun acdw/sunrise ()
+    (enable-theme 'modus-operandi)
+    (start-process-shell-command "light" nil "light -S 60"))
+
+  (if acdw/at-work
+      (enable-theme 'modus-operandi)
+    (run-at-time (nth 1 (split-string (sunrise-sunset)))
+                 (* 60 60 24) #'acdw/sunrise)))
+
+(unless acdw/at-work
+  (use-package modus-vivendi-theme
+    :if window-system
+    :config
+    (load-theme 'modus-vivendi t t)
+
+    (defun acdw/sunset ()
+      (enable-theme 'modus-vivendi)
+      (start-process-shell-command "light" nil "light -S 35"))
+
+    (run-at-time (nth 4 (split-string (sunrise-sunset)))
+                 (* 60 60 24) #'acdw/sunset)
+    (run-at-time "12am" (* 60 60 24) #'acdw/sunset)))
+
+;;; gemini/gopher
+(use-package elpher
+  :straight (elpher
+	     :repo "git://thelambdalab.xyz/elpher.git")
+  :bind (:map elpher-mode-map
+	      ("n" . 'elpher-next-link)
+	      ("p" . 'elpher-prev-link)))
+
+(use-package gemini-mode
+  :straight (gemini-mode
+	     :repo "https://git.carcosa.net/jmcbray/gemini.el.git"))
+
+(use-package gemini-write
+  :straight (gemini-write
+	     :repo "https://alexschroeder.ch/cgit/gemini-write"))
+
+;;; exwm ~ Emacs X Window Manager
+(when acdw/at-larry
+  (use-package exwm
+    :if window-system
+    :demand
+    :custom
+    (exwm-layout-show-all-buffers t)
+    (exwm-workspace-warp-cursor t)
+    ;;(mouse-autoselect-window t)
+    (exwm-workspace-number 4)
+    (exwm-input-global-keys
+     `(
+       ([?\s-r] . exwm-reset)
+       ([?\s-w] . exwm-workspace-switch)
+       ([?\s-&] . (lambda (command)
+		    (interactive (list (read-shell-command "$ ")))
+		    (start-process-shell-command command nil command)))
+       ,@(mapcar (lambda (i)
+		   `(,(kbd (format "s-%d" i)) .
+		     (lambda ()
+		       (interactive)
+		       (exwm-workspace-switch-create ,i))))
+	         (number-sequence 0 9))))
+    (exwm-input-simulation-keys
+     '(([?\C-b] . [left])
+       ([?\M-b] . [C-left])
+       ([?\C-f] . [right])
+       ([?\M-f] . [C-right])
+       ([?\C-p] . [up])
+       ([?\C-n] . [down])
+       ([?\C-a] . [home])
+       ([?\C-e] . [end])
+       ([?\M-v] . [prior])
+       ([?\C-v] . [next])
+       ([?\C-d] . [delete])
+       ([?\C-k] . [S-end delete])
+       ([?\C-s] . [?\C-f])
+       ([?\C-w] . [?\C-x])
+       ([?\M-w] . [?\C-c])
+       ([?\C-y] . [?\C-v])))
+    :hook
+    ((exwm-update-class-hook .
+			     (lambda () "Rename buffer to window's class name"
+			       (exwm-workspace-rename-buffer exwm-class-name)))
+     (exwm-update-title-hook .
+			     (lambda () "Update workspace name to window title"
+			       (when (not exwm-instance-name)
+			         (exwm-workspace-rename-buffer exwm-title))))
+     (exwm-init-hook . window-divider-mode)
+     (exwm-init-hook .
+		     (lambda () "Autostart"
+		       (start-process-shell-command "cmst" nil "cmst -m -w 5")
+		       (start-process-shell-command "keepassxc" nil "keepassxc")
+		       (start-process-shell-command
+		        "pa-applet" nil
+		        "pa-applet --disable-key-grabbing --disable-notifications")
+		       (start-process-shell-command
+                        "cbatticon" nil "cbatticon"))))
+    :config
+    (require 'exwm)
+    (exwm-enable)
+    (require 'exwm-systemtray)
+    (exwm-systemtray-enable))
+
+  (use-package exwm-firefox-core
+    :after exwm
+    :straight (exwm-firefox-core
+ 	       :type git
+ 	       :host github
+ 	       :repo "walseb/exwm-firefox-core"))
+
+  (use-package exwm-firefox
+    :after exwm-firefox-core
+    :straight (exwm-firefox
+ 	       :type git
+ 	       :host github
+ 	       :repo "ieure/exwm-firefox")
+    :config
+    (exwm-firefox-mode))
+
+  (use-package exwm-mff
+    :straight (:repo "duckwork/exwm-mff")
+    :after exwm
+    :hook
+    (exwm-init-hook . exwm-mff-mode))
+  ) ;; end of acdw/at-larry block
