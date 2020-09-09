@@ -3,6 +3,7 @@
 ;;; emacs configuration - general
 
 (use-package emacs
+  :demand
   :init
   (setq calendar-location-name "Baton Rouge, LA")
   (setq calendar-latitude 30.39)
@@ -18,6 +19,7 @@
   (setq user-mail-address "acdw@acdw.net"))
 
 (use-package better-defaults
+  :demand
   :config ; add other "better defaults" of my own
   (when acdw/at-larry
     (setq visible-bell nil))
@@ -413,7 +415,9 @@
     (exwm-firefox-mode))
 
   (use-package exwm-mff
-    :straight (:repo "duckwork/exwm-mff")
+    :straight (exwm-mff
+               :host github
+               :repo "duckwork/exwm-mff")
     :after exwm
     :hook
     (exwm-init-hook . exwm-mff-mode))
