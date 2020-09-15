@@ -170,11 +170,8 @@
   ("C-c L" . counsel-git-log)
   ("C-c k" . counsel-rg)
   ("C-c m" . counsel-linux-app)
-  ("C-c n" . counsel-fzf)
   ("C-x l" . counsel-locate)
   ("C-c J" . counsel-file-jump)
-  ("C-S-o" . counsel-rhythmbox)
-  ("C-c w" . counsel-wmctrl)
   ("C-c b" . counsel-bookmark)
   ("C-c d" . counsel-descbinds)
   ("C-c g" . counsel-git)
@@ -334,6 +331,41 @@
   :straight (gemini-write
 	     :repo "https://alexschroeder.ch/cgit/gemini-write"))
 
+(defun post-to-gemlog-blue (post-title user pass)
+  "Post current buffer to gemlog.blue."
+  (interactive
+   (let* ((title-maybe (progn ;; TODO this is ... clunky
+                         (goto-char (point-min))
+                         (if (re-search-forward "^# \\(.*\\)" nil t)
+                             (concat " ("
+                                     (buffer-substring-no-properties
+                                      (match-beginning 1)
+                                      (match-end 1))
+                                     ")")
+                           "")))
+          (title (read-string
+                  (format "Title%s: " title-maybe)
+                  nil nil title-maybe))
+          (user (read-string "User: " nil))
+          (pass (read-passwd "Pass: " nil)))
+     (list title user pass)))
+
+  (require 'mm-url)
+  (let ((url-request-method "POST")
+        (url-request-extra-headers
+         '(("Content-Type" . "application/x-www-form-urlencoded")))
+        (url-request-data
+         (mm-url-encode-www-form-urlencoded
+          `(("title" . ,post-title)
+            ("gemloguser" . ,user)
+            ("pw" . ,pass)
+            ("post" . ,(buffer-string))))))
+    (with-current-buffer
+        (url-retrieve-synchronously "https://gemlog.blue/post.php")
+      (goto-char (point-min))
+      (re-search-forward "\\(gemini://.*\\.gmi\\)")
+      (elpher-go (match-string 1)))))
+
 ;;; exwm ~ Emacs X Window Manager
 (when acdw/at-larry
   (use-package exwm
@@ -346,6 +378,8 @@
     (exwm-workspace-number 4)
     (exwm-input-global-keys
      `(
+       ([remap split-window-below] . split-and-follow-below)
+       ([remap split-window-right] . split-and-follow-right)
        ([?\s-r] . exwm-reset)
        ([?\s-w] . exwm-workspace-switch)
        ([?\s-&] . (lambda (command)
@@ -421,4 +455,8 @@
     :after exwm
     :hook
     (exwm-init-hook . exwm-mff-mode))
-  ) ;; end of acdw/at-larry block
+
+  (use-package exwm-edit)
+
+  )
+;; end of acdw/at-larry block for exwm
