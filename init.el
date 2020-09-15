@@ -10,7 +10,19 @@
   (setq calendar-longitude -91.83)
 
   (setq browse-url-browser-function 'browse-url-generic)
-  (setq  browse-url-generic-program "firefox"))
+  (setq  browse-url-generic-program "firefox")
+
+  (setq load-prefer-newer t))
+
+(use-package no-littering
+  :init
+  (require 'recentf)
+  (add-to-list 'recentf-exclude no-littering-var-directory)
+  (add-to-list 'recentf-exclude no-littering-etc-directory)
+
+  (setq auto-save-file-name-transforms
+        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
+  (setq custom-file (no-littering-expand-etc-file-name "custom.el")))
 
 (use-package auth-source
   :init
@@ -29,8 +41,6 @@
   (setq kept-new-versions 6)
   (setq kept-old-versions 4)
   (setq create-lockfiles nil)
-  (setq auto-save-file-name-transforms
-        `((".*" ,(concat user-emacs-directory "backups/") t)))
   (auto-save-mode)
 
   (defun full-auto-save ()
@@ -132,22 +142,36 @@
 
 (use-package restart-emacs)
 
-(use-package ivy
-  :init
-  (setq ivy-use-virtual-buffers t)
-  (setq ivy-wrap t)
-  (setq ivy-count-format "(%d/%d) ")
-  (setq enable-recursive-minibuffers t)
-  (setq ivy-re-builders-alist
-        '((read-file-name-internal . ivy--regex-fuzzy)
-          (t . ivy--regex-plus)))
-  :bind
-  ("C-x b" . ivy-switch-buffer)
-  ("C-c v" . ivy-push-view)
-  ("C-c V" . ivy-pop-view)
-  ("C-c C-r" . ivy-resume)
+(use-package volatile-highlights
   :config
-  (ivy-mode))
+  (volatile-highlights-mode t))
+
+(use-package zop-to-char
+  :bind
+  ([remap zap-to-char] . zop-to-char)
+  ([remap zap-up-to-char] . zop-up-to-char))
+
+(use-package easy-kill
+  :bind
+  ([remap kill-ring-save] . easy-kill)
+  ([remap mark-sexp] . easy-mark))
+
+ (use-package ivy
+   :init
+   (setq ivy-use-virtual-buffers t)
+   (setq ivy-wrap t)
+   (setq ivy-count-format "(%d/%d) ")
+   (setq enable-recursive-minibuffers t)
+   (setq ivy-re-builders-alist
+         '((read-file-name-internal . ivy--regex-fuzzy)
+           (t . ivy--regex-plus)))
+   :bind
+   ("C-x b" . ivy-switch-buffer)
+   ("C-c v" . ivy-push-view)
+   ("C-c V" . ivy-pop-view)
+   ("C-c C-r" . ivy-resume)
+   :config
+   (ivy-mode))
 
 (use-package swiper
   :bind
@@ -245,6 +269,11 @@
   (use-package trashed
     :init
     (setq delete-by-moving-to-trash t)))
+
+(use-package smartparens
+  :config
+  (require 'smartparens-config)
+  (smartparens-global-mode))
 
 ;;; writing
 
