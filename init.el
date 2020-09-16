@@ -157,65 +157,29 @@
   ([remap kill-ring-save] . easy-kill)
   ([remap mark-sexp] . easy-mark))
 
- (use-package ivy
-   :init
-   (setq ivy-use-virtual-buffers t)
-   (setq ivy-wrap t)
-   (setq ivy-count-format "(%d/%d) ")
-   (setq enable-recursive-minibuffers t)
-   (setq ivy-re-builders-alist
-         '((read-file-name-internal . ivy--regex-fuzzy)
-           (t . ivy--regex-plus)))
-   :bind
-   ("C-x b" . ivy-switch-buffer)
-   ("C-c v" . ivy-push-view)
-   ("C-c V" . ivy-pop-view)
-   ("C-c C-r" . ivy-resume)
-   :config
-   (ivy-mode))
-
-(use-package swiper
-  :bind
-  ("C-s" . swiper-isearch))
-
-(use-package counsel ; includes ivy, counsel, swiper
-  :bind
-  ("M-x" . counsel-M-x)
-  ("C-x C-f" . counsel-find-file)
-  ("M-y" . counsel-yank-pop)
-  ("<f1> f" . counsel-describe-function)
-  ("<f1> v" . counsel-describe-variable)
-  ("<f1> l" . counsel-find-library)
-  ("<f2> i" . counsel-info-lookup-symbol)
-  ("<f2> u" . counsel-unicode-char)
-  ("<f2> j" . counsel-set-variable)
-  ("C-c c" . counsel-compile)
-  ("C-c g" . counsel-git)
-  ("C-c j" . counsel-git-grep)
-  ("C-c L" . counsel-git-log)
-  ("C-c k" . counsel-rg)
-  ("C-c m" . counsel-linux-app)
-  ("C-x l" . counsel-locate)
-  ("C-c J" . counsel-file-jump)
-  ("C-c b" . counsel-bookmark)
-  ("C-c d" . counsel-descbinds)
-  ("C-c g" . counsel-git)
-  ("C-c o" . counsel-outline)
-  ("C-c t" . counsel-load-theme)
-  ("C-c F" . counsel-org-file))
-
-(use-package ivy-rich
-  :after ivy
+(use-package whole-line-or-region
   :config
-  (ivy-rich-mode)
-  (setcdr (assq t ivy-format-functions-alist)
-          #'ivy-format-function-line))
+  (whole-line-or-region-global-mode 1))
 
 (use-package avy
   :bind
-  ("M-s" . avy-goto-char-timer)
+  ("M-s" . avy-goto-char-timer))
+
+(use-package selectrum
+  :init (ido-mode nil) ;; why is this necessary??
   :config
-  (use-package ivy-avy))
+  (selectrum-mode 1))
+
+(use-package prescient)
+
+(use-package selectrum-prescient
+  :config
+  (selectrum-prescient-mode 1)
+  (prescient-persist-mode 1))
+
+(use-package ctrlf
+  :config
+  (ctrlf-mode 1))
 
 ;;; programming
 
