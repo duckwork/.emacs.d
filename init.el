@@ -489,5 +489,70 @@
 
   (use-package exwm-edit)
 
-  )
-;; end of acdw/at-larry block for exwm
+  ) ;; end of acdw/at-larry block for exwm
+
+;;; other applications
+(use-package circe
+  :init
+  (defun my/fetch-password (&rest params)
+    "Fetch a password from auth-sources"
+    (require 'auth-source)
+    (let ((match (car (apply 'auth-source-search params))))
+      (if match
+	  (let ((secret (plist-get match :secret)))
+	    (if (functionp secret)
+	        (funcall secret)
+	      secret))
+        (error "Password not found for %S" params))))
+
+  (defun my/sasl-password (nick server)
+    "Fetch a password for $server and $nick"
+    (my/fetch-password :user nick :host server))
+  (require 'lui-autopaste)
+  (defun my/circe-prompt ()
+    (lui-set-prompt
+     (concat (propertize (concat (buffer-name) ">")
+			 'face 'circe-prompt-face)
+	     " ")))
+  (defun my/lui-setup ()
+    (setq right-margin-width 5
+	  fringes-outside-margins t
+	  word-wrap t
+	  wrap-prefix "             ")
+    (setf (cdr (assoc 'continuation fringe-indicator-alist)) nil))
+  :hook
+  (circe-channel-mode-hook . enable-lui-autopaste)
+  (circe-chat-mode-hook . my/circe-prompt)
+  (lui-mode-hook . my/lui-setup)
+  :config
+  (setq circe-default-part-message "Peace out, cub scouts")
+  (setq circe-default-quit-message "See  You Space Cowpokes ......")
+  (setq circe-default-realname "Case D")
+  (setq circe-highlight-nick-type 'all)
+  (setq circe-reduce-lurker-spam t)
+  (setq circe-format-say "{nick:-12s} {body}")
+  (setq circe-format-self-say "{nick:-11s}> {body}")
+  (setq lui-time-stamp-position 'right-margin)
+  (setq lui-fill-type nil)
+  (setq lui-time-stamp-format "%H:%M")
+  (setq lui-track-bar-behavior 'before-switch-to-buffer)
+  (setq circe-network-options
+        `(("Freenode"
+           :tls t
+           :port 6697
+           :nick "acdw"
+           :sasl-username "acdw"
+           :sasl-password ,(my/sasl-password "acdw" "irc.freenode.net")
+           :channels ("#emacs" "#daydreams"))
+          ("Tilde.chat"
+           :tls t
+           :port 6697
+           :nick "acdw"
+           :sasl-username "acdw"
+           :sasl-password ,(my/sasl-password "acdw" "irc.tilde.chat")
+           :channels ("#gemini" "#meta"))))
+  (enable-lui-track-bar)
+  :custom-face
+  (circe-my-message-face ((t (:inherit 'circe-highlight-nick-face :weight normal))))
+  (circe-originator-face ((t (:weight bold))))
+  (circe-prompt-face ((t (:inherit 'circe-my-message-face)))))
