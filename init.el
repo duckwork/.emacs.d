@@ -328,14 +328,15 @@
    (let* ((title-maybe (progn ;; TODO this is ... clunky
                          (goto-char (point-min))
                          (if (re-search-forward "^# \\(.*\\)" nil t)
-                             (concat " ("
-                                     (buffer-substring-no-properties
-                                      (match-beginning 1)
-                                      (match-end 1))
-                                     ")")
+                             (buffer-substring-no-properties
+                              (match-beginning 1)
+                              (match-end 1))
                            "")))
           (title (read-string
-                  (format "Title%s: " title-maybe)
+                  (format "Title%s: "
+                          (if (string= "" title-maybe)
+                              ""
+                            (concat " (" title-maybe ")")))
                   nil nil title-maybe))
           (user (read-string "User: " nil))
           (pass (read-passwd "Pass: " nil)))
