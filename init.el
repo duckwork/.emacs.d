@@ -278,14 +278,6 @@
   :hook
   (after-init-hook . doom-modeline-mode))
 
-(when acdw/at-larry
-  (use-package statusbar
-    :straight (statusbar
-               :host github
-               :repo "dakra/statusbar.el")
-    :hook
-    (exwm-init-hook . statusbar-mode)))
-
 (use-package ligature
   :straight (ligature
 	     :host github
