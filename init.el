@@ -221,10 +221,7 @@
   ("C-h k" . helpful-key)
   ("C-c C-d" . helpful-at-point)
   ("C-h F" . helpful-function)
-  ("C-h C" . helpful-command)
-  :custom
-  (counsel-describe-function-function #'helpful-callable)
-  (counsel-describe-variable-function #'helpful-variable))
+  ("C-h C" . helpful-command))
 
 (unless acdw/at-work
   (use-package su
