@@ -139,7 +139,9 @@
 
 (use-package savehist
   :config
-  (savehist-mode))
+  (savehist-mode)
+  (setq savehist-additional-variables
+        '(kill-ring search-ring regexp-search-ring)))
 
 (use-package restart-emacs)
 
