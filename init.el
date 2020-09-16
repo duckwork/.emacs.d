@@ -12,7 +12,7 @@
   (setq browse-url-browser-function 'browse-url-generic)
   (setq  browse-url-generic-program "firefox")
 
-  (setq load-prefer-newer t))
+  (set-face-attribute 'default nil :family "Fira Code" :height 110))
 
 (use-package no-littering
   :config
@@ -66,8 +66,7 @@
     (balance-windows)
     (other-window 1))
 
-  (setq save-place-file
-        (expand-file-name "places" user-emacs-directory))
+  (setq save-place-file (no-littering-expand-var-file-name "places"))
   (save-place-mode)
 
   (set-language-environment "UTF-8")
@@ -100,7 +99,7 @@
 
   ;; cursor betterment
   (blink-cursor-mode 0)
-  (setq cursor-type 'bar)
+  (setq-default cursor-type 'bar)
 
   :bind
   ([remap split-window-below] . split-and-follow-below)
@@ -110,6 +109,10 @@
   (auto-save-hook . full-auto-save)
   (focus-out-hook . full-auto-save)
   (before-save-hook . delete-trailing-whitespace))
+
+(use-package async
+  :config
+  (dired-async-mode 1))
 
 (use-package auto-compile
   :config
@@ -168,8 +171,8 @@
   ("M-s" . avy-goto-char-timer))
 
 (use-package selectrum
-  :init (ido-mode nil) ;; why is this necessary??
   :config
+  (ido-mode -1) ;; not sure why this is necessary
   (selectrum-mode 1))
 
 (use-package prescient)
