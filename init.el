@@ -213,8 +213,8 @@
   :config
   (use-package company-quickhelp
     :hook
-    (company-mode . (lambda ()
-                      (company-quickhelp-local-mode)))))
+    (company-mode-hook . (lambda ()
+                           (company-quickhelp-local-mode)))))
 
 (use-package helpful
   :bind
@@ -267,8 +267,8 @@
   (when acdw/at-larry
     (setq display-time-format "%R")
     (display-time-mode))
-  :config
-  (doom-modeline-mode))
+  :hook
+  (after-init-hook . doom-modeline-mode))
 
 (when acdw/at-larry
   (use-package statusbar
