@@ -278,6 +278,32 @@
     :hook
     (exwm-init-hook . statusbar-mode)))
 
+(use-package ligature
+  :straight (ligature
+	     :host github
+	     :repo "mickeynp/ligature.el")
+  :config
+  (ligature-set-ligatures 'prog-mode
+			  '("++" "--" "/=" "&&" "||" "||="
+			    "->" "=>" "::" "__"
+			    "==" "===" "!=" "=/=" "!=="
+			    "<=" ">=" "<=>"
+			    "/*" "*/" "//" "///"
+			    "\\n" "\\\\"
+			    "<<" "<<<" "<<=" ">>" ">>>" ">>="
+			    "|=" "^="
+			    "**" "--" "---" "----" "-----"
+			    "==" "===" "====" "====="
+			    "</" "<!--" "</>" "-->" "/>"
+			    ":=" "..." ":>" ":<" ">:" "<:"
+			    "::=" ;; add others here
+			    ))
+  (global-ligature-mode t))
+
+(use-package unicode-fonts
+  :config
+  (unicode-fonts-setup))
+
 ;; modus themes
 
 (use-package modus-operandi-theme
