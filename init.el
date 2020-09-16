@@ -15,7 +15,7 @@
   (setq load-prefer-newer t))
 
 (use-package no-littering
-  :init
+  :config
   (require 'recentf)
   (add-to-list 'recentf-exclude no-littering-var-directory)
   (add-to-list 'recentf-exclude no-littering-etc-directory)
@@ -82,6 +82,7 @@
   (global-visual-line-mode)
   (mouse-avoidance-mode 'jump)
   (setq show-paren-style 'mixed)
+  (delete-selection-mode 1)
 
   ;; TODO figure out how to add this to the :hook block
   (add-hook 'prog-mode-hook (if (and (fboundp 'display-line-numbers-mode)
@@ -480,7 +481,10 @@
   (use-package exwm-mff
     :straight (exwm-mff
                :host github
-               :repo "duckwork/exwm-mff")
+               :repo "ieure/exwm-mff"
+               :fork (
+                      :host github
+                      :repo "duckwork/exwm-mff"))
     :after exwm
     :hook
     (exwm-init-hook . exwm-mff-mode))
