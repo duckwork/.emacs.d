@@ -239,6 +239,11 @@
   (require 'smartparens-config)
   (smartparens-global-mode))
 
+
+(use-package rainbow-mode
+  :hook
+  (prog-mode-hook . rainbow-mode))
+
 ;;; writing
 
 (use-package visual-fill-column
