@@ -556,3 +556,8 @@
   (circe-my-message-face ((t (:inherit 'circe-highlight-nick-face :weight normal))))
   (circe-originator-face ((t (:weight bold))))
   (circe-prompt-face ((t (:inherit 'circe-my-message-face)))))
+
+(use-package eshell-syntax-highlighting
+  :after esh-mode
+  :config
+  (eshell-syntax-highlighting-global-mode 1))
