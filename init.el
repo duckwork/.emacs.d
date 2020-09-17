@@ -345,8 +345,10 @@
   :straight (elpher
 	     :repo "git://thelambdalab.xyz/elpher.git")
   :bind (:map elpher-mode-map
-	      ("n" . 'elpher-next-link)
-	      ("p" . 'elpher-prev-link)))
+	      ("n" . elpher-next-link)
+	      ("p" . elpher-prev-link)
+              ("o" . elpher-follow-current-link)
+              ("G" . elpher-go-current)))
 
 (use-package gemini-mode
   :straight (gemini-mode
