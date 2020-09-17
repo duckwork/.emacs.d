@@ -20,9 +20,20 @@
   (add-to-list 'recentf-exclude no-littering-var-directory)
   (add-to-list 'recentf-exclude no-littering-etc-directory)
 
+  (setq delete-old-versions t)
+  (setq kept-new-versions 6)
+  (setq kept-old-versions 2)
+  (version-control t)
+  (setq backup-directory-alist
+        `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
+
   (setq auto-save-file-name-transforms
         `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-  (setq custom-file (no-littering-expand-etc-file-name "custom.el")))
+  (auto-save-mode)
+
+  (setq custom-file (no-littering-expand-etc-file-name "custom.el"))
+
+  (setq create-lockfiles nil))
 
 (use-package auth-source
   :init
@@ -36,11 +47,6 @@
   (when acdw/at-larry
     (setq visible-bell nil))
 
-  (setq version-control t)
-  (setq delete-old-versions t)
-  (setq kept-new-versions 6)
-  (setq kept-old-versions 4)
-  (setq create-lockfiles nil)
   (auto-save-mode)
 
   (defun full-auto-save ()
