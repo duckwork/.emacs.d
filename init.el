@@ -174,6 +174,8 @@
 (use-package selectrum
   :config
   (ido-mode -1) ;; not sure why this is necessary
+  (setq enable-recursive-minibuffers t)
+  (minibuffer-depth-indicate-mode)
   (selectrum-mode 1))
 
 (use-package prescient)
