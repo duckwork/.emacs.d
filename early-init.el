@@ -17,12 +17,13 @@
 ;;(setq debug-on-error t)
 
 ;;; different platforms
-(setq acdw/at-work (eq system-type 'windows-nt))
-(setq acdw/at-larry (string= (system-name) "larry"))
-(setq acdw/at-bax (string= (system-name) "bax"))
+(defconst *acdw/at-work* (eq system-type 'windows-nt))
+(defconst *acdw/at-larry* (string= (system-name) "larry"))
+(defconst *acdw/at-bax* (string= (system-name) "bax"))
+(defconst *acdw/at-home* (or *acdw/at-larry* *acdw/at-bax*))
 
 ;; this needs to be before bootstrapping straight.el
-(when acdw/at-work
+(when *acdw/at-work*
   (add-to-list 'exec-path "~/bin")
   (add-to-list 'exec-path "C:/Users/aduckworth/Downloads/PortableGit/bin"))
 

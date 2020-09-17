@@ -10,9 +10,7 @@
   (setq calendar-longitude -91.83)
 
   (setq browse-url-browser-function 'browse-url-generic)
-  (setq  browse-url-generic-program "firefox")
-
-  (set-face-attribute 'default nil :family "Fira Code" :height 110))
+  (setq  browse-url-generic-program "firefox"))
 
 (use-package no-littering
   :config
@@ -44,7 +42,7 @@
 (use-package better-defaults
   :demand
   :config ; add other "better defaults" of my own
-  (when acdw/at-larry
+  (when *acdw/at-larry*
     (setq visible-bell nil))
 
   (auto-save-mode)
@@ -112,6 +110,7 @@
   ([remap split-window-right] . split-and-follow-right)
 
   :hook
+  (prog-mode-hook . prettify-symbols-mode)
   (auto-save-hook . full-auto-save)
   (focus-out-hook . full-auto-save)
   (before-save-hook . delete-trailing-whitespace))
@@ -127,7 +126,7 @@
 
 ;; start the server when at home
 
-(if (not acdw/at-work)
+(if *acdw/at-home*
     (server-start))
 
 ;;; quality-of-life improvements
@@ -179,6 +178,8 @@
 (use-package selectrum
   :config
   (ido-mode -1) ;; not sure why this is necessary
+  (setq enable-recursive-minibuffers t)
+  (minibuffer-depth-indicate-mode)
   (selectrum-mode 1))
 
 (use-package prescient)
@@ -200,12 +201,12 @@
   (prog-mode-hook . aggressive-indent-mode))
 
 (use-package magit
-  :if (not acdw/at-work)
+  :if *acdw/at-home*
   :bind
   ("C-x g" . magit))
 
 (use-package forge
-  :if (not acdw/at-work)
+  :if *acdw/at-home*
   :after magit
   :custom
   (forge-owned-accounts '(("duckwork"))))
@@ -234,7 +235,7 @@
   ("C-h F" . helpful-function)
   ("C-h C" . helpful-command))
 
-(unless acdw/at-work
+(when *acdw/at-home*
   (use-package su
     :config
     (su-mode))
@@ -274,11 +275,30 @@
 
 ;;; theming and looks
 
+(use-package dynamic-fonts
+  :init
+  (setq dynamic-fonts-preferred-monospace-fonts
+        '("Iosevka Term Slab"
+          "Consolas"
+          "Fira Code"
+          "DejaVu Sans Mono"
+          "Courier"
+          "Fixed"))
+  (setq dynamic-fonts-preferred-monospace-point-size 11)
+  (setq dynamic-fonts-preferred-proportional-fonts
+        '("DejaVu Sans"
+          "Georgia"
+          "Times New Roman"
+          "Times"))
+  (setq dynamic-fonts-preferred-proportional-point-size 12)
+  :config
+  (dynamic-fonts-setup))
+
 (use-package doom-modeline
   :init
   (setq doom-modeline-icon nil)
   (setq doom-modeline-enable-word-count t)
-  (when acdw/at-larry
+  (when *acdw/at-larry*
     (setq display-time-format "%R")
     (display-time-mode))
   :hook
@@ -321,12 +341,12 @@
     (enable-theme 'modus-operandi)
     (start-process-shell-command "light" nil "light -S 60"))
 
-  (if acdw/at-work
+  (if *acdw/at-work*
       (enable-theme 'modus-operandi)
     (run-at-time (nth 1 (split-string (sunrise-sunset)))
                  (* 60 60 24) #'acdw/sunrise)))
 
-(unless acdw/at-work
+(when *acdw/at-home*
   (use-package modus-vivendi-theme
     :if window-system
     :config
@@ -395,7 +415,7 @@
       (elpher-go (match-string 1)))))
 
 ;;; exwm ~ Emacs X Window Manager
-(when acdw/at-larry
+(when *acdw/at-larry*
   (use-package exwm
     :if window-system
     :demand
@@ -489,10 +509,11 @@
 
   (use-package exwm-edit)
 
-  ) ;; end of acdw/at-larry block for exwm
+  ) ;; end of *acdw/at-larry* block for exwm
 
 ;;; other applications
 (use-package circe
+  :if *acdw/at-larry*
   :init
   (defun my/fetch-password (&rest params)
     "Fetch a password from auth-sources"
