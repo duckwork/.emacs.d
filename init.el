@@ -10,31 +10,7 @@
   (setq calendar-longitude -91.83)
 
   (setq browse-url-browser-function 'browse-url-generic)
-  (setq  browse-url-generic-program "firefox")
-
-  ;; fonts
-  (require 'cl)
-  (defun font-candidate (&rest fonts)
-    "Return existing font which matches first."
-    (find-if (lambda (f) (find-font (font-spec :name f))) fonts))
-
-  (set-face-attribute 'variable-pitch nil
-                      :font (font-candidate
-                             "Dejavu Sans-11"
-                             "Georgia-11"
-                             "Times-11"))
-
-  (set-face-attribute 'fixed-pitch nil
-                      :font (font-candidate
-                             "Fira Code-11"
-                             "DejaVu Sans Mono-11"
-                             "Courier-11"
-                             "Fixed-11"))
-
-  (set-face-attribute 'default nil
-                      :font (font-candidate
-                             "Iosevka Term Slab-11"
-                             "Consolas-11")))
+  (setq  browse-url-generic-program "firefox"))
 
 (use-package no-littering
   :config
@@ -292,6 +268,25 @@
   ("s-o" . switch-window))
 
 ;;; theming and looks
+
+(use-package dynamic-fonts
+  :init
+  (setq dynamic-fonts-preferred-monospace-fonts
+        '("Iosevka Term Slab"
+          "Consolas"
+          "Fira Code"
+          "DejaVu Sans Mono"
+          "Courier"
+          "Fixed"))
+  (setq dynamic-fonts-preferred-monospace-point-size 11)
+  (setq dynamic-fonts-preferred-proportional-fonts
+        '("DejaVu Sans"
+          "Georgia"
+          "Times New Roman"
+          "Times"))
+  (setq dynamic-fonts-preferred-proportional-point-size 12)
+  :config
+  (dynamic-fonts-setup))
 
 (use-package doom-modeline
   :init
