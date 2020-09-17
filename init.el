@@ -12,7 +12,8 @@
   (setq browse-url-browser-function 'browse-url-generic)
   (setq  browse-url-generic-program "firefox")
 
-  (set-face-attribute 'default nil :family "Fira Code" :height 110))
+  :custom-face
+  (default ((t (:family "Iosevka Term Slab" :height 110)))))
 
 (use-package no-littering
   :config
