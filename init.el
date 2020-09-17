@@ -12,8 +12,29 @@
   (setq browse-url-browser-function 'browse-url-generic)
   (setq  browse-url-generic-program "firefox")
 
-  :custom-face
-  (default ((t (:family "Iosevka Term Slab" :height 110)))))
+  ;; fonts
+  (require 'cl)
+  (defun font-candidate (&rest fonts)
+    "Return existing font which matches first."
+    (find-if (lambda (f) (find-font (font-spec :name f))) fonts))
+
+  (set-face-attribute 'variable-pitch nil
+                      :font (font-candidate
+                             "Dejavu Sans-11"
+                             "Georgia-11"
+                             "Times-11"))
+
+  (set-face-attribute 'fixed-pitch nil
+                      :font (font-candidate
+                             "Fira Code-11"
+                             "DejaVu Sans Mono-11"
+                             "Courier-11"
+                             "Fixed-11"))
+
+  (set-face-attribute 'default nil
+                      :font (font-candidate
+                             "Iosevka Term Slab-11"
+                             "Consolas-11")))
 
 (use-package no-littering
   :config
@@ -107,6 +128,7 @@
   ([remap split-window-right] . split-and-follow-right)
 
   :hook
+  (prog-mode-hook . prettify-symbols-mode)
   (auto-save-hook . full-auto-save)
   (focus-out-hook . full-auto-save)
   (before-save-hook . delete-trailing-whitespace))
