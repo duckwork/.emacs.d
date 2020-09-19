@@ -368,7 +368,8 @@
 	      ("n" . elpher-next-link)
 	      ("p" . elpher-prev-link)
               ("o" . elpher-follow-current-link)
-              ("G" . elpher-go-current)))
+              ("G" . elpher-go-current))
+  :hook (elpher-mode-hook . variable-pitch-mode))
 
 (use-package gemini-mode
   :straight (gemini-mode
