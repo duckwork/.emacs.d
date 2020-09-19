@@ -579,6 +579,26 @@
   (circe-originator-face ((t (:weight bold))))
   (circe-prompt-face ((t (:inherit 'circe-my-message-face)))))
 
+(use-package eshell
+  :init
+  (defun eshell/emacs (&rest args)
+    "Open a file in emacs."
+    (if (null args)
+        (bury-buffer)
+      (mapc #'find-file
+            (mapcar #'expand-file-name
+                    (eshell-flatten-list (reverse args))))))
+  (defun eshell/info (&optional subject)
+    "Invoke `info', optionally opening Info to SUBJECT."
+    (require 'cl)
+    (let ((buf (current-buffer)))
+      (Info-directory)
+      (if (not (null subject))
+          (let ((node-exists (ignore-errors (Info-menu subject))))
+            (if (not node-exists)
+                (format "No menu item `%s' in node `(dir)Top'."
+                        subject)))))))
+
 (use-package eshell-syntax-highlighting
   :after esh-mode
   :config
