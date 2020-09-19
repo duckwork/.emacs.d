@@ -21,7 +21,7 @@
   (setq delete-old-versions t)
   (setq kept-new-versions 6)
   (setq kept-old-versions 2)
-  (version-control t)
+  (setq version-control t)
   (setq backup-directory-alist
         `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
 
