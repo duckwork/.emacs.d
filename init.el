@@ -578,7 +578,34 @@
   (circe-originator-face ((t (:weight bold))))
   (circe-prompt-face ((t (:inherit 'circe-my-message-face)))))
 
+;;; eshell
+
 (use-package eshell-syntax-highlighting
   :after esh-mode
   :config
   (eshell-syntax-highlighting-global-mode 1))
+
+;;; org-mode
+(use-package org
+  :init
+  (setq org-startup-indented t)
+  (setq org-src-tab-acts-natively t)
+  (setq org-hide-emphasis-markers t)
+  (setq org-fontify-done-headline t)
+  (setq org-hide-leading-stars t)
+  (setq org-pretty-entities t)
+
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-+*]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1)
+                                                          (match-end 1)
+                                                          "•"))))))
+  :hook
+  (org-mode-hook . (lambda ()
+                     (variable-pitch-mode 1)
+                     (visual-line-mode)
+                     (visual-fill-column-mode))))
+
+(use-package org-bullets
+  :hook
+  (org-mode-hook . (lambda () (org-bullets-mode 1))))
