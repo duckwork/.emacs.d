@@ -249,10 +249,13 @@
   (require 'smartparens-config)
   (smartparens-global-mode))
 
-
 (use-package rainbow-mode
   :hook
   (prog-mode-hook . rainbow-mode))
+
+(use-package slime
+  :init
+  (setq inferior-lisp-program "/usr/bin/sbcl"))
 
 ;;; writing
 
@@ -630,3 +633,19 @@
 (use-package org-bullets
   :hook
   (org-mode-hook . (lambda () (org-bullets-mode 1))))
+
+;; ;;; gnus
+;; (use-package gnus
+;;   :straight (:type built-in)
+;;   :config
+;;   (setq gnus-select-method '(nnnil ""))
+;;   (setq gnus-secondary-select-methods
+;;         '((nnmaildir "fastmail" (directory "~/.mail/fastmail"))))
+;;   (setq gnus-parameters
+;;         '((".*" ; fallback
+;;            (posting-style
+;;             (gcc "nnmaildir+fastmail:Sent")
+;;             (From
+;;              (format "%s <%s>" user-full-name user-mail-address))))))
+;;   (setq gnus-gcc-mark-as-read t)
+;;   (setq gnus-agent t))
