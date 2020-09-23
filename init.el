@@ -750,5 +750,15 @@
   :hook
   (org-mode-hook . (lambda () (org-bullets-mode))))
 
+;;;; SLIME -- for LISP
+(use-package slime
+  :init
+  (setq inferior-lisp-program (cond ((executable-find "sbcl")
+                                     (executable-find "sbcl")))))
+
+;;;; GNUS (TODO)
+(use-package gnus
+  :straight nil)
+
 (provide 'init)
 ;;; init.el ends here
