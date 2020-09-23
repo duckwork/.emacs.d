@@ -6,7 +6,6 @@
 ;; which pointed out that I could use `outline-mode' (or in my case,
 ;; `outshine') to fold and navigate a pure-elisp `init.el'.  So that's
 ;; what I'm doing.
-
 ;;; Basic emacs config & built-in packages
 ;;;; /Really/ basic emacs config
 ;; I /did/ use `better-defaults', but it turns out that that package
@@ -260,7 +259,7 @@
               ("<S-iso-lefttab>" . outshine-cycle-buffer)
               ("<backtab>" . outshine-cycle-buffer))
   :hook
-  (emacs-lisp-mode . outshine-mode))
+  (emacs-lisp-mode-hook: . outshine-mode))
 
 ;;;;; Item selection & narrowing
 (use-package selectrum
@@ -750,3 +749,6 @@
 (use-package org-bullets
   :hook
   (org-mode-hook . (lambda () (org-bullets-mode))))
+
+(provide 'init)
+;;; init.el ends here
