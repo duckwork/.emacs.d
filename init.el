@@ -6,6 +6,7 @@
 ;; which pointed out that I could use `outline-mode' (or in my case,
 ;; `outshine') to fold and navigate a pure-elisp `init.el'.  So that's
 ;; what I'm doing.
+
 ;;; Basic emacs config & built-in packages
 ;;;; /Really/ basic emacs config
 ;; I /did/ use `better-defaults', but it turns out that that package
@@ -87,10 +88,6 @@
         inhibit-startup-screen t
         initial-buffer-choice t
         initial-scratch-message nil)
-
-  ;; When at larry, fullscreen emacs.
-  (when *acdw/at-larry*
-    (add-to-list 'default-frame-alist '(fullscreen . maximized)))
 
   ;; set up the cursor
   (blink-cursor-mode 0)
@@ -196,6 +193,7 @@
   (add-to-list 'recentf-exclude no-littering-var-directory)
   (add-to-list 'recentf-exclude no-littering-etc-directory)
   (recentf-mode))
+
 ;;;; Save places in files
 (use-package saveplace
   :init
@@ -225,6 +223,7 @@
 
 ;;; General-ish Packages
 ;;;; General improvements
+
 ;;;;; Diminish TODO: is this necessary?
 (use-package diminish)
 
@@ -259,7 +258,7 @@
               ("<S-iso-lefttab>" . outshine-cycle-buffer)
               ("<backtab>" . outshine-cycle-buffer))
   :hook
-  (emacs-lisp-mode-hook: . outshine-mode))
+  (emacs-lisp-mode-hook . outshine-mode))
 
 ;;;;; Item selection & narrowing
 (use-package selectrum
@@ -290,18 +289,54 @@
   ("s-o" . switch-window))
 
 ;;;; Theming, looks, fonts
+;;;;; Fonts
+;; I'm doing these outside of any 'package' b/c ... idk.  I want to?
+(let* ((fixed-pitch-sans-serif-family
+        (cond ((x-list-fonts "Fira Code") '(:family "Fira Code"))
+              ((x-list-fonts "Consolas") '(:family "Consolas"))
+              ((x-list-fonts "DejaVu Sans Mono") '(:family "DejaVu Sans Mono"))
+              ((x-list-fonts "Fixed") '(:family "Fixed"))
+              (nil (warn "Can't find a good fixed pitch sans-serif font."))))
+       (fixed-pitch-serif-family
+        (cond ((x-list-fonts "Go Mono") '(:family "Go Mono"))
+              ((x-list-fonts "Courier Prime") '(:family "Courier Prime"))
+              ((x-list-fonts "Courier New") '(:family "Courier New"))
+              ((x-list-fonts "Courier") '(:family "Courier"))
+              (nil (warn "Can't find a good fixed pitch serif font."))))
+       (variable-pitch-sans-serif-family
+        (cond ((x-list-fonts "DejaVu Sans") '(:family "DejaVu Sans"))
+              ((x-list-fonts "Go") '(:family "Go"))
+              ((x-list-fonts "Arial") '(:family "Arial"))
+              (nil (warn "Cant't find a good variable pitch sans-serif font."))))
+       (variable-pitch-serif-family
+        (cond ((x-list-fonts "DejaVu Serif") '(:family "DejaVu Serif"))
+              ((x-list-fonts "Georgia") '(:family "Georgia"))
+              ((x-list-fonts "Times New Roman") '(:family "Times New Roman"))
+              ((x-list-fonts "Times") '(:family "Times"))
+              (nil (warn "Can't find a good variable pitch serif font."))))
+
+       (fixed-pitch-family fixed-pitch-sans-serif-family)
+       (variable-pitch-family variable-pitch-serif-family)
+       (default-family fixed-pitch-family))
+  (custom-theme-set-faces
+   'user
+   `(fixed-pitch ((t (,@fixed-pitch-family))))
+   `(fixed-pitch-serif ((t (,@fixed-pitch-serif-family))))
+   `(variable-pitch ((t (,@variable-pitch-family))))
+   `(default ((t (,@default-family))))))
 ;;;;; Modeline
 (use-package doom-modeline
   :init
   (setq doom-modeline-icon nil
         doom-modeline-enable-word-count t)
 
-  (when *acdw/at-larry*
-    (setq display-time-format "%R")
-    (display-time-mode))
+  ;; (when *acdw/at-larry*
+  ;;   (setq display-time-format "%R")
+  ;;   (display-time-mode))
 
   :hook
   (window-setup-hook . doom-modeline-mode))
+
 ;;;;; Ligatures
 (use-package ligature
   :straight (ligature
@@ -324,10 +359,12 @@
 			    "::=" ;; add others here
 			    ))
   (global-ligature-mode))
+
 ;;;;; Unicode
 (use-package unicode-fonts
   :config
   (unicode-fonts-setup))
+
 ;;;;; Modus themes
 (use-package modus-operandi-theme
   :if window-system
@@ -356,25 +393,31 @@
     (run-at-time (nth 4 (split-string (sunrise-sunset)))
                  (* 60 60 24) #'acdw/sunset)
     (run-at-time "12am" (* 60 60 24) #'acdw/sunset)))
+
 ;;;; General text editing
+
 ;;;;; Jump to characters fast
 (use-package avy
   :bind
   ("M-s" . avy-goto-char-timer))
+
 ;;;;; Show text commands acted on
 (use-package volatile-highlights
   :config
   (volatile-highlights-mode))
+
 ;;;;; Visual replacement for `zap-to-char'
 (use-package zop-to-char
   :bind
   ([remap zap-to-char] . zop-to-char)
   ([remap zap-up-to-char] . zop-up-to-char))
+
 ;;;;; Kill & mark things more visually
 (use-package easy-kill
   :bind
   ([remap kill-ring-save] . easy-kill)
   ([remap mark-sexp] . easy-mark))
+
 ;;;;; Operate on the current line if no region is active
 (use-package whole-line-or-region
   :config
@@ -384,7 +427,9 @@
 (use-package expand-region
   :bind
   ("C-=" . er/expand-region))
+
 ;;;; Programming
+
 ;;;;; Code completion
 (use-package company
   :init
@@ -433,26 +478,33 @@
   :after magit
   :config
   (setq forge-owned-accounts '(("duckwork"))))
+
 ;;;;; Code formatting & display
+
 ;;;;;; Keep code properly indented
 (use-package aggressive-indent
   :diminish aggressive-indent-mode
   :hook
   (prog-mode-hook . aggressive-indent-mode))
+
 ;;;;;; Smartly deal with pairs
 (use-package smartparens
   :config
   (require 'smartparens-config)
   (smartparens-global-mode))
+
 ;;;;;; Show delimiters as different colors
 (use-package rainbow-delimiters
   :hook
   (prog-mode-hook . rainbow-delimiters-mode))
+
 ;;;;;; Show colors as they appear in the buffer
 (use-package rainbow-mode
   :hook
   (prog-mode-hook . rainbow-mode))
+
 ;;;; Writing
+
 ;;;;; `fill-column', but in `visual-line-mode'
 (use-package visual-fill-column
   :init
@@ -463,23 +515,29 @@
               :after #'visual-fill-column-adjust))
 
 ;;;; Machine-specific
+
 ;;;;; Linux at home
 (when *acdw/at-home*
+
 ;;;;;; Edit files with `sudo' (I think?)
   (use-package su
     :config
     (su-mode))
+
 ;;;;;; Implement XDG Trash specification
   (use-package trashed
     :init
     (setq delete-by-moving-to-trash t))
+
 ;;;;;; Build exec-path from $PATH
   (use-package exec-path-from-shell
     :demand
     :config
     (exec-path-from-shell-initialize))
   )
+
 ;;; Specialized packages
+
 ;;;; Gemini & Gopher
 (use-package elpher
   :straight (elpher
@@ -539,101 +597,103 @@
       (elpher-go (match-string 1)))))
 
 ;;;; exwm ~ Emacs X Window Manager
-(when *acdw/at-larry*
-  (use-package exwm
-    :if window-system
-    :demand
-    :custom
-    (exwm-layout-show-all-buffers t)
-    (exwm-workspace-warp-cursor t)
-    ;;(mouse-autoselect-window t)
-    (exwm-workspace-number 4)
-    (exwm-input-global-keys
-     `(
-       ([remap split-window-below] . split-and-follow-below)
-       ([remap split-window-right] . split-and-follow-right)
-       ([?\s-r] . exwm-reset)
-       ([?\s-w] . exwm-workspace-switch)
-       ([?\s-&] . (lambda (command)
-		    (interactive (list (read-shell-command "$ ")))
-		    (start-process-shell-command command nil command)))
-       ,@(mapcar (lambda (i)
-		   `(,(kbd (format "s-%d" i)) .
-		     (lambda ()
-		       (interactive)
-		       (exwm-workspace-switch-create ,i))))
-	         (number-sequence 0 9))))
-    (exwm-input-simulation-keys
-     '(([?\C-b] . [left])
-       ([?\M-b] . [C-left])
-       ([?\C-f] . [right])
-       ([?\M-f] . [C-right])
-       ([?\C-p] . [up])
-       ([?\C-n] . [down])
-       ([?\C-a] . [home])
-       ([?\C-e] . [end])
-       ([?\M-v] . [prior])
-       ([?\C-v] . [next])
-       ([?\C-d] . [delete])
-       ([?\C-k] . [S-end delete])
-       ([?\C-s] . [?\C-f])
-       ([?\C-w] . [?\C-x])
-       ([?\M-w] . [?\C-c])
-       ([?\C-y] . [?\C-v])))
-    :hook
-    ((exwm-update-class-hook .
-			     (lambda () "Rename buffer to window's class name"
-			       (exwm-workspace-rename-buffer exwm-class-name)))
-     (exwm-update-title-hook .
-			     (lambda () "Update workspace name to window title"
-			       (when (not exwm-instance-name)
-			         (exwm-workspace-rename-buffer exwm-title))))
-     (exwm-init-hook . window-divider-mode)
-     (exwm-init-hook .
-		     (lambda () "Autostart"
-		       (start-process-shell-command "cmst" nil "cmst -m -w 5")
-		       (start-process-shell-command "keepassxc" nil "keepassxc")
-		       (start-process-shell-command
-		        "pa-applet" nil
-		        "pa-applet --disable-key-grabbing --disable-notifications")
-		       (start-process-shell-command
-                        "cbatticon" nil "cbatticon"))))
-    :config
-    (require 'exwm)
-    (exwm-enable)
-    (require 'exwm-systemtray)
-    (exwm-systemtray-enable))
+;; (when *acdw/at-larry*
+;;   (use-package exwm
+;;     :if window-system
+;;     :demand
+;;     :init
+;;     (add-to-list 'default-frame-alist '(fullscreen . maximized)))
+;;     :custom
+;;     (exwm-layout-show-all-buffers t)
+;;     (exwm-workspace-warp-cursor t)
+;;     ;;(mouse-autoselect-window t)
+;;     (exwm-workspace-number 4)
+;;     (exwm-input-global-keys
+;;      `(
+;;        ([remap split-window-below] . split-and-follow-below)
+;;        ([remap split-window-right] . split-and-follow-right)
+;;        ([?\s-r] . exwm-reset)
+;;        ([?\s-w] . exwm-workspace-switch)
+;;        ([?\s-&] . (lambda (command)
+;; 		    (interactive (list (read-shell-command "$ ")))
+;; 		    (start-process-shell-command command nil command)))
+;;        ,@(mapcar (lambda (i)
+;; 		   `(,(kbd (format "s-%d" i)) .
+;; 		     (lambda ()
+;; 		       (interactive)
+;; 		       (exwm-workspace-switch-create ,i))))
+;; 	         (number-sequence 0 9))))
+;;     (exwm-input-simulation-keys
+;;      '(([?\C-b] . [left])
+;;        ([?\M-b] . [C-left])
+;;        ([?\C-f] . [right])
+;;        ([?\M-f] . [C-right])
+;;        ([?\C-p] . [up])
+;;        ([?\C-n] . [down])
+;;        ([?\C-a] . [home])
+;;        ([?\C-e] . [end])
+;;        ([?\M-v] . [prior])
+;;        ([?\C-v] . [next])
+;;        ([?\C-d] . [delete])
+;;        ([?\C-k] . [S-end delete])
+;;        ([?\C-s] . [?\C-f])
+;;        ([?\C-w] . [?\C-x])
+;;        ([?\M-w] . [?\C-c])
+;;        ([?\C-y] . [?\C-v])))
+;;     :hook
+;;     ((exwm-update-class-hook .
+;; 			     (lambda () "Rename buffer to window's class name"
+;; 			       (exwm-workspace-rename-buffer exwm-class-name)))
+;;      (exwm-update-title-hook .
+;; 			     (lambda () "Update workspace name to window title"
+;; 			       (when (not exwm-instance-name)
+;; 			         (exwm-workspace-rename-buffer exwm-title))))
+;;      (exwm-init-hook . window-divider-mode)
+;;      (exwm-init-hook .
+;; 		     (lambda () "Autostart"
+;; 		       (start-process-shell-command "cmst" nil "cmst -m -w 5")
+;; 		       (start-process-shell-command "keepassxc" nil "keepassxc")
+;; 		       (start-process-shell-command
+;; 		        "pa-applet" nil
+;; 		        "pa-applet --disable-key-grabbing --disable-notifications")
+;; 		       (start-process-shell-command
+;;                         "cbatticon" nil "cbatticon"))))
+;;     :config
+;;     (require 'exwm)
+;;     (exwm-enable)
+;;     (require 'exwm-systemtray)
+;;     (exwm-systemtray-enable))
 
-  (use-package exwm-firefox-core
-    :after exwm
-    :straight (exwm-firefox-core
- 	       :type git
- 	       :host github
- 	       :repo "walseb/exwm-firefox-core"))
+;;   (use-package exwm-firefox-core
+;;     :after exwm
+;;     :straight (exwm-firefox-core
+;;  	       :type git
+;;  	       :host github
+;;  	       :repo "walseb/exwm-firefox-core"))
 
-  (use-package exwm-firefox
-    :after exwm-firefox-core
-    :straight (exwm-firefox
- 	       :type git
- 	       :host github
- 	       :repo "ieure/exwm-firefox")
-    :config
-    (exwm-firefox-mode))
+;;   (use-package exwm-firefox
+;;     :after exwm-firefox-core
+;;     :straight (exwm-firefox
+;;  	       :type git
+;;  	       :host github
+;;  	       :repo "ieure/exwm-firefox")
+;;     :config
+;;     (exwm-firefox-mode))
 
-  (use-package exwm-mff
-    :straight (exwm-mff
-               :host github
-               :repo "ieure/exwm-mff"
-               :fork (
-                      :host github
-                      :repo "duckwork/exwm-mff"))
-    :after exwm
-    :hook
-    (exwm-init-hook . exwm-mff-mode))
+;;   (use-package exwm-mff
+;;     :straight (exwm-mff
+;;                :host github
+;;                :repo "ieure/exwm-mff"
+;;                :fork (
+;;                       :host github
+;;                       :repo "duckwork/exwm-mff"))
+;;     :after exwm
+;;     :hook
+;;     (exwm-init-hook . exwm-mff-mode))
 
-  (use-package exwm-edit)
+;;   (use-package exwm-edit)
 
-  ) ;; end of *acdw/at-larry* block for exwm
+;;   ) ;; end of *acdw/at-larry* block for exwm
 
 ;;;; IRC
 (use-package circe
@@ -755,10 +815,6 @@
   :init
   (setq inferior-lisp-program (cond ((executable-find "sbcl")
                                      (executable-find "sbcl")))))
-
-;;;; GNUS (TODO)
-(use-package gnus
-  :straight nil)
 
 (provide 'init)
 ;;; init.el ends here
