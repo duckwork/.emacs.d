@@ -745,6 +745,41 @@
   (inferior-lisp-program (cond ((executable-find "sbcl")
                                 (executable-find "sbcl")))))
 
+;;;; Lua
+(use-package lua-mode
+  :mode "\\.lua$"
+  :interpreter "lua")
+
+;;;; Fennel
+(use-package fennel-mode
+  :mode "\\.fnl\\'")
+
+;;;; Web-mode
+(use-package web-mode
+  :custom
+  (web-mode-markup-indent-offset 2)
+  (web-mode-code-indent-offset 2)
+  (web-mode-css-indent-offset 2)
+  :mode (("\\.ts\\'" . web-mode)
+         ("\\.html?\\'" . web-mode)
+         ("\\.css?\\'" . web-mode)
+         ("\\.js\\'" . web-mode))
+  :hook
+  (web-mode-hook
+   . (lambda ()
+       (set (make-local-variable 'company-backends
+                                 '(company-css company-web-html company-files))))))
+
+(use-package emmet-mode
+  :hook
+  (web-mode-hook . emmet-mode)
+  (web-mode-before-auto-complete-hooks
+   . (lambda ()
+       (let ((web-mode-cur-language
+              (web-mode-language-at-pos)))
+         (if (string= web-mode-cur-language "css")
+             (setq emmet-use-css-transform t)
+           (setq emmet-use-css-transform nil))))))
 
 (provide 'init)
 ;;; init.el ends here
