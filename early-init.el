@@ -1,4 +1,4 @@
-;;; early-init.el ~ acdw -*- lexical-binding: t; coding: utf-8; fill-column: 85 -*-
+;;; early-init.el ~ acdw -*- lexical-binding: t; no-byte-compile: t -*-
 
 ;;; Commentary:
 ;; `early-init.el' is new as of Emacs 27.1.  It contains ... /early initiation/.
