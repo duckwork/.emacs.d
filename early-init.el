@@ -7,8 +7,15 @@
 ;; Other than that, there's some other init stuff that needs to happen as early
 ;; as possible -- think bootstrap-level.
 
+;;; Settings
+
+;; (setq debug-on-error t)
+
+(setq load-prefer-newer t)
+
 ;;; Speed up startup
 (setq gc-cons-threshold most-positive-fixnum)
+(defconst *acdw/gc-cons* 800000 "'Regular' garbage collection amount")
 
 (defvar file-name-handler-alist-old file-name-handler-alist)
 (setq file-name-handler-alist nil)
@@ -21,11 +28,9 @@
 (add-hook 'after-init-hook
           (lambda ()
             (setq file-name-handler-alist file-name-handler-alist-old)
-            (setq gc-cons-threshold (* 32 1024 1024))
+            (setq gc-cons-threshold *acdw/gc-cons*)
             (garbage-collect))
           t)
-
-;; (setq debug-on-error t)
 
 ;;; Define the platforms I work on
 (defconst *acdw/at-work* (eq system-type 'windows-nt))
