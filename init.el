@@ -243,10 +243,12 @@
 (use-package auto-compile
   :custom
   (load-prefer-newer t)
+  :init
+  (defun acdw/setup-auto-compile ()
+    (auto-compile-on-load-mode)
+    (auto-compile-on-save-mode))
   :hook
-  (emacs-lisp-mode-hook . (lambda ()
-                            (auto-compile-on-load-mode)
-                            (auto-compile-on-save-mode))))
+  (emacs-lisp-mode-hook . acdw/setup-auto-compile))
 
 ;;;; Recent files
 (use-package recentf
@@ -327,16 +329,18 @@
   :hook
   (after-init-hook . selectrum-mode))
 
-(use-package prescient)
+(use-package prescient
+  :hook
+  (after-init-hook . prescient-persist-mode))
 
 (use-package selectrum-prescient
   :hook
-  (after-init-hook . (lambda ()
-                       (selectrum-prescient-mode)
-                       (prescient-persist-mode))))
+  (after-init-hook . (selectrum-prescient-mode)))
 
 ;;;;; Searching
 (use-package ctrlf
+  :custom
+  (ctrlf-show-match-count-at-eol nil)
   :hook
   (after-init-hook . ctrlf-mode))
 
@@ -485,7 +489,6 @@
   ("C-=" . er/expand-region))
 
 ;;;; Programming
-
 ;;;;; Code completion
 (use-package company
   :custom
@@ -543,10 +546,12 @@
 
 ;;;;;; Smartly deal with pairs
 (use-package smartparens
+  :init
+  (defun acdw/setup-smartparens ()
+    (require 'smartparens-config)
+    (smartparens-mode))
   :hook
-  (prog-mode-hook . (lambda ()
-                      (require 'smartparens-config)
-                      (smartparens-global-mode))))
+  (prog-mode-hook . acdw/setup-smartparens))
 
 ;;;;;; Show delimiters as different colors
 (use-package rainbow-delimiters
@@ -559,7 +564,6 @@
   (prog-mode-hook . rainbow-mode))
 
 ;;;; Writing
-
 ;;;;; `fill-column', but in `visual-line-mode'
 (use-package visual-fill-column
   :custom
@@ -570,10 +574,8 @@
               :after #'visual-fill-column-adjust))
 
 ;;;; Machine-specific
-
 ;;;;; Linux at home
 (when *acdw/at-home*
-
 ;;;;;; Edit files with `sudo' (I think?)
   (use-package su
     :hook
@@ -592,7 +594,6 @@
   )
 
 ;;; Specialized packages
-
 ;;;; Gemini & Gopher
 (use-package elpher
   :straight (elpher
@@ -602,114 +603,25 @@
 	      ("p" . elpher-prev-link)
               ("o" . elpher-follow-current-link)
               ("G" . elpher-go-current))
-  :hook (elpher-mode-hook . (lambda ()
-                              (variable-pitch-mode)
-                              (set-fill-column 100)
-                              (visual-fill-column-mode))))
+  :init
+  (defun acdw/setup-elpher ()
+    (variable-pitch-mode)
+    (set-fill-column 100)
+    (visual-fill-column-mode))
+  :hook (elpher-mode-hook . acdw/setup-elpher))
 
 (use-package gemini-mode
   :straight (gemini-mode
 	     :repo "https://git.carcosa.net/jmcbray/gemini.el.git")
-  :hook (gemini-mode-hook . (lambda ()
-                              ;; (variable-pitch-mode)
-                              (set-fill-column 100)
-                              (visual-fill-column-mode))))
+  :init
+  (defun acdw/setup-gemini-mode ()
+    (set-fill-column 100)
+    (visual-fill-column-mode))
+  :hook (gemini-mode-hook . acdw/setup-gemini-mode))
 
 (use-package gemini-write
   :straight (gemini-write
 	     :repo "https://alexschroeder.ch/cgit/gemini-write"))
-
-;;;; IRC
-(use-package circe
-  :init
-  (defun my/fetch-password (&rest params)
-    "Fetch a password from auth-sources"
-    (require 'auth-source)
-    (let ((match (car (apply 'auth-source-search params))))
-      (if match
-	  (let ((secret (plist-get match :secret)))
-	    (if (functionp secret)
-	        (funcall secret)
-	      secret))
-        (error "Password not found for %S" params))))
-
-  (defun my/sasl-password (nick server)
-    "Fetch a password for $server and $nick"
-    (my/fetch-password :user nick :host server))
-  (require 'lui-autopaste)
-  (defun my/circe-prompt ()
-    (lui-set-prompt
-     (concat (propertize (concat (buffer-name) ">")
-			 'face 'circe-prompt-face)
-	     " ")))
-  (defun my/lui-setup ()
-    (setq right-margin-width 5
-	  fringes-outside-margins t
-	  word-wrap t
-	  wrap-prefix "             ")
-    (setf (cdr (assoc 'continuation fringe-indicator-alist)) nil))
-  :hook
-  (circe-channel-mode-hook . enable-lui-autopaste)
-  (circe-chat-mode-hook . my/circe-prompt)
-  (lui-mode-hook . my/lui-setup)
-  :config
-  (setq circe-default-part-message "Peace out, cub scouts")
-  (setq circe-default-quit-message "See  You Space Cowpokes ......")
-  (setq circe-default-realname "Case D")
-  (setq circe-highlight-nick-type 'all)
-  (setq circe-reduce-lurker-spam t)
-  (setq circe-format-say "{nick:-12s} {body}")
-  (setq circe-format-self-say "{nick:-11s}> {body}")
-  (setq lui-time-stamp-position 'right-margin)
-  (setq lui-fill-type nil)
-  (setq lui-time-stamp-format "%H:%M")
-  (setq lui-track-bar-behavior 'before-switch-to-buffer)
-  (setq circe-network-options
-        `(("Freenode"
-           :tls t
-           :port 6697
-           :nick "acdw"
-           :sasl-username "acdw"
-           :sasl-password ,(my/sasl-password "acdw" "irc.freenode.net")
-           :channels ("#emacs" "#daydreams"))
-          ("Tilde.chat"
-           :tls t
-           :port 6697
-           :nick "acdw"
-           :sasl-username "acdw"
-           :sasl-password ,(my/sasl-password "acdw" "irc.tilde.chat")
-           :channels ("#gemini" "#meta"))))
-  (enable-lui-track-bar)
-  :custom-face
-  (circe-my-message-face ((t (:inherit 'circe-highlight-nick-face :weight normal))))
-  (circe-originator-face ((t (:weight bold))))
-  (circe-prompt-face ((t (:inherit 'circe-my-message-face)))))
-
-;;;; eshell
-(use-package eshell
-  :init
-  (defun eshell/emacs (&rest args)
-    "Open a file in emacs."
-    (if (null args)
-        (bury-buffer)
-      (mapc #'find-file
-            (mapcar #'expand-file-name
-                    (eshell-flatten-list (reverse args))))))
-  (defun eshell/info (&optional subject)
-    "Invoke `info', optionally opening Info to SUBJECT."
-    (require 'cl)
-    (let ((buf (current-buffer)))
-      (Info-directory)
-      (if (not (null subject))
-          (let ((node-exists (ignore-errors (Info-menu subject))))
-            (if (not node-exists)
-                (format "No menu item `%s' in node `(dir)Top'."
-                        subject)))))))
-
-(use-package eshell-syntax-highlighting
-  :after esh-mode
-  :config
-  (eshell-syntax-highlighting-global-mode))
 
 ;;;; org-mode
 (use-package org
@@ -758,22 +670,26 @@
          ("\\.html?\\'" . web-mode)
          ("\\.css?\\'" . web-mode)
          ("\\.js\\'" . web-mode))
+  :init
+  (defun acdw/setup-web-mode ()
+    (set (make-local-variable 'company-backends
+                              '(company-css
+                                company-web-html
+                                company-files))))
   :hook
-  (web-mode-hook
-   . (lambda ()
-       (set (make-local-variable 'company-backends
-                                 '(company-css company-web-html company-files))))))
+  (web-mode-hook . acdw/setup-web-mode))
 
 (use-package emmet-mode
+  :init
+  (defun acdw/setup-emmet-in-web-mode ()
+    (let ((web-mode-cur-language
+           (web-mode-language-at-pos)))
+      (if (string= web-mode-cur-language "css")
+          (setq emmet-use-css-transform t)
+        (setq emmet-use-css-transform nil))))
   :hook
   (web-mode-hook . emmet-mode)
-  (web-mode-before-auto-complete-hooks
-   . (lambda ()
-       (let ((web-mode-cur-language
-              (web-mode-language-at-pos)))
-         (if (string= web-mode-cur-language "css")
-             (setq emmet-use-css-transform t)
-           (setq emmet-use-css-transform nil))))))
+  (web-mode-before-auto-complete-hooks . acdw/setup-emmet-in-web-mode))
 
-(provide 'init)
+     (provide 'init)
 ;;; init.el ends here
