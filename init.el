@@ -392,6 +392,7 @@
        `(default ((t (,@default-family))))))
   (remove-hook 'focus-in-hook #'acdw/setup-fonts))
 (add-hook 'focus-in-hook #'acdw/setup-fonts)
+
 ;;;;; Modeline
 (use-package doom-modeline
   :custom
@@ -454,12 +455,16 @@
                  (* 60 60 24) #'acdw/sunset)
     (run-at-time "12am" (* 60 60 24) #'acdw/sunset)))
 
-;;;; General text editing
+;;;;; Convert ^L to a line
+(use-package page-break-lines
+  :hook
+  (after-init-hook . global-page-break-lines-mode))
 
+;;;; General text editing
 ;;;;; Jump to characters fast
 (use-package avy
   :bind
-  ("M-s" . avy-goto-char-timer))
+  ("C-'" . avy-goto-char-timer))
 
 ;;;;; Show text commands acted on
 (use-package volatile-highlights
@@ -524,8 +529,8 @@
   :config
   (add-to-list 'magit-no-confirm 'stage-all-changes))
 
-;; use libgit to speed up magit, only at home
-(when (and *acdw/at-home* (executable-find "cmake"))
+;; use libgit to speed up magit, only when cmake is available
+(when (executable-find "cmake")
   (use-package libgit)
 
   (use-package magit-libgit
@@ -653,7 +658,7 @@
 
 ;;;; Lua
 (use-package lua-mode
-  :mode "\\.lua$"
+  :mode "\\.lua\\'"
   :interpreter "lua")
 
 ;;;; Fennel
