@@ -128,6 +128,7 @@
   (indent-tabs-mode nil "Indentation won't insert tabs.")
   (visible-bell (not *acdw/at-larry*) "Don't ring a bell, unless at larry.")
   (use-dialog-box nil "Ask questions in the modeline.")
+  (disabled-command-function nil)
   (mark-even-if-inactive nil "Don't use the mark when inactive.")
   ;; paragraphs
   (sentence-end-double-space t "Sentences end with two spaces.")
