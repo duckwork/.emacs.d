@@ -1,11 +1,11 @@
 ;;; init.el -*- lexical-binding: t; coding: utf-8; fill-column: 70 -*-
-
 ;;; Commentary:
 ;; I /was/ going to convert this to org-mode, but then I found this
 ;; page: https://yiufung.net/post/pure-emacs-lisp-init-skeleton/,
-;; which pointed out that I could use `outline-mode' (or in my case,
+;; which pointed out that I could use `outline-minor-mode' (or in my case,
 ;; `outshine') to fold and navigate a pure-elisp `init.el'.  So that's
 ;; what I'm doing.
+
 ;;; Custom Functions
 (defun acdw/split-and-follow-window-below ()
   "Split the window below and switch to the split."
