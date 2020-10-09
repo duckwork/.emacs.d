@@ -287,17 +287,12 @@
 
 ;;; General-ish Packages
 ;;;; General improvements
-
-;;;;; Diminish TODO: is this necessary?
-(use-package diminish)
-
 ;;;;; Restart emacs /from within/ emacs
 (use-package restart-emacs)
 
 ;;;; User interface
 ;;;;; Pop-up help for keys
 (use-package which-key
-  :diminish which-key-mode
   :custom
   (which-key-enable-extended-define-key t)
   :hook
@@ -541,10 +536,8 @@
   (setq forge-owned-accounts '(("duckwork"))))
 
 ;;;;; Code formatting & display
-
 ;;;;;; Keep code properly indented
 (use-package aggressive-indent
-  :diminish aggressive-indent-mode
   :hook
   (prog-mode-hook . aggressive-indent-mode))
 
