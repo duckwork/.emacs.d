@@ -369,39 +369,39 @@
 ;; https://github.com/kaushalmodi/.emacs.d/blob/master/init.el#L376
 ;; modi/font-check
 (defun acdw/setup-fonts ()
-    (let* ((fixed-pitch-sans-serif-family
-            (cond ((x-list-fonts "Fira Code") '(:family "Fira Code"))
-                  ((x-list-fonts "Consolas") '(:family "Consolas"))
-                  ((x-list-fonts "DejaVu Sans Mono") '(:family "DejaVu Sans Mono"))
-                  ((x-list-fonts "Fixed") '(:family "Fixed"))
-                  (nil (warn "Can't find a good fixed pitch sans-serif font."))))
-           (fixed-pitch-serif-family
-            (cond ((x-list-fonts "Go Mono") '(:family "Go Mono"))
-                  ((x-list-fonts "Courier Prime") '(:family "Courier Prime"))
-                  ((x-list-fonts "Courier New") '(:family "Courier New"))
-                  ((x-list-fonts "Courier") '(:family "Courier"))
-                  (nil (warn "Can't find a good fixed pitch serif font."))))
-           (variable-pitch-sans-serif-family
-            (cond ((x-list-fonts "DejaVu Sans") '(:family "DejaVu Sans"))
-                  ((x-list-fonts "Go") '(:family "Go"))
-                  ((x-list-fonts "Arial") '(:family "Arial"))
-                  (nil (warn "Cant't find a good variable pitch sans-serif font."))))
-           (variable-pitch-serif-family
-            (cond ((x-list-fonts "DejaVu Serif") '(:family "DejaVu Serif"))
-                  ((x-list-fonts "Georgia") '(:family "Georgia"))
-                  ((x-list-fonts "Times New Roman") '(:family "Times New Roman"))
-                  ((x-list-fonts "Times") '(:family "Times"))
-                  (nil (warn "Can't find a good variable pitch serif font."))))
+  (let* ((fixed-pitch-sans-serif-family
+          (cond ((x-list-fonts "Fira Code") '(:family "Fira Code"))
+                ((x-list-fonts "Consolas") '(:family "Consolas"))
+                ((x-list-fonts "DejaVu Sans Mono") '(:family "DejaVu Sans Mono"))
+                ((x-list-fonts "Fixed") '(:family "Fixed"))
+                (nil (warn "Can't find a good fixed pitch sans-serif font."))))
+         (fixed-pitch-serif-family
+          (cond ((x-list-fonts "Go Mono") '(:family "Go Mono"))
+                ((x-list-fonts "Courier Prime") '(:family "Courier Prime"))
+                ((x-list-fonts "Courier New") '(:family "Courier New"))
+                ((x-list-fonts "Courier") '(:family "Courier"))
+                (nil (warn "Can't find a good fixed pitch serif font."))))
+         (variable-pitch-sans-serif-family
+          (cond ((x-list-fonts "DejaVu Sans") '(:family "DejaVu Sans"))
+                ((x-list-fonts "Go") '(:family "Go"))
+                ((x-list-fonts "Arial") '(:family "Arial"))
+                (nil (warn "Cant't find a good variable pitch sans-serif font."))))
+         (variable-pitch-serif-family
+          (cond ((x-list-fonts "DejaVu Serif") '(:family "DejaVu Serif"))
+                ((x-list-fonts "Georgia") '(:family "Georgia"))
+                ((x-list-fonts "Times New Roman") '(:family "Times New Roman"))
+                ((x-list-fonts "Times") '(:family "Times"))
+                (nil (warn "Can't find a good variable pitch serif font."))))
 
-           (fixed-pitch-family fixed-pitch-sans-serif-family)
-           (variable-pitch-family variable-pitch-serif-family)
-           (default-family fixed-pitch-family))
-      (custom-theme-set-faces
-       'user
-       `(fixed-pitch ((t (,@fixed-pitch-family))))
-       `(fixed-pitch-serif ((t (,@fixed-pitch-serif-family))))
-       `(variable-pitch ((t (,@variable-pitch-family))))
-       `(default ((t (,@default-family))))))
+         (fixed-pitch-family fixed-pitch-sans-serif-family)
+         (variable-pitch-family variable-pitch-serif-family)
+         (default-family fixed-pitch-family))
+    (custom-theme-set-faces
+     'user
+     `(fixed-pitch ((t (,@fixed-pitch-family))))
+     `(fixed-pitch-serif ((t (,@fixed-pitch-serif-family))))
+     `(variable-pitch ((t (,@variable-pitch-family))))
+     `(default ((t (,@default-family))))))
   (remove-hook 'focus-in-hook #'acdw/setup-fonts))
 (add-hook 'focus-in-hook #'acdw/setup-fonts)
 
@@ -560,6 +560,10 @@
 (use-package aggressive-indent
   :hook
   (prog-mode-hook . aggressive-indent-mode))
+
+(use-package format-all
+  :hook
+  (prog-mode-hook . format-all-mode))
 
 ;;;;;; Smartly deal with pairs
 (use-package smartparens
