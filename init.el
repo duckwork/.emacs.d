@@ -91,21 +91,21 @@
   :straight nil
   :custom
   (show-paren-style 'mixed)
-  :hook
-  (after-init-hook . show-paren-mode))
+  :config
+  (show-paren-mode))
 
 (use-package simple
   :straight nil
   :custom
   (save-interprogram-paste-before-kill
    t "Save existing clipboard text into killring before replacing it.")
-  :hook
-  (after-init-hook . global-visual-line-mode))
+  :config
+  (global-visual-line-mode))
 
 (use-package delsel
   :straight nil
-  :hook
-  (after-init-hook . delete-selection-mode))
+  :config
+  (delete-selection-mode))
 
 (use-package emacs
   :straight nil
@@ -245,16 +245,16 @@
   :custom
   (recentf-max-menu-items 100)
   (recentf-max-saved-items 100)
-  :hook
-  (after-init-hook . recentf-mode))
+  :config
+  (recentf-mode))
 
 ;;;; Save places in files
 (use-package saveplace
   :custom
   (save-place-file (no-littering-expand-var-file-name "places"))
   (save-place-forget-unreadable-files (not *acdw/at-work*))
-  :hook
-  (after-init-hook . save-place-mode))
+  :config
+  (save-place-mode))
 
 ;;;; Save history of commands, etc.
 (use-package savehist
@@ -263,8 +263,7 @@
    '(kill-ring
      search-ring
      regexp-search-ring))
-  :hook
-  (after-init-hook . savehist-mode))
+  (savehist-mode))
 
 ;;;; Authority sources for logins
 ;; TODO: use gpg
@@ -282,8 +281,9 @@
   (auto-save-default nil)
   (super-save-auto-save-when-idle t)
   (super-save-exclude '(".gpg"))
-  :hook
-  (after-init-hook . super-save-mode))
+  :config
+  (super-save-mode))
+
 ;;;;; Restart emacs /from within/ emacs
 (use-package restart-emacs)
 
@@ -292,8 +292,8 @@
 (use-package which-key
   :custom
   (which-key-enable-extended-define-key t)
-  :hook
-  (after-init-hook . which-key-mode))
+  :config
+  (which-key-mode))
 
 ;;;;; A better help buffer
 (use-package helpful
@@ -321,23 +321,23 @@
   (enable-recursive-minibuffers t)
   :init
   (minibuffer-depth-indicate-mode)
-  :hook
-  (after-init-hook . selectrum-mode))
+  :config
+  (selectrum-mode))
 
 (use-package prescient
-  :hook
-  (after-init-hook . prescient-persist-mode))
+  :config
+  (prescient-persist-mode))
 
 (use-package selectrum-prescient
-  :hook
-  (after-init-hook . (selectrum-prescient-mode)))
+  :config
+  (selectrum-prescient-mode))
 
 ;;;;; Searching
 (use-package ctrlf
   :custom
   (ctrlf-show-match-count-at-eol nil)
-  :hook
-  (after-init-hook . ctrlf-mode))
+  :config
+  (ctrlf-mode))
 
 ;;;;; Visually switch windows
 (use-package ctrlxo
@@ -361,8 +361,8 @@
      "/git-rebase-todo\\'"))
   (undo-fu-session-directory
    (no-littering-expand-var-file-name "undos/"))
-  :hook
-  (after-init-hook . global-undo-fu-session-mode))
+  :config
+  (global-undo-fu-session-mode))
 
 ;;;; Theming, looks, fonts
 ;;;;; Fonts
@@ -434,13 +434,13 @@
 			    ":=" "..." ":>" ":<" ">:" "<:"
 			    "::=" ;; add others here
 			    ))
-  :hook
-  (after-init-hook . global-ligature-mode))
+  :config
+  (global-ligature-mode))
 
 ;;;;; Unicode
 (use-package unicode-fonts
-  :hook
-  (after-init-hook . unicode-fonts-setup))
+  :config
+  (unicode-fonts-setup))
 
 ;;;;; Modus themes
 (use-package modus-operandi-theme
@@ -469,8 +469,8 @@
 
 ;;;;; Convert ^L to a line
 (use-package page-break-lines
-  :hook
-  (after-init-hook . global-page-break-lines-mode))
+  :config
+  (global-page-break-lines-mode))
 
 ;;;; General text editing
 ;;;;; Jump to characters fast
@@ -480,8 +480,8 @@
 
 ;;;;; Show text commands acted on
 (use-package volatile-highlights
-  :hook
-  (after-init-hook . volatile-highlights-mode))
+  :config
+  (volatile-highlights-mode))
 
 ;;;;; Visual replacement for `zap-to-char'
 (use-package zop-to-char
@@ -497,8 +497,8 @@
 
 ;;;;; Operate on the current line if no region is active
 (use-package whole-line-or-region
-  :hook
-  (after-init-hook . whole-line-or-region-global-mode))
+  :config
+  (whole-line-or-region-global-mode))
 
 ;;;;; Expand region
 (use-package expand-region
@@ -594,8 +594,8 @@
 (when *acdw/at-home*
 ;;;;;; Edit files with `sudo' (I think?)
   (use-package su
-    :hook
-    (after-init-hook . su-mode))
+    :config
+    (su-mode))
 
 ;;;;;; Implement XDG Trash specification
   (use-package trashed
@@ -707,5 +707,5 @@
   (web-mode-hook . emmet-mode)
   (web-mode-before-auto-complete-hooks . acdw/setup-emmet-in-web-mode))
 
-     (provide 'init)
+(provide 'init)
 ;;; init.el ends here
