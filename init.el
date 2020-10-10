@@ -476,7 +476,7 @@
 ;;;;; Jump to characters fast
 (use-package avy
   :bind
-  ("C-'" . avy-goto-char-timer))
+  ("C-/" . avy-goto-char-timer))
 
 ;;;;; Show text commands acted on
 (use-package volatile-highlights
