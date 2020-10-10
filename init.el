@@ -350,8 +350,8 @@
 ;;;;; Undo-Fu
 (use-package undo-fu
   :bind
-  ("C-z" . undo-fu-only-undo)
-  ("C-S-z" . undo-fu-only-redo))
+  ("C-/" . undo-fu-only-undo)
+  ("C-?" . undo-fu-only-redo))
 
 (use-package undo-fu-session
   :after no-littering
@@ -478,7 +478,7 @@
 ;;;;; Jump to characters fast
 (use-package avy
   :bind
-  ("C-/" . avy-goto-char-timer))
+  ("C-'" . avy-goto-char-timer))
 
 ;;;;; Show text commands acted on
 (use-package volatile-highlights
