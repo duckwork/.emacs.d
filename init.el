@@ -347,6 +347,23 @@
   :bind
   ([remap other-window] . ctrlxo))
 
+;;;;; Undo-Fu
+(use-package undo-fu
+  :bind
+  ("C-z" . undo-fu-only-undo)
+  ("C-S-z" . undo-fu-only-redo))
+
+(use-package undo-fu-session
+  :after no-littering
+  :custom
+  (undo-fu-session-incompatible-files
+   '("/COMMIT_EDITMSG\\'"
+     "/git-rebase-todo\\'"))
+  (undo-fu-session-directory
+   (no-littering-expand-var-file-name "undos/"))
+  :hook
+  (after-init-hook . global-undo-fu-session-mode))
+
 ;;;; Theming, looks, fonts
 ;;;;; Fonts
 ;; https://github.com/kaushalmodi/.emacs.d/blob/master/init.el#L376
