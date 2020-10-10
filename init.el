@@ -21,15 +21,6 @@
   (balance-windows)
   (other-window 1))
 
-(defun acdw/full-auto-save ()
-  "Save all buffers that (a) have files associated and (b) are modified."
-  (interactive)
-  (save-excursion
-    (dolist (buf (buffer-list))
-      (set-buffer buf)
-      (if (and (buffer-file-name) (buffer-modified-p))
-          (basic-save-buffer)))))
-
 (defun acdw/kill-this-buffer ()
   "Kill the current buffer."
   (interactive)
@@ -156,7 +147,6 @@
   ("C-x K" . kill-buffer)
   :hook
   (prog-mode-hook . prettify-symbols-mode)
-  ((auto-save-hook focus-out-hook) . acdw/full-auto-save)
   (before-save-hook . delete-trailing-whitespace)
   (minibuffer-setup-hook . acdw/stop-gc)
   (minibuffer-exit-hook . acdw/start-gc))
@@ -223,10 +213,7 @@
   :config
   (setq custom-file (no-littering-expand-etc-file-name "custom.el"))
   (setq backup-directory-alist
-        `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
-  (setq auto-save-file-name-transforms
-        `((".*" ,(no-littering-expand-var-file-name "auto-save/") t)))
-  (auto-save-mode))
+        `((".*" . ,(no-littering-expand-var-file-name "backup/")))))
 
 ;;;; Uniquily name buffers
 (use-package uniquify
@@ -289,6 +276,14 @@
 
 ;;; General-ish Packages
 ;;;; General improvements
+;;;;; Better auto-save
+(use-package super-save
+  :custom
+  (auto-save-default nil)
+  (super-save-auto-save-when-idle t)
+  (super-save-exclude '(".gpg"))
+  :hook
+  (after-init-hook . super-save-mode))
 ;;;;; Restart emacs /from within/ emacs
 (use-package restart-emacs)
 
