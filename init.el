@@ -370,11 +370,13 @@
 ;; modi/font-check
 (defun acdw/setup-fonts ()
   (let* ((fixed-pitch-sans-serif-family
-          (cond ((x-list-fonts "Fira Code") '(:family "Fira Code"))
-                ((x-list-fonts "Consolas") '(:family "Consolas"))
-                ((x-list-fonts "DejaVu Sans Mono") '(:family "DejaVu Sans Mono"))
-                ((x-list-fonts "Fixed") '(:family "Fixed"))
-                (nil (warn "Can't find a good fixed pitch sans-serif font."))))
+          (cond
+           ((x-list-fonts "Fantasque Sans Mono") '(:family "Fantasque Sans Mono" :size 12))
+           ((x-list-fonts "Fira Code") '(:family "Fira Code"))
+           ((x-list-fonts "Consolas") '(:family "Consolas"))
+           ((x-list-fonts "DejaVu Sans Mono") '(:family "DejaVu Sans Mono"))
+           ((x-list-fonts "Fixed") '(:family "Fixed"))
+           (nil (warn "Can't find a good fixed pitch sans-serif font."))))
          (fixed-pitch-serif-family
           (cond ((x-list-fonts "Go Mono") '(:family "Go Mono"))
                 ((x-list-fonts "Courier Prime") '(:family "Courier Prime"))
