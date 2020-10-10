@@ -556,11 +556,6 @@
   (setq forge-owned-accounts '(("duckwork"))))
 
 ;;;;; Code formatting & display
-;;;;;; Keep code properly indented
-(use-package aggressive-indent
-  :hook
-  (prog-mode-hook . aggressive-indent-mode))
-
 (use-package format-all
   :hook
   (prog-mode-hook . format-all-mode))
