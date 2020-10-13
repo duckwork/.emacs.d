@@ -73,40 +73,6 @@
 
 ;;; Basic emacs config & built-in packages
 ;;;; /Really/ basic emacs config
-(use-package calendar
-  :straight nil
-  :custom
-  (calendar-location-name "Baton Rouge, LA")
-  (calendar-latitude 30.39)
-  (calendar-longitude -91.83))
-
-(use-package browse-url
-  :straight nil
-  :custom
-  (browse-url-browser-function 'browse-url-firefox)
-  (browse-url-new-window-flag t)
-  (browse-url-firefox-new-window-is-tab t))
-
-(use-package paren
-  :straight nil
-  :custom
-  (show-paren-style 'mixed)
-  :config
-  (show-paren-mode))
-
-(use-package simple
-  :straight nil
-  :custom
-  (save-interprogram-paste-before-kill
-   t "Save existing clipboard text into killring before replacing it.")
-  :config
-  (global-visual-line-mode))
-
-(use-package delsel
-  :straight nil
-  :config
-  (delete-selection-mode))
-
 (use-package emacs
   :straight nil
   :demand t
@@ -150,6 +116,40 @@
   (before-save-hook . delete-trailing-whitespace)
   (minibuffer-setup-hook . acdw/stop-gc)
   (minibuffer-exit-hook . acdw/start-gc))
+
+(use-package calendar
+  :straight nil
+  :custom
+  (calendar-location-name "Baton Rouge, LA")
+  (calendar-latitude 30.39)
+  (calendar-longitude -91.83))
+
+(use-package browse-url
+  :straight nil
+  :custom
+  (browse-url-browser-function 'browse-url-firefox)
+  (browse-url-new-window-flag t)
+  (browse-url-firefox-new-window-is-tab t))
+
+(use-package paren
+  :straight nil
+  :custom
+  (show-paren-style 'mixed)
+  :config
+  (show-paren-mode))
+
+(use-package simple
+  :straight nil
+  :custom
+  (save-interprogram-paste-before-kill
+   t "Save existing clipboard text into killring before replacing it.")
+  :config
+  (global-visual-line-mode))
+
+(use-package delsel
+  :straight nil
+  :config
+  (delete-selection-mode))
 
 (use-package display-line-numbers
   :straight nil
@@ -371,7 +371,8 @@
 (defun acdw/setup-fonts ()
   (let* ((fixed-pitch-sans-serif-family
           (cond
-           ((x-list-fonts "Fantasque Sans Mono") '(:family "Fantasque Sans Mono" :size 12))
+           ((x-list-fonts "Fantasque Sans Mono") '(:family "Fantasque Sans Mono"
+                                                           :height 110))
            ((x-list-fonts "Fira Code") '(:family "Fira Code"))
            ((x-list-fonts "Consolas") '(:family "Consolas"))
            ((x-list-fonts "DejaVu Sans Mono") '(:family "DejaVu Sans Mono"))
