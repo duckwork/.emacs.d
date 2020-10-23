@@ -85,6 +85,11 @@
 			    (left-fringe-width . 2)
 			    (right-fringe-width . 2)))
 
+;; also disable these with modes, so I can re-enable them more easily
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+
 ;; cursor
 (cuss cursor-type 'bar)
 (cuss cursor-in-non-selected-windows 'hollow)
@@ -101,6 +106,9 @@
 
 ;; interactivity
 (fset 'yes-or-no-p #'y-or-n-p)
+
+(cuss use-dialog-box nil)
+(cuss disabled-command-function nil)
 
 ;; themes
 (use-package modus-operandi-theme
