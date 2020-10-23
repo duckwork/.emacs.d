@@ -135,15 +135,69 @@
   :config
   (unicode-fonts-setup))
 
+;;; Selecting / Minibuffer
+;; ignore case
+(cuss completion-ignore-case t)
+(cuss read-buffer-completion-ignore-case t)
+(cuss read-file-name-completion-ignore-case t)
+
+(use-package selectrum
+  :config
+  (selectrum-mode +1))
+
+(use-package prescient
+  :config
+  (prescient-persist-mode +1))
+
+(use-package selectrum-prescient
+  :after (selectrum prescient)
+  :config
+  (selectrum-prescient-mode +1))
+
+;; searching
+(use-package ctrlf
+  :custom
+  (ctrlf-show-match-count-at-eol nil)
+  :config
+  (ctrlf-mode +1))
+
+;;; Undo
+(use-package undo-fu
+  :bind
+  ("C-/" . undo-fu-only-undo)
+  ("C-?" . undo-fu-only-redo))
+
+(use-package undo-fu-session
+  :after no-littering
+  :custom
+  (undo-fu-session-incompatible-files
+   '("/COMMIT_EDITMSG\\'"
+     "/git-rebase-todo\\'"))
+  (undo-fu-session-directory
+   (no-littering-expand-var-file-name "undos/"))
+  :config
+  (global-undo-fu-session-mode +1))
+
 ;;; Text editing
 ;; visual line mode
 (global-visual-line-mode +1)
+
+(use-package whole-line-or-region
+  :config
+  (whole-line-or-region-global-mode +1))
+
+(use-package expand-region
+  :bind
+  ("C-=" . er/expand-region))
 
 ;; delete the selection when typing
 (delete-selection-mode +1)
 
 ;; clipboard
 (cuss save-interprogram-paste-before-kill t) ; save existing clipboard text to kill ring before replacing it
+
+;; don't insert tabs.
+(cuss indent-tabs-mode nil)
 
 ;;; Programming
 ;; Git
