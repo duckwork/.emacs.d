@@ -246,3 +246,6 @@
 		   (display-graphic-p))
 	      #'display-line-numbers-mode
 	    #'linum-mode))
+
+;;; Writing
+(cuss sentence-end-double-space t)
