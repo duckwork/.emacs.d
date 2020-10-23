@@ -7,10 +7,10 @@
 
 ;;; Macros
 (defmacro cuss (var val)
-    "Basically `use-package' `:custom' but without either."
+  "Basically `use-package' `:custom' but without either."
   `(progn
-    (funcall (or (get ',var 'custom-set) #'set-default)
-	     ',var ,val)))
+     (funcall (or (get ',var 'custom-set) #'set-default)
+	      ',var ,val)))
 
 ;;; Files
 ;; keep `emacs-user-directory' tidy
@@ -139,3 +139,39 @@
 (when (executable-find "cmake")
   (use-package libgit)
   (use-package magit-libgit))
+
+(use-package forge
+  :after magit
+  :custom
+  (forge-owned-accounts '(("duckwork"))))
+
+;; Code formatting
+(use-package format-all
+  :hook
+  (prog-mode . format-all-mode))
+
+;; display
+(add-hook 'prog-mode-hook #'prettify-symbols-mode)
+
+;; parentheses
+(cuss show-paren-style 'mixed)
+(show-paren-mode +1)
+
+(use-package smartparens
+  :init
+  (defun acdw/setup-smartparens ()
+    (require 'smartparens-config)
+    (smartparens-mode +1))
+  :hook
+  (prog-mode . acdw/setup-smartparens))
+
+(use-package rainbow-delimiters
+  :hook
+  (prog-mode . rainbow-delimiters-mode))
+
+;; line numbers
+(add-hook 'prog-mode-hook
+	  (if (and (fboundp 'display-line-numbers-mode)
+		   (display-graphic-p))
+	      #'display-line-numbers-mode
+	    #'linum-mode))
