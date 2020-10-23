@@ -18,6 +18,5 @@
   (load bootstrap-file nil 'nomessage))
 
 ;;; Bootstrap `use-package'
-(straight-use-package 'use-package)
-
 (setq straight-use-package-by-default t)
+(straight-use-package 'use-package)
