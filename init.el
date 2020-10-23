@@ -44,6 +44,15 @@
 (prefer-coding-system 'utf-8)
 
 ;;; Save/Restore
+;; autosave, but like, better
+(use-package super-save
+  :custom
+  (auto-save-default nil)
+  (super-save-auto-save-when-idle t)
+  (super-save-exclude '(".gpg"))
+  :config
+  (super-save-mode +1))
+
 ;; save places in files
 (use-package saveplace
   :custom
