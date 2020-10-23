@@ -113,6 +113,11 @@
 		    :family "DejaVu Serif"
 		    :height 120)
 
+;; unicode
+(use-package unicode-fonts
+  :config
+  (unicode-fonts-setup))
+
 ;;; Text editing
 ;; visual line mode
 (global-visual-line-mode +1)
