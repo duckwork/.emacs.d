@@ -32,7 +32,7 @@ When this configuration is loaded for the first time, this ~init.el~ is loaded:
 After the first run, the above ~init.el~ will be replaced by the tangled stuff here.  However, when /this/ file is edited, we'll need to re-tangle everything.  However, nobody has time to do that manually with =C-c C-v t=, /every time/!  Luckily, Emacs is highly programmable.
 
 #+NAME: tangle-on-save
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle no
   (defun acdw/tangle-init ()
     "If the current buffer is `init.org', the code blocks are tangled,
   and the tangled file is compiled."
@@ -103,8 +103,9 @@ Yeah, you know it, I know it, we all love it.  It's use-package.
   (straight-use-package 'use-package)
 #+END_SRC
 * Begin init.el
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :noweb tangle
   ;;; init.el -*- lexical-binding: t; coding: utf-8 -*-
+  <<tangle-on-save>>
 #+END_SRC
 * Macros
 ** cuss
@@ -542,42 +543,9 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     :straight (gemini-write
                :repo "https://alexschroeder.ch/cgit/gemini-write"))
 
-
-  (defun post-to-gemlog-blue (post-title user pass)
-    "Post current buffer to gemlog.blue."
-    (interactive
-     (let* ((title-maybe (progn ;; TODO this is ... clunky
-                           (goto-char (point-min))
-                           (if (re-search-forward "^# \\(.*\\)" nil t)
-                               (buffer-substring-no-properties
-                                (match-beginning 1)
-                                (match-end 1))
-                             "")))
-            (title (read-string
-                    (format "Title%s: "
-                            (if (string= "" title-maybe)
-                                ""
-                              (concat " (" title-maybe ")")))
-                    nil nil title-maybe))
-            (user (read-string "User: " nil))
-            (pass (read-passwd "Pass: " nil)))
-       (list title user pass)))
-
-    (require 'mm-url)
-    (let ((url-request-method "POST")
-          (url-request-extra-headers
-           '(("Content-Type" . "application/x-www-form-urlencoded")))
-          (url-request-data
-           (mm-url-encode-www-form-urlencoded
-            `(("title" . ,post-title)
-              ("gemloguser" . ,user)
-              ("pw" . ,pass)
-              ("post" . ,(buffer-string))))))
-      (with-current-buffer
-          (url-retrieve-synchronously "https://gemlog.blue/post.php")
-        (goto-char (point-min))
-        (re-search-forward "\\(gemini://.*\\.gmi\\)")
-        (elpher-go (match-string 1)))))
+  (use-package post-to-gemlog-blue
+    :straight (post-to-gemlog-blue
+               :repo "https://git.sr.ht/~acdw/post-to-gemlog-blue.el"))
 #+END_SRC
 ** Pastebin
 #+BEGIN_SRC emacs-lisp
