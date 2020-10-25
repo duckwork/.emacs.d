@@ -1,0 +1,587 @@
+#+TITLE: Emacs config
+#+AUTHOR: Case Duckworth
+#+BABEL: :cache yes
+#+PROPERTY: header-args :tangle init.el
+#+BANKRUPTCY_COUNT: 1
+
+* Preamble
+
+I wanted to write my Emacs configuration in [[https://orgmode.org][Org mode]] for a while, but never could quite figure out how.  Finally, I found [[https://github.com/larstvei/dot-emacs][Lars Tveito]]'s config, which does exactly what I want: =init.el= is small and simple, and replaced after the first run, and =init.org= is automatically tangled.  So I'm very excited.
+
+* Bootstrap
+
+/Check out Lars's config for the reasoning behind this./
+
+When this configuration is loaded for the first time, this ~init.el~ is loaded:
+
+#+BEGIN_SRC emacs-lisp :tangle no
+  ;; This file replaces itself with the actual configuration when first run.  To keep only this version in git, run this command:
+  ;; git update-index --assume-unchanged init.el
+  ;;
+  ;; If it needs to be changed, start tracking it again thusly:
+  ;; git update-index --no-assume-unchanged init.el
+
+  (require 'org)
+  (find-file (concat user-emacs-directory "init.org"))
+  (org-babel-tangle)
+  (load-file (concat user-emacs-directory "init.el"))
+  (byte-compile-file (concat user-emacs-directory "init.el"))
+#+END_SRC
+
+** Tangling
+After the first run, the above ~init.el~ will be replaced by the tangled stuff here.  However, when /this/ file is edited, we'll need to re-tangle everything.  However, nobody has time to do that manually with =C-c C-v t=, /every time/!  Luckily, Emacs is highly programmable.
+
+#+NAME: tangle-on-save
+#+BEGIN_SRC emacs-lisp
+  (defun acdw/tangle-init ()
+    "If the current buffer is `init.org', the code blocks are tangled,
+  and the tangled file is compiled."
+    (when (equal (buffer-file-name)
+                 (expand-file-name (concat user-emacs-directory "init.org")))
+      ;; Avoid running hooks when tangling.
+      (let ((prog-mode-hook nil))
+        (org-babel-tangle)
+        (byte-compile-file (concat user-emacs-directory "init.el")))))
+
+(add-hook 'after-save-hook #'acdw/tangle-init)
+#+END_SRC
+
+* Early initiation
+Emacs 27.1+ uses ~early-init.el~, which is evaluated before things like ~package.el~ and other stuff.  So I have a few settings in there.
+
+** Preamble
+Of course, first thing is the modeline.  After that, I set ~load-prefer-newer~ because, well, it /should/.
+#+BEGIN_SRC emacs-lisp :tangle early-init.el
+  ;;; early-init.el -*- lexical-binding: t; no-byte-compile: t -*-
+
+(setq load-prefer-newer t)
+#+END_SRC
+
+** Computers
+I have to set these constants before bootstrapping the package manager, since ~straight.el~ depends on Git, and at work, those are in a weird place.
+
+#+BEGIN_SRC emacs-lisp :tangle early-init.el
+  (defconst *acdw/at-work* (eq system-type 'windows-nt))
+  (defconst *acdw/at-larry* (string= (system-name) "larry"))
+  (defconst *acdw/at-bax* (string= (system-name) "bax"))
+  (defconst *acdw/at-home* (or *acdw/at-larry* *acdw/at-bax*))
+#+END_SRC
+
+** Package management
+ I've started using straight.el, which is great.  It grabs packages from git, and apparently will let me fork and edit them, which I'll probably get around to ... eventually.
+
+*** At work, Git's in a weird place
+#+BEGIN_SRC emacs-lisp :tangle early-init.el
+  (when *acdw/at-work*
+    (add-to-list 'exec-path "~/bin")
+    (add-to-list 'exec-path "C:/Users/aduckworth/Downloads/PortableGit/bin"))
+#+END_SRC
+
+*** [[https://github.com/raxod502/straight.el][straight.el]]
+I don't know why, but for some reason the bootstrapping doesn't work on Windows.  I have to download the repo directly from github and put it in the right place (=~/.emacs.d/straight/repos/straight.el/=).
+
+#+BEGIN_SRC emacs-lisp :tangle early-init.el
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+         (expand-file-name "straight/repos/straight.el/bootstrap.el"
+                           user-emacs-directory))
+        (bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+#+END_SRC
+
+*** [[https://github.com/jwiegley/use-package][use-package]]
+Yeah, you know it, I know it, we all love it.  It's use-package.
+#+BEGIN_SRC emacs-lisp :tangle early-init.el
+  (setq straight-use-package-by-default t)
+  (straight-use-package 'use-package)
+#+END_SRC
+* Begin init.el
+#+BEGIN_SRC emacs-lisp
+  ;;; init.el -*- lexical-binding: t; coding: utf-8 -*-
+#+END_SRC
+* Macros
+** cuss
+I like ~use-package~,  but I don't like doing the weird "pseudo-package" stuff a lot of people do in their emacs configs.  Partially because I have to set ~:straight nil~ on a lot of built-in packages, but also because I think being /that/ obsessive over one interface through the whole config is ... I don't know, short-sighted?
+
+Either way, I /do/ like the ~:custom~ interface that ~use-package~ has, so I've re-implemented it in my own macro.  This way I don't have to worry about whether to ~setq~ or ~custom-set-variable~ or whatever.  Just ~cuss~!
+#+BEGIN_SRC emacs-lisp
+  (defmacro cuss (var val)
+    "Basically `use-package''s `:custom', but without either."
+    `(progn
+       (funcall (or (get ',var 'custom-set) #'set-default)
+                ',var ,val)))
+#+END_SRC
+* Files
+** [[https://github.com/emacscollective/no-littering][Keep .emacs.d tidy]]
+#+BEGIN_SRC emacs-lisp
+  (use-package no-littering)
+#+END_SRC
+** Customize
+I don't like the customize interface, but I still sometimes use it when I'm not sure what the name of a variable is.  So I save the stuff to a file, I just don't load it or keep track of it.
+#+BEGIN_SRC emacs-lisp
+  (cuss custom-file (no-littering-expand-etc-file-name "custom.el"))
+#+END_SRC
+** Encoding
+#+BEGIN_SRC emacs-lisp
+  (set-charset-priority 'unicode)
+  (set-language-environment "UTF-8")
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+#+END_SRC
+** Recent files
+#+BEGIN_SRC emacs-lisp
+  (use-package recentf
+    :config
+    (add-to-list 'recentf-exclude no-littering-var-directory)
+    (add-to-list 'recentf-exclude no-littering-etc-directory)
+    :custom
+    (recentf-max-menu-items 100)
+    (recentf-max-saved-items 100)
+    :config
+    (recentf-mode 1))
+#+END_SRC
+** Backups
+#+BEGIN_SRC emacs-lisp
+  (cuss backup-directory-alist
+        `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
+#+END_SRC
+** [[https://github.com/bbatsov/super-save][Autosave]]
+#+BEGIN_SRC emacs-lisp
+  (use-package super-save
+    :custom
+    (auto-save-default nil)
+    (super-save-auto-save-when-idle t)
+    (super-save-exclude '(".gpg"))
+    :config
+    (super-save-mode 1))
+#+END_SRC
+** Save places
+#+BEGIN_SRC emacs-lisp
+  (use-package saveplace
+    :custom
+    (save-place-file (no-littering-expand-var-file-name "places"))
+    :config
+    (save-place-mode 1))
+#+END_SRC
+** Save history
+#+BEGIN_SRC emacs-lisp
+  (use-package savehist
+    :custom
+    (savehist-addtional-variables
+     '(kill-ring
+       search-ring
+       regexp-search-ring))
+    (savehist-save-minibuffer-history t)
+    :config
+    (savehist-mode 1))
+#+END_SRC
+* User interface
+** Look
+*** Frames and windows
+**** Frame defaults
+#+BEGIN_SRC emacs-lisp
+  (cuss default-frame-alist '((tool-bar-lines . 0)
+                              (menu-bar-lines . 0)
+                              (vertical-scroll-bars . nil)
+                              (horizontal-scroll-bars . nil)
+                              (right-divider-width . 2)
+                              (bottom-divider-width . 2)
+                              (left-fringe-width . 2)
+                              (right-fringe-width . 2)))
+
+  ;; also disable these with modes, so I can re-enable them more easily
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+#+END_SRC
+**** Resizing
+#+BEGIN_SRC emacs-lisp
+  (cuss frame-resize-pixelwise t)
+  (cuss window-combination-resize t)
+#+END_SRC
+*** Buffers
+#+BEGIN_SRC emacs-lisp
+  (cuss uniquify-buffer-name-style 'forward)
+
+  (cuss indicate-buffer-boundaries
+        '((top . right)
+          (bottom . right)
+          (t . nil)))
+#+END_SRC
+**** Startup buffer
+#+BEGIN_SRC emacs-lisp
+  (cuss inhibit-startup-buffer-menu t)
+  (cuss inhibit-startup-screen t)
+  (cuss initial-buffer-choice t) ; start in *scratch*
+  (cuss initial-scratch-message nil)
+#+END_SRC
+*** Cursor
+#+BEGIN_SRC emacs-lisp
+  (cuss cursor-type 'bar)
+  (cuss cursor-in-non-selected-windows 'hollow)
+  (blink-cursor-mode 0)
+#+END_SRC
+*** Interactivity
+**** Mouse
+#+BEGIN_SRC emacs-lisp
+  (cuss mouse-yank-at-point t)
+#+END_SRC
+**** Dialogs
+#+BEGIN_SRC emacs-lisp
+  (cuss use-dialog-box nil)
+#+END_SRC
+**** Disabled functions
+#+BEGIN_SRC emacs-lisp
+  (cuss disabled-command-function nil)
+#+END_SRC
+** Themes: [[https://github.com/protesilaos/modus-themes][Modus]]
+#+BEGIN_SRC emacs-lisp
+  (use-package modus-operandi-theme)
+  (use-package modus-vivendi-theme)
+#+END_SRC
+*** [[https://github.com/hadronzoo/theme-changer][Change themes]] based on time of day
+#+BEGIN_SRC emacs-lisp
+  (use-package theme-changer
+    :init
+    (setq calendar-location-name "Baton Rouge, LA"
+          calendar-latitude 30.39
+          calendar-longitude -91.83)
+    :config
+    (change-theme 'modus-operandi 'modus-vivendi))
+#+END_SRC
+** Modeline: [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]]
+#+BEGIN_SRC emacs-lisp
+  (use-package smart-mode-line
+    :config
+    (sml/setup))
+#+END_SRC
+
+I hide all minor-modes by default for a clean modeline.  However, I can add them back by adding them to the whitelist with ~(add-to-list 'rm-whitelist " REGEX")~.
+#+BEGIN_SRC emacs-lisp
+  (use-package rich-minority
+    :custom
+    (rm-whitelist '("^$")) ; show no minor modes
+    :config
+    (rich-minority-mode 1))
+#+END_SRC
+** Fonts
+I'm sure there's a better way to do this, but for now, this is the best I've got.  I append to the ~face-font-family-alternatives~ because I don't know what kind of weird magic they're doing in there.
+#+BEGIN_SRC emacs-lisp
+  (cuss face-font-family-alternatives
+        '(("Monospace" "courier" "fixed")
+          ("Monospace Serif" "Courier 10 Pitch" "Consolas" "Courier Std" "FreeMono" "Nimbus Mono L" "courier" "fixed")
+          ("courier" "CMU Typewriter Text" "fixed")
+          ("Sans Serif" "helv" "helvetica" "arial" "fixed")
+          ("helv" "helvetica" "arial" "fixed")
+          ;; now mine
+          ("FixedPitch" "DejaVu Sans Mono" "Consolas" "fixed")
+          ("VariablePitch" "DejaVu Serif" "Georgia" "fixed")))
+
+  (set-face-attribute 'default nil
+                      :family "FixedPitch"
+                      :height 110)
+
+  (set-face-attribute 'fixed-pitch nil
+                      :family "FixedPitch"
+                      :height 110)
+
+  (set-face-attribute 'variable-pitch nil
+                      :family "VariablePitch"
+                      :height 110)
+#+END_SRC
+
+*** [[https://github.com/rolandwalker/unicode-fonts][Unicode fonts]]
+#+BEGIN_SRC emacs-lisp
+  (use-package unicode-fonts
+    :config
+    (unicode-fonts-setup))
+#+END_SRC
+* Editing
+** Completion
+I was using company, but I think it might've been causing issues with ~awk-mode~, so I'm trying ~hippie-mode~ right now.  So far, I'm also enjoying not having a popup all the time.
+#+BEGIN_SRC emacs-lisp
+  (bind-key "M-/" #'hippie-expand)
+#+END_SRC
+** Ignore case
+#+BEGIN_SRC emacs-lisp
+  (cuss completion-ignore-case t)
+  (cuss read-buffer-completion-ignore-case t)
+  (cuss read-file-name-completion-ignore-case t)
+#+END_SRC
+** Selection & Minibuffer
+*** Selectrum and Prescient for narrowing selection
+#+BEGIN_SRC emacs-lisp
+  (use-package selectrum
+    :config
+    (selectrum-mode +1))
+
+  (use-package prescient
+    :config
+    (prescient-persist-mode +1))
+
+  (use-package selectrum-prescient
+    :after (selectrum prescient)
+    :config
+    (selectrum-prescient-mode +1))
+#+END_SRC
+*** CtrlF for searching
+#+BEGIN_SRC emacs-lisp
+  (use-package ctrlf
+    :custom
+    (ctrlf-show-match-count-at-eol nil)
+    :config
+    (ctrlf-mode +1))
+#+END_SRC
+** Undo
+#+BEGIN_SRC emacs-lisp
+  (use-package undo-fu
+    :bind
+    ("C-/" . undo-fu-only-undo)
+    ("C-?" . undo-fu-only-redo))
+
+  (use-package undo-fu-session
+    :after no-littering
+    :custom
+    (undo-fu-session-incompatible-files
+     '("/COMMIT_EDITMSG\\'"
+       "/git-rebase-todo\\'"))
+    (undo-fu-session-directory
+     (no-littering-expand-var-file-name "undos/"))
+    :config
+    (global-undo-fu-session-mode +1))
+#+END_SRC
+** Visual editing
+*** ~zap-to-char~ replacement
+#+BEGIN_SRC emacs-lisp
+  (use-package zop-to-char
+    :bind
+    ([remap zap-to-char] . zop-to-char)
+    ([remap zap-up-to-char] . zop-up-to-char))
+#+END_SRC
+*** Operate on a line if there's no current region
+#+BEGIN_SRC emacs-lisp
+  (use-package whole-line-or-region
+    :config
+    (whole-line-or-region-global-mode +1))
+#+END_SRC
+*** Expand-region
+#+BEGIN_SRC emacs-lisp
+  (use-package expand-region
+    :bind
+    ("C-=" . er/expand-region)
+    ("C-+" . er/contract-region))
+#+END_SRC
+*** Volatile highlights
+#+BEGIN_SRC emacs-lisp
+  (use-package volatile-highlights
+    :config
+    (volatile-highlights-mode 1))
+#+END_SRC
+*** Visual line mode
+#+BEGIN_SRC emacs-lisp
+  (global-visual-line-mode 1)
+#+END_SRC
+*** A better ~move-beginning-of-line~
+#+BEGIN_SRC emacs-lisp
+  (defun my/smarter-move-beginning-of-line (arg)
+    "Move point back to indentation of beginning of line.
+
+  Move point to the first non-whitespace character on this line.
+  If point is already there, move to the beginning of the line.
+  Effectively toggle between the first non-whitespace character and
+  the beginning of the line.
+
+  If ARG is not nil or 1, move forward ARG - 1 lines first.  If
+  point reaches the beginning or end of the buffer, stop there."
+    (interactive "^p")
+    (setq arg (or arg 1))
+
+    ;; Move lines first
+    (when (/= arg 1)
+      (let ((line-move-visual nil))
+        (forward-line (1- arg))))
+
+    (let ((orig-point (point)))
+      (back-to-indentation)
+      (when (= orig-point (point))
+        (move-beginning-of-line 1))))
+
+  (bind-key "C-a" ; can't do [remap], don't know why
+            #'my/smarter-move-beginning-of-line)
+#+END_SRC
+** Delete the selection when typing
+#+BEGIN_SRC emacs-lisp
+  (delete-selection-mode 1)
+#+END_SRC
+** Clipboard
+#+BEGIN_SRC emacs-lisp
+  (cuss save-interprogram-paste-before-kill t)
+#+END_SRC
+** Tabs & Spaces
+#+BEGIN_SRC emacs-lisp
+  (cuss indent-tabs-mode nil)
+  (cuss sentence-end-double-space t)
+#+END_SRC
+* Programming
+** Git
+#+BEGIN_SRC emacs-lisp
+  (use-package magit
+    :bind
+    ("C-x g" . magit-status)
+    :config
+    (add-to-list 'magit-no-confirm 'stage-all-changes))
+
+  ;; hook into `prescient'
+  (define-advice magit-list-refs
+      (:around (orig &optional namespaces format sortby)
+               prescient-sort)
+    "Apply prescient sorting when listing refs."
+    (let ((res (funcall orig namespaces format sortby)))
+      (if (or sortby
+              magit-list-refs-sortby
+              (not selectrum-should-sort-p))
+          res
+        (prescient-sort res))))
+
+  (when (executable-find "cmake")
+    (use-package libgit)
+    (use-package magit-libgit))
+
+  (use-package forge
+    :after magit
+    :custom
+    (forge-owned-accounts '(("duckwork"))))
+#+END_SRC
+** Code formatting and display
+#+BEGIN_SRC emacs-lisp
+  (use-package format-all
+    :hook
+    (prog-mode . format-all-mode))
+
+  (add-hook 'prog-mode-hook #'prettify-symbols-mode)
+
+#+END_SRC
+*** Parentheses
+#+BEGIN_SRC emacs-lisp
+  (cuss show-paren-style 'mixed)
+  (show-paren-mode +1)
+
+  (use-package smartparens
+    :init
+    (defun acdw/setup-smartparens ()
+      (require 'smartparens-config)
+      (smartparens-mode +1))
+    :hook
+    (prog-mode . acdw/setup-smartparens))
+
+  (use-package rainbow-delimiters
+    :hook
+    (prog-mode . rainbow-delimiters-mode))
+#+END_SRC
+** Line numbers
+#+BEGIN_SRC emacs-lisp
+  (add-hook 'prog-mode-hook
+            (if (and (fboundp 'display-line-numbers-mode)
+                     (display-graphic-p))
+                #'display-line-numbers-mode
+              #'linum-mode))
+#+END_SRC
+** Languages
+*** Lua
+#+BEGIN_SRC emacs-lisp
+  (use-package lua-mode
+    :mode "\\.lua\\'"
+    :interpreter "lua")
+#+END_SRC
+*** Fennel
+#+BEGIN_SRC emacs-lisp
+  (use-package fennel-mode
+    :mode "\\.fnl\\'")
+#+END_SRC
+*** Web
+#+BEGIN_SRC emacs-lisp
+  (use-package web-mode
+    :custom
+    (web-mode-markup-indent-offset 2)
+    (web-mode-code-indent-offset 2)
+    (web-mode-css-indent-offset 2)
+    :mode (("\\.ts\\'" . web-mode)
+           ("\\.html?\\'" . web-mode)
+           ("\\.css?\\'" . web-mode)
+           ("\\.js\\'" . web-mode)))
+#+END_SRC
+* Writing
+* Applications
+** Gemini & Gopher
+#+BEGIN_SRC emacs-lisp
+  (use-package elpher
+    :straight (elpher
+               :repo "git://thelambdalab.xyz/elpher.git")
+    :bind (:map elpher-mode-map
+                ("n" . elpher-next-link)
+                ("p" . elpher-prev-link)
+                ("o" . elpher-follow-current-link)
+                ("G" . elpher-go-current)))
+
+  (use-package gemini-mode
+    :straight (gemini-mode
+               :repo "https://git.carcosa.net/jmcbray/gemini.el.git")
+    :mode "\\.\\(gemini|gmi\\)\\'")
+
+  (use-package gemini-write
+    :straight (gemini-write
+               :repo "https://alexschroeder.ch/cgit/gemini-write"))
+
+
+  (defun post-to-gemlog-blue (post-title user pass)
+    "Post current buffer to gemlog.blue."
+    (interactive
+     (let* ((title-maybe (progn ;; TODO this is ... clunky
+                           (goto-char (point-min))
+                           (if (re-search-forward "^# \\(.*\\)" nil t)
+                               (buffer-substring-no-properties
+                                (match-beginning 1)
+                                (match-end 1))
+                             "")))
+            (title (read-string
+                    (format "Title%s: "
+                            (if (string= "" title-maybe)
+                                ""
+                              (concat " (" title-maybe ")")))
+                    nil nil title-maybe))
+            (user (read-string "User: " nil))
+            (pass (read-passwd "Pass: " nil)))
+       (list title user pass)))
+
+    (require 'mm-url)
+    (let ((url-request-method "POST")
+          (url-request-extra-headers
+           '(("Content-Type" . "application/x-www-form-urlencoded")))
+          (url-request-data
+           (mm-url-encode-www-form-urlencoded
+            `(("title" . ,post-title)
+              ("gemloguser" . ,user)
+              ("pw" . ,pass)
+              ("post" . ,(buffer-string))))))
+      (with-current-buffer
+          (url-retrieve-synchronously "https://gemlog.blue/post.php")
+        (goto-char (point-min))
+        (re-search-forward "\\(gemini://.*\\.gmi\\)")
+        (elpher-go (match-string 1)))))
+#+END_SRC
+** Pastebin
+#+BEGIN_SRC emacs-lisp
+  (use-package 0x0
+    :custom
+    (0x0-default-service 'ttm))
+#+END_SRC
