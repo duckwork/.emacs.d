@@ -5,7 +5,7 @@
   ;; git update-index --no-assume-unchanged init.el
 
   (require 'org)
-  (find-file (concat user-emacs-directory "init.org"))
+  (find-file (concat user-emacs-directory "config.org"))
   (org-babel-tangle)
   (load-file (concat user-emacs-directory "early-init.el"))
   (load-file (concat user-emacs-directory "init.el"))
