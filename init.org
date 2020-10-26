@@ -33,17 +33,19 @@ After the first run, the above ~init.el~ will be replaced by the tangled stuff h
 
 #+NAME: tangle-on-save
 #+BEGIN_SRC emacs-lisp :tangle no
-  (defun acdw/tangle-init ()
-    "If the current buffer is `init.org', the code blocks are tangled,
-  and the tangled file is compiled."
-    (when (equal (buffer-file-name)
-                 (expand-file-name (concat user-emacs-directory "init.org")))
-      ;; Avoid running hooks when tangling.
-      (let ((prog-mode-hook nil))
-        (org-babel-tangle)
-        (byte-compile-file (concat user-emacs-directory "init.el")))))
+    (defun acdw/tangle-init ()
+      "If the current buffer is `init.org', the code blocks are tangled,
+    and the tangled file is compiled and loaded."
+      (when (equal (buffer-file-name)
+                   (expand-file-name (concat user-emacs-directory "init.org")))
+        ;; Avoid running hooks when tangling.
+        (let ((prog-mode-hook nil))
+          (org-babel-tangle)
+          (byte-compile-file (concat user-emacs-directory "init.el"))
+          (load-file (concat user-emacs-directory "early-init.el"))
+          (load-file (concat user-emacs-directory "init.el")))))
 
-(add-hook 'after-save-hook #'acdw/tangle-init)
+  (add-hook 'after-save-hook #'acdw/tangle-init)
 #+END_SRC
 
 * Early initiation
@@ -122,7 +124,8 @@ Either way, I /do/ like the ~:custom~ interface that ~use-package~ has, so I've 
 * Files
 ** [[https://github.com/emacscollective/no-littering][Keep .emacs.d tidy]]
 #+BEGIN_SRC emacs-lisp
-  (use-package no-littering)
+  (straight-use-package 'no-littering)
+  (require 'no-littering)
 #+END_SRC
 ** Customize
 I don't like the customize interface, but I still sometimes use it when I'm not sure what the name of a variable is.  So I save the stuff to a file, I just don't load it or keep track of it.
@@ -271,9 +274,7 @@ I hide all minor-modes by default for a clean modeline.  However, I can add them
 #+BEGIN_SRC emacs-lisp
   (use-package rich-minority
     :custom
-    (rm-whitelist '("^$")) ; show no minor modes
-    :config
-    (rich-minority-mode 1))
+    (rm-whitelist '("^$")))
 #+END_SRC
 ** Fonts
 I'm sure there's a better way to do this, but for now, this is the best I've got.  I append to the ~face-font-family-alternatives~ because I don't know what kind of weird magic they're doing in there.
@@ -303,9 +304,13 @@ I'm sure there's a better way to do this, but for now, this is the best I've got
 
 *** [[https://github.com/rolandwalker/unicode-fonts][Unicode fonts]]
 #+BEGIN_SRC emacs-lisp
+  (use-package persistent-soft)
+
   (use-package unicode-fonts
+    :after persistent-soft
     :config
     (unicode-fonts-setup))
+
 #+END_SRC
 * Editing
 ** Completion
@@ -320,21 +325,36 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
   (cuss read-file-name-completion-ignore-case t)
 #+END_SRC
 ** Selection & Minibuffer
-*** Selectrum and Prescient for narrowing selection
-#+BEGIN_SRC emacs-lisp
-  (use-package selectrum
+*** Ido
+#+begin_src emacs-lisp
+  (use-package ido
+    :custom
+    (ido-everywhere t)
+    (ido-virtual-buffers t)
+    (ido-use-faces t)
+    (ido-default-buffer-method 'selected-window)
+    (ido-auto-merge-work-directories-length -1)
     :config
-    (selectrum-mode +1))
+    (ido-mode 1))
 
-  (use-package prescient
+  (use-package flx-ido
+    :after ido
     :config
-    (prescient-persist-mode +1))
+    (flx-ido-mode 1))
 
-  (use-package selectrum-prescient
-    :after (selectrum prescient)
+  (use-package ido-vertical-mode
+    :after ido
     :config
-    (selectrum-prescient-mode +1))
-#+END_SRC
+    (ido-vertical-mode 1))
+
+  (use-package ido-completing-read+
+    :after ido
+    :custom
+    (ido-ubiquitous-max-items 50000)
+    (ido-cr+-max-items 50000)
+    :config
+    (ido-ubiquitous-mode 1))
+#+end_src
 *** CtrlF for searching
 #+BEGIN_SRC emacs-lisp
   (use-package ctrlf
@@ -441,18 +461,6 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     ("C-x g" . magit-status)
     :config
     (add-to-list 'magit-no-confirm 'stage-all-changes))
-
-  ;; hook into `prescient'
-  (define-advice magit-list-refs
-      (:around (orig &optional namespaces format sortby)
-               prescient-sort)
-    "Apply prescient sorting when listing refs."
-    (let ((res (funcall orig namespaces format sortby)))
-      (if (or sortby
-              magit-list-refs-sortby
-              (not selectrum-should-sort-p))
-          res
-        (prescient-sort res))))
 
   (when (executable-find "cmake")
     (use-package libgit)
