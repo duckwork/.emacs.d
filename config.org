@@ -561,6 +561,33 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
            ("\\.js\\'" . web-mode)))
 #+END_SRC
 * Writing
+** Org mode
+#+begin_src emacs-lisp
+  (use-package org
+    :custom
+    (org-startup-indented t)
+    (org-src-tab-acts-natively t)
+    (org-hide-emphasis-markers t)
+    (org-fontify-done-headline t)
+    (org-hide-leading-stars t)
+    (org-pretty-entities t)
+    :hook
+    (org-mode . variable-pitch-mode))
+
+  (use-package org-superstar
+    :hook
+    (org-mode . org-superstar-mode))
+#+end_src
+** Visual fill column
+#+begin_src emacs-lisp
+  (use-package visual-fill-column
+    :custom
+    (split-window-preferred-function 'visual-fill-column-split-window-sensibly)
+    (visual-fill-column-center-text t)
+    :config
+    (advice-add 'text-scale-adjust
+                :after #'visual-fill-column-adjust))
+#+end_src
 * Applications
 ** Gemini & Gopher
 #+BEGIN_SRC emacs-lisp
@@ -592,3 +619,19 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     :custom
     (0x0-default-service 'ttm))
 #+END_SRC
+* Machine-specific configurations
+#+begin_src emacs-lisp
+  (cond
+   (*acdw/at-home*
+    (use-package su
+      :config
+      (su-mode 1))
+    (use-package trashed
+      :custom
+      (delete-by-moving-to-trash t))
+    (use-package exec-path-from-shell
+      :demand
+      :config
+      (exec-path-from-shell-initialize)))
+   )
+#+end_src
