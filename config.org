@@ -252,6 +252,13 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
 #+begin_src emacs-lisp
   (fset 'yes-or-no-p #'y-or-n-p)
 #+end_src
+*** Miscellaneous
+**** Convert =^L= to a line
+#+begin_src emacs-lisp
+  (use-package page-break-lines
+    :config
+    (global-page-break-lines-mode 1))
+#+end_src
 ** Themes: [[https://github.com/protesilaos/modus-themes][Modus]]
 #+BEGIN_SRC emacs-lisp
   (use-package modus-operandi-theme)
@@ -305,7 +312,31 @@ I'm sure there's a better way to do this, but for now, this is the best I've got
                       :family "VariablePitch"
                       :height 110)
 #+END_SRC
-
+*** Ligatures
+#+begin_src emacs-lisp
+  (use-package ligature
+    :straight (ligature
+               :host github
+               :repo "mickeynp/ligature.el")
+    :config
+    (ligature-set-ligatures 'prog-mode
+                            '("++" "--" "/=" "&&" "||" "||="
+                              "->" "=>" "::" "__"
+                              "==" "===" "!=" "=/=" "!=="
+                              "<=" ">=" "<=>"
+                              "/*" "*/" "//" "///"
+                              "\\n" "\\\\"
+                              "<<" "<<<" "<<=" ">>" ">>>" ">>="
+                              "|=" "^="
+                              "**" "--" "---" "----" "-----"
+                              "==" "===" "====" "====="
+                              "</" "<!--" "</>" "-->" "/>"
+                              ":=" "..." ":>" ":<" ">:" "<:"
+                              "::=" ;; add others here
+                              ))
+    :config
+    (global-ligature-mode))
+#+end_src
 *** [[https://github.com/rolandwalker/unicode-fonts][Unicode fonts]]
 #+BEGIN_SRC emacs-lisp
   (use-package persistent-soft)
