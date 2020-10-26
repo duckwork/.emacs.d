@@ -347,10 +347,6 @@ I'm sure there's a better way to do this, but for now, this is the best I've got
     (unicode-fonts-setup))
 
 #+END_SRC
-** Interactivity
-#+begin_src emacs-lisp
-  (fset 'yes-or-no-p #'y-or-n-p)
-#+end_src
 * Editing
 ** Completion
 I was using company, but I think it might've been causing issues with ~awk-mode~, so I'm trying ~hippie-mode~ right now.  So far, I'm also enjoying not having a popup all the time.
