@@ -561,6 +561,19 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
            ("\\.js\\'" . web-mode)))
 #+END_SRC
 * Writing
+** Visual fill column
+#+begin_src emacs-lisp
+  (use-package visual-fill-column
+    :custom
+    (split-window-preferred-function 'visual-fill-column-split-window-sensibly)
+    (visual-fill-column-center-text t)
+    (fill-column 100)
+    :config
+    (advice-add 'text-scale-adjust
+                :after #'visual-fill-column-adjust)
+    :hook
+    (org-mode . visual-fill-column-mode))
+#+end_src
 ** Org mode
 #+begin_src emacs-lisp
   (use-package org
@@ -578,16 +591,7 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     :hook
     (org-mode . org-superstar-mode))
 #+end_src
-** Visual fill column
-#+begin_src emacs-lisp
-  (use-package visual-fill-column
-    :custom
-    (split-window-preferred-function 'visual-fill-column-split-window-sensibly)
-    (visual-fill-column-center-text t)
-    :config
-    (advice-add 'text-scale-adjust
-                :after #'visual-fill-column-adjust))
-#+end_src
+
 * Applications
 ** Gemini & Gopher
 #+BEGIN_SRC emacs-lisp
