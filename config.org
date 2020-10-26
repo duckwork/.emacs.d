@@ -561,3 +561,12 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     :custom
     (0x0-default-service 'ttm))
 #+END_SRC
+** Gnus
+#+begin_src emacs-lisp
+  (cuss gnus-select-method
+        '(nnimap "imap.fastmail.com"
+                 (nnimap-inbox "INBOX")
+                 (nnimap-split-methods default)
+                 (nnimap-expunge t)
+                 (nnimap-stream ssl)))
+#+end_src
