@@ -9,4 +9,3 @@
   (org-babel-tangle)
   (load-file (concat user-emacs-directory "early-init.el"))
   (load-file (concat user-emacs-directory "init.el"))
-  (byte-compile-file (concat user-emacs-directory "init.el"))

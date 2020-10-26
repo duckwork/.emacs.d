@@ -33,17 +33,16 @@ After the first run, the above ~init.el~ will be replaced by the tangled stuff h
 
 #+NAME: tangle-on-save
 #+BEGIN_SRC emacs-lisp :tangle no
-    (defun acdw/tangle-init ()
-      "If the current buffer is `init.org', the code blocks are tangled,
+  (defun acdw/tangle-init ()
+    "If the current buffer is `init.org', the code blocks are tangled,
     and the tangled file is compiled and loaded."
-      (when (equal (buffer-file-name)
-                   (expand-file-name (concat user-emacs-directory "init.org")))
-        ;; Avoid running hooks when tangling.
-        (let ((prog-mode-hook nil))
-          (org-babel-tangle)
-          (byte-compile-file (concat user-emacs-directory "init.el"))
-          (load-file (concat user-emacs-directory "early-init.el"))
-          (load-file (concat user-emacs-directory "init.el")))))
+    (when (equal (buffer-file-name)
+                 (expand-file-name (concat user-emacs-directory "init.org")))
+      ;; Avoid running hooks when tangling.
+      (let ((prog-mode-hook nil))
+        (org-babel-tangle)
+        (load-file (concat user-emacs-directory "early-init.el"))
+        (load-file (concat user-emacs-directory "init.el")))))
 
   (add-hook 'after-save-hook #'acdw/tangle-init)
 #+END_SRC
@@ -312,6 +311,10 @@ I'm sure there's a better way to do this, but for now, this is the best I've got
     (unicode-fonts-setup))
 
 #+END_SRC
+** Interactivity
+#+begin_src emacs-lisp
+  (fset 'yes-or-no-p #'y-or-n-p)
+#+end_src
 * Editing
 ** Completion
 I was using company, but I think it might've been causing issues with ~awk-mode~, so I'm trying ~hippie-mode~ right now.  So far, I'm also enjoying not having a popup all the time.
@@ -437,8 +440,7 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
       (when (= orig-point (point))
         (move-beginning-of-line 1))))
 
-  (bind-key "C-a" ; can't do [remap], don't know why
-            #'my/smarter-move-beginning-of-line)
+  (bind-key "C-a" #'my/smarter-move-beginning-of-line)
 #+END_SRC
 ** Delete the selection when typing
 #+BEGIN_SRC emacs-lisp
