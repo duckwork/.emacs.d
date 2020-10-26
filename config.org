@@ -248,6 +248,10 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
 #+BEGIN_SRC emacs-lisp
   (cuss disabled-command-function nil)
 #+END_SRC
+**** Function aliases
+#+begin_src emacs-lisp
+  (fset 'yes-or-no-p #'y-or-n-p)
+#+end_src
 ** Themes: [[https://github.com/protesilaos/modus-themes][Modus]]
 #+BEGIN_SRC emacs-lisp
   (use-package modus-operandi-theme)
