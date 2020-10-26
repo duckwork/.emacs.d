@@ -24,6 +24,7 @@ When this configuration is loaded for the first time, this ~init.el~ is loaded:
   (require 'org)
   (find-file (concat user-emacs-directory "init.org"))
   (org-babel-tangle)
+  (load-file (concat user-emacs-directory "early-init.el"))
   (load-file (concat user-emacs-directory "init.el"))
   (byte-compile-file (concat user-emacs-directory "init.el"))
 #+END_SRC
@@ -37,7 +38,7 @@ After the first run, the above ~init.el~ will be replaced by the tangled stuff h
     "If the current buffer is `init.org', the code blocks are tangled,
     and the tangled file is compiled and loaded."
     (when (equal (buffer-file-name)
-                 (expand-file-name (concat user-emacs-directory "init.org")))
+                 (expand-file-name (concat user-emacs-directory "config.org")))
       ;; Avoid running hooks when tangling.
       (let ((prog-mode-hook nil))
         (org-babel-tangle)
@@ -328,35 +329,20 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
   (cuss read-file-name-completion-ignore-case t)
 #+END_SRC
 ** Selection & Minibuffer
-*** Ido
+*** Selectrum & Prescient
 #+begin_src emacs-lisp
-  (use-package ido
-    :custom
-    (ido-everywhere t)
-    (ido-virtual-buffers t)
-    (ido-use-faces t)
-    (ido-default-buffer-method 'selected-window)
-    (ido-auto-merge-work-directories-length -1)
-    :config
-    (ido-mode 1))
+    (use-package selectrum
+      :config
+      (selectrum-mode +1))
 
-  (use-package flx-ido
-    :after ido
-    :config
-    (flx-ido-mode 1))
+    (use-package prescient
+      :config
+      (prescient-persist-mode +1))
 
-  (use-package ido-vertical-mode
-    :after ido
-    :config
-    (ido-vertical-mode 1))
-
-  (use-package ido-completing-read+
-    :after ido
-    :custom
-    (ido-ubiquitous-max-items 50000)
-    (ido-cr+-max-items 50000)
-    :config
-    (ido-ubiquitous-mode 1))
+    (use-package selectrum-prescient
+      :after (selectrum prescient)
+      :config
+      (selectrum-prescient-mode +1))
 #+end_src
 *** CtrlF for searching
 #+BEGIN_SRC emacs-lisp
@@ -463,6 +449,18 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     ("C-x g" . magit-status)
     :config
     (add-to-list 'magit-no-confirm 'stage-all-changes))
+
+  ;; hook into `prescient'
+  (define-advice magit-list-refs
+      (:around (orig &optional namespaces format sortby)
+               prescient-sort)
+    "Apply prescient sorting when listing refs."
+    (let ((res (funcall orig namespaces format sortby)))
+      (if (or sortby
+              magit-list-refs-sortby
+              (not selectrum-should-sort-p))
+          res
+        (prescient-sort res))))
 
   (when (executable-find "cmake")
     (use-package libgit)
