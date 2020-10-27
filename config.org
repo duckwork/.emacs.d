@@ -631,6 +631,9 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
                  (nnimap-split-methods default)
                  (nnimap-expunge t)
                  (nnimap-stream ssl)))
+
+  (cuss gnus-secondary-select-methods
+        '((nntp "news.gwene.org")))
 #+end_src
 * Machine-specific configurations
 #+begin_src emacs-lisp
