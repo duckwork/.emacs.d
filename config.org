@@ -585,6 +585,12 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     :hook
     (org-mode . visual-fill-column-mode))
 #+end_src
+** Mixed-pitch
+#+begin_src emacs-lisp
+  (use-package mixed-pitch
+    :hook
+    (text-mode . mixed-pitch-mode))
+#+end_src
 ** Org mode
 #+begin_src emacs-lisp
   (use-package org
@@ -594,9 +600,7 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     (org-hide-emphasis-markers t)
     (org-fontify-done-headline t)
     (org-hide-leading-stars t)
-    (org-pretty-entities t)
-    :hook
-    (org-mode . variable-pitch-mode))
+    (org-pretty-entities t))
 
   (use-package org-superstar
     :hook
