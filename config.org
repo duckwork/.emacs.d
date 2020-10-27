@@ -317,7 +317,7 @@ I'm sure there's a better way to do this, but for now, this is the best I've got
 
   (set-face-attribute 'variable-pitch nil
                       :family "VariablePitch"
-                      :height 110)
+                      :height 120)
 #+END_SRC
 *** Ligatures
 #+begin_src emacs-lisp
