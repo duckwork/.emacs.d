@@ -320,29 +320,30 @@ I'm sure there's a better way to do this, but for now, this is the best I've got
                       :height 120)
 #+END_SRC
 *** Ligatures
+These cause big problems with cc-mode (as in, totally freezing everything), so I'm going to comment it out.
 #+begin_src emacs-lisp
-  (use-package ligature
-    :straight (ligature
-               :host github
-               :repo "mickeynp/ligature.el")
-    :config
-    (ligature-set-ligatures 'prog-mode
-                            '("++" "--" "/=" "&&" "||" "||="
-                              "->" "=>" "::" "__"
-                              "==" "===" "!=" "=/=" "!=="
-                              "<=" ">=" "<=>"
-                              "/*" "*/" "//" "///"
-                              "\\n" "\\\\"
-                              "<<" "<<<" "<<=" ">>" ">>>" ">>="
-                              "|=" "^="
-                              "**" "--" "---" "----" "-----"
-                              "==" "===" "====" "====="
-                              "</" "<!--" "</>" "-->" "/>"
-                              ":=" "..." ":>" ":<" ">:" "<:"
-                              "::=" ;; add others here
-                              ))
-    :config
-    (global-ligature-mode))
+  ;; (use-package ligature
+  ;;   :straight (ligature
+  ;;              :host github
+  ;;              :repo "mickeynp/ligature.el")
+  ;;   :config
+  ;;   (ligature-set-ligatures 'prog-mode
+  ;;                           '("++" "--" "/=" "&&" "||" "||="
+  ;;                             "->" "=>" "::" "__"
+  ;;                             "==" "===" "!=" "=/=" "!=="
+  ;;                             "<=" ">=" "<=>"
+  ;;                             "/*" "*/" "//" "///"
+  ;;                             "\\n" "\\\\"
+  ;;                             "<<" "<<<" "<<=" ">>" ">>>" ">>="
+  ;;                             "|=" "^="
+  ;;                             "**" "--" "---" "----" "-----"
+  ;;                             "==" "===" "====" "====="
+  ;;                             "</" "<!--" "</>" "-->" "/>"
+  ;;                             ":=" "..." ":>" ":<" ">:" "<:"
+  ;;                             "::=" ;; add others here
+  ;;                             ))
+  ;;   :config
+  ;;   (global-ligature-mode))
 #+end_src
 *** [[https://github.com/rolandwalker/unicode-fonts][Unicode fonts]]
 #+BEGIN_SRC emacs-lisp
