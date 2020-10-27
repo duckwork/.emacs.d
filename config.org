@@ -274,6 +274,13 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
     :config
     (change-theme 'modus-operandi 'modus-vivendi))
 #+END_SRC
+*** Disable the current theme when a theme is interactively loaded
+This doesn't happen often, but I'll be ready when it does.
+#+begin_src emacs-lisp
+  (defadvice load-theme
+      (before disable-before-load (theme &optional no-confirm no-enable) activate)
+    (mapc 'disable-theme custom-enabled-themes))
+#+end_src
 ** Modeline: [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]]
 #+BEGIN_SRC emacs-lisp
   (use-package smart-mode-line
