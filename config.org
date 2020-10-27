@@ -37,13 +37,12 @@ After the first run, the above ~init.el~ will be replaced by the tangled stuff h
   (defun acdw/tangle-init ()
     "If the current buffer is `init.org', the code blocks are tangled,
     and the tangled file is compiled and loaded."
+    (interactive)
     (when (equal (buffer-file-name)
                  (expand-file-name (concat user-emacs-directory "config.org")))
       ;; Avoid running hooks when tangling.
       (let ((prog-mode-hook nil))
-        (org-babel-tangle)
-        (load-file (concat user-emacs-directory "early-init.el"))
-        (load-file (concat user-emacs-directory "init.el")))))
+        (org-babel-tangle))))
 
   (add-hook 'after-save-hook #'acdw/tangle-init)
 #+END_SRC
