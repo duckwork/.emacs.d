@@ -171,15 +171,16 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
     :config
     (super-save-mode 1))
 #+END_SRC
-** Save places
+** [[https://www.emacswiki.org/emacs/SavePlace][Save places]]
 #+BEGIN_SRC emacs-lisp
   (use-package saveplace
     :custom
     (save-place-file (no-littering-expand-var-file-name "places"))
+    (save-place-forget-unreadable-files (not *acdw/at-work*))
     :config
     (save-place-mode 1))
 #+END_SRC
-** Save history
+** [[https://www.emacswiki.org/emacs/SaveHist][Save history]]
 #+BEGIN_SRC emacs-lisp
   (use-package savehist
     :custom
