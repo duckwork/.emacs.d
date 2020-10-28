@@ -4,3 +4,7 @@
 !.gitignore
 !README.org
 !LICENSE
+# other files
+!var/
+var/*
+!var/elpher-bookmarks.el
