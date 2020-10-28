@@ -617,7 +617,9 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
                 ("n" . elpher-next-link)
                 ("p" . elpher-prev-link)
                 ("o" . elpher-follow-current-link)
-                ("G" . elpher-go-current)))
+                ("G" . elpher-go-current))
+    :hook
+    (elpher-mode . visual-fill-column-mode))
 
   (use-package gemini-mode
     :straight (gemini-mode
