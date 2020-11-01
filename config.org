@@ -583,6 +583,10 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
            ("\\.css?\\'" . web-mode)
            ("\\.js\\'" . web-mode)))
 #+END_SRC
+*** SSH config
+#+begin_src emacs-lisp
+  (use-package ssh-config-mode)
+#+end_src
 * Writing
 ** Visual fill column
 #+begin_src emacs-lisp
@@ -612,7 +616,8 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     (org-hide-emphasis-markers t)
     (org-fontify-done-headline t)
     (org-hide-leading-stars t)
-    (org-pretty-entities t))
+    (org-pretty-entities t)
+    (org-src-window-setup 'current-window))
 
   (use-package org-superstar
     :hook
