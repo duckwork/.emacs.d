@@ -521,14 +521,9 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     :custom
     (forge-owned-accounts '(("duckwork"))))
 #+END_SRC
-** Code formatting and display
+** Code display
 #+BEGIN_SRC emacs-lisp
-  (use-package format-all
-    :hook
-    (prog-mode . format-all-mode))
-
   (add-hook 'prog-mode-hook #'prettify-symbols-mode)
-
 #+END_SRC
 *** Parentheses
 #+BEGIN_SRC emacs-lisp
