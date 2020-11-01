@@ -166,7 +166,6 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
   (use-package super-save
     :custom
     (auto-save-default nil)
-    (super-save-auto-save-when-idle t)
     (super-save-exclude '(".gpg"))
     :config
     (super-save-mode 1))
