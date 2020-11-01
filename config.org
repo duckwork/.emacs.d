@@ -385,14 +385,23 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
       :config
       (selectrum-prescient-mode +1))
 #+end_src
+** Search
 *** CtrlF for searching
 #+BEGIN_SRC emacs-lisp
   (use-package ctrlf
     :custom
     (ctrlf-show-match-count-at-eol nil)
     :config
-    (ctrlf-mode +1))
+    (ctrlf-mode +1)
+    :bind
+    ("C-s" . ctrlf-forward-regexp))
 #+END_SRC
+*** [[https://github.com/benma/visual-regexp.el][Visual Regexp]]
+#+begin_src emacs-lisp
+  (use-package visual-regexp
+    :bind
+    ([remap query-replace] . 'vr/query-replace))
+#+end_src
 ** Undo
 #+BEGIN_SRC emacs-lisp
   (use-package undo-fu
