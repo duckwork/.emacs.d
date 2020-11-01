@@ -1,15 +1,1 @@
-* my =emacs.d=
-
-hey. I use emacs now.
-
-this is my =~/.emacs.d=.
-
-I was going to use Org-mode but .. I decided not to.
-
-
-* License
-
-WTFPL.  For more info, see =LICENSE=.
-
-Probably that's not legal under the terms of the GPL or whatever Emacs is licensed under.
-SUE ME, RMS
+config.org

@@ -8,6 +8,13 @@
 
 I wanted to write my Emacs configuration in [[https://orgmode.org][Org mode]] for a while, but never could quite figure out how.  Finally, I found [[https://github.com/larstvei/dot-emacs][Lars Tveito]]'s config, which does exactly what I want: =init.el= is small and simple, and replaced after the first run, and =init.org= is automatically tangled.  So I'm very excited.
 
+* License
+
+WTFPL.  For more info, see =LICENSE=.
+
+Probably that's not legal under the terms of the GPL or whatever Emacs is licensed under.
+SUE ME, RMS
+
 * Bootstrap
 
 /Check out Lars's config for the reasoning behind this./
