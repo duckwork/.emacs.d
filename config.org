@@ -551,6 +551,15 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
               #'linum-mode))
 #+END_SRC
 ** Languages
+*** Shell
+#+begin_src emacs-lisp
+  (use-package shfmt
+    :hook
+    (sh-mode . shfmt-on-save-mode))
+
+  ;; fish
+  (use-package fish-mode)
+#+end_src
 *** Lua
 #+BEGIN_SRC emacs-lisp
   (use-package lua-mode
