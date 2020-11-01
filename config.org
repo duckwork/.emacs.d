@@ -652,6 +652,16 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
   (cuss gnus-secondary-select-methods
         '((nntp "news.gwene.org")))
 #+end_src
+** Nov.el: read Ebooks
+#+begin_src emacs-lisp
+  (use-package nov
+    :mode ("\\.epub\\'" . nov-mode)
+    :custom
+    (nov-text-width t)
+    :hook
+    (nov-mode . visual-line-mode)
+    (nov-mode . visual-fill-column-mode))
+#+end_src
 * Machine-specific configurations
 #+begin_src emacs-lisp
   (cond
