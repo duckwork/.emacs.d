@@ -3,7 +3,6 @@
 !init.el
 !.gitignore
 !README.md
-!LICENSE
 # other files
 !var/
 var/*
