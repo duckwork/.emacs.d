@@ -1,95 +1,9 @@
 
-# Table of Contents
-
-1.  [Preamble](#org0bff216)
-2.  [License](#orged58376)
-3.  [Bootstrap](#org4c40f13)
-    1.  [Tangling](#orgdd48fb7)
-4.  [Early initiation](#orgf06a67b)
-    1.  [Preamble](#org790f346)
-    2.  [Computers](#org27a9d06)
-    3.  [Package management](#org982c51d)
-        1.  [At work, Git's in a weird place](#org1d43543)
-        2.  [straight.el](#orgc3c01af)
-        3.  [use-package](#org75b502f)
-5.  [Begin init.el](#orge258966)
-6.  [Macros](#org429e2c9)
-    1.  [cuss](#org98b79c1)
-7.  [Files](#orgef614d8)
-    1.  [Keep .emacs.d tidy](#orgcd98663)
-    2.  [Customize](#orgfa8ddd8)
-    3.  [Encoding](#org7d9d257)
-    4.  [Recent files](#org5a20cd6)
-    5.  [Backups](#org48971aa)
-    6.  [Autosave](#org3243bbe)
-    7.  [Save places](#org1ad3687)
-    8.  [Save history](#orge49f590)
-8.  [User interface](#orgbaf79a4)
-    1.  [Look](#org57b0df2)
-        1.  [Frames and windows](#org7eea925)
-        2.  [Buffers](#orgb767f7c)
-        3.  [Cursor](#org8983905)
-        4.  [Interactivity](#org62c9668)
-        5.  [Miscellaneous](#org1ea822c)
-    2.  [Themes: Modus](#org677f380)
-        1.  [Change themes based on time of day](#orgb821d6f)
-        2.  [Disable the current theme when a theme is interactively loaded](#org5e81fc5)
-    3.  [Modeline: smart-mode-line](#org8ab1e2a)
-    4.  [Fonts](#org31ee2e5)
-        1.  [Ligatures](#org77dea9d)
-        2.  [Unicode fonts](#orgcda6a3b)
-9.  [Editing](#org14ea5cc)
-    1.  [Completion](#org46827ec)
-    2.  [Ignore case](#orga788d6a)
-    3.  [Selection & Minibuffer](#org706315a)
-        1.  [Selectrum & Prescient](#org294ff45)
-    4.  [Search](#org2c0ce4c)
-        1.  [CtrlF for searching](#org2ee70e6)
-        2.  [Visual Regexp](#orgce9fee5)
-    5.  [Undo](#orgd0935a4)
-    6.  [Visual editing](#org90fff82)
-        1.  [`zap-to-char` replacement](#orgaf545a8)
-        2.  [Operate on a line if there's no current region](#orga6c374d)
-        3.  [Expand-region](#orgc10cc77)
-        4.  [Volatile highlights](#orge349e7b)
-        5.  [Visual line mode](#org2537d6e)
-        6.  [A better `move-beginning-of-line`](#orgb4e6549)
-    7.  [Delete the selection when typing](#orga87bcd4)
-    8.  [Clipboard](#org383042b)
-    9.  [Tabs & Spaces](#orge8f1064)
-10. [Programming](#org7ebcef6)
-    1.  [Git](#org9139ba2)
-    2.  [Code display](#org158c62e)
-        1.  [Parentheses](#orga6fefd0)
-    3.  [Line numbers](#orge880bac)
-    4.  [Languages](#orgd13b98f)
-        1.  [Shell](#org7b82a1d)
-        2.  [Lua](#orgfe2fd7e)
-        3.  [Fennel](#org3000823)
-        4.  [Web](#org38d26c9)
-        5.  [SSH config](#org9ae6b0f)
-11. [Writing](#org100f1c7)
-    1.  [Word count](#orgfbddaf6)
-    2.  [Visual fill column](#org32c015a)
-    3.  [Mixed-pitch](#orgcb552ec)
-    4.  [Org mode](#org3025d5a)
-12. [Applications](#org7eada39)
-    1.  [Gemini & Gopher](#orgc966a52)
-    2.  [Pastebin](#orgf849ba8)
-    3.  [Gnus](#orge75cc1a)
-    4.  [Nov.el: read Ebooks](#org82ec7aa)
-13. [Machine-specific configurations](#orga88ef69)
-
-
-
-<a id="org0bff216"></a>
 
 # Preamble
 
 I wanted to write my Emacs configuration in [Org mode](https://orgmode.org) for a while, but never could quite figure out how.  Finally, I found [Lars Tveito](https://github.com/larstvei/dot-emacs)'s config, which does exactly what I want: `init.el` is small and simple, and replaced after the first run, and `init.org` is automatically tangled.  So I'm very excited.
 
-
-<a id="orged58376"></a>
 
 # License
 
@@ -98,8 +12,6 @@ WTFPL.  For more info, see `LICENSE`.
 Probably that's not legal under the terms of the GPL or whatever Emacs is licensed under.
 SUE ME, RMS
 
-
-<a id="org4c40f13"></a>
 
 # Bootstrap
 
@@ -121,8 +33,6 @@ When this configuration is loaded for the first time, this `init.el` is loaded:
     (byte-compile-file (concat user-emacs-directory "init.el"))
 
 
-<a id="orgdd48fb7"></a>
-
 ## Tangling
 
 After the first run, the above `init.el` will be replaced by the tangled stuff here.  However, when *this* file is edited, we'll need to re-tangle everything.  However, nobody has time to do that manually with `C-c C-v t`, *every time*!  Luckily, Emacs is highly programmable.
@@ -140,14 +50,10 @@ After the first run, the above `init.el` will be replaced by the tangled stuff h
     (add-hook 'after-save-hook #'acdw/tangle-init)
 
 
-<a id="orgf06a67b"></a>
-
 # Early initiation
 
 Emacs 27.1+ uses `early-init.el`, which is evaluated before things like `package.el` and other stuff.  So I have a few settings in there.
 
-
-<a id="org790f346"></a>
 
 ## Preamble
 
@@ -157,8 +63,6 @@ Of course, first thing is the modeline.  After that, I set `load-prefer-newer` b
     
     (setq load-prefer-newer t)
 
-
-<a id="org27a9d06"></a>
 
 ## Computers
 
@@ -170,14 +74,10 @@ I have to set these constants before bootstrapping the package manager, since `s
     (defconst *acdw/at-home* (or *acdw/at-larry* *acdw/at-bax*))
 
 
-<a id="org982c51d"></a>
-
 ## Package management
 
 I've started using straight.el, which is great.  It grabs packages from git, and apparently will let me fork and edit them, which I'll probably get around to &#x2026; eventually.
 
-
-<a id="org1d43543"></a>
 
 ### At work, Git's in a weird place
 
@@ -185,8 +85,6 @@ I've started using straight.el, which is great.  It grabs packages from git, and
       (add-to-list 'exec-path "~/bin")
       (add-to-list 'exec-path "C:/Users/aduckworth/Downloads/PortableGit/bin"))
 
-
-<a id="orgc3c01af"></a>
 
 ### [straight.el](https://github.com/raxod502/straight.el)
 
@@ -207,8 +105,6 @@ I don't know why, but for some reason the bootstrapping doesn't work on Windows.
       (load bootstrap-file nil 'nomessage))
 
 
-<a id="org75b502f"></a>
-
 ### [use-package](https://github.com/jwiegley/use-package)
 
 Yeah, you know it, I know it, we all love it.  It's use-package.
@@ -217,20 +113,14 @@ Yeah, you know it, I know it, we all love it.  It's use-package.
     (straight-use-package 'use-package)
 
 
-<a id="orge258966"></a>
-
 # Begin init.el
 
     ;;; init.el -*- lexical-binding: t; coding: utf-8 -*-
     <<tangle-on-save>>
 
 
-<a id="org429e2c9"></a>
-
 # Macros
 
-
-<a id="org98b79c1"></a>
 
 ## cuss
 
@@ -245,12 +135,8 @@ Either way, I *do* like the `:custom` interface that `use-package` has, so I've 
                   ',var ,val)))
 
 
-<a id="orgef614d8"></a>
-
 # Files
 
-
-<a id="orgcd98663"></a>
 
 ## [Keep .emacs.d tidy](https://github.com/emacscollective/no-littering)
 
@@ -258,16 +144,12 @@ Either way, I *do* like the `:custom` interface that `use-package` has, so I've 
     (require 'no-littering)
 
 
-<a id="orgfa8ddd8"></a>
-
 ## Customize
 
 I don't like the customize interface, but I still sometimes use it when I'm not sure what the name of a variable is.  So I save the stuff to a file, I just don't load it or keep track of it.
 
     (cuss custom-file (no-littering-expand-etc-file-name "custom.el"))
 
-
-<a id="org7d9d257"></a>
 
 ## Encoding
 
@@ -283,8 +165,6 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
     (cuss x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
 
 
-<a id="org5a20cd6"></a>
-
 ## Recent files
 
     (use-package recentf
@@ -298,15 +178,11 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
       (recentf-mode 1))
 
 
-<a id="org48971aa"></a>
-
 ## Backups
 
     (cuss backup-directory-alist
           `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
 
-
-<a id="org3243bbe"></a>
 
 ## [Autosave](https://github.com/bbatsov/super-save)
 
@@ -318,8 +194,6 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
       (super-save-mode 1))
 
 
-<a id="org1ad3687"></a>
-
 ## [Save places](https://www.emacswiki.org/emacs/SavePlace)
 
     (use-package saveplace
@@ -329,8 +203,6 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
       :config
       (save-place-mode 1))
 
-
-<a id="orge49f590"></a>
 
 ## [Save history](https://www.emacswiki.org/emacs/SaveHist)
 
@@ -345,17 +217,11 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
       (savehist-mode 1))
 
 
-<a id="orgbaf79a4"></a>
-
 # User interface
 
 
-<a id="org57b0df2"></a>
-
 ## Look
 
-
-<a id="org7eea925"></a>
 
 ### Frames and windows
 
@@ -381,8 +247,6 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
         (cuss window-combination-resize t)
 
 
-<a id="orgb767f7c"></a>
-
 ### Buffers
 
     (cuss uniquify-buffer-name-style 'forward)
@@ -400,16 +264,12 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
         (cuss initial-scratch-message nil)
 
 
-<a id="org8983905"></a>
-
 ### Cursor
 
     (cuss cursor-type 'bar)
     (cuss cursor-in-non-selected-windows 'hollow)
     (blink-cursor-mode 0)
 
-
-<a id="org62c9668"></a>
 
 ### Interactivity
 
@@ -430,8 +290,6 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
         (fset 'yes-or-no-p #'y-or-n-p)
 
 
-<a id="org1ea822c"></a>
-
 ### Miscellaneous
 
 1.  Convert `^L` to a line
@@ -441,15 +299,11 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
           (global-page-break-lines-mode 1))
 
 
-<a id="org677f380"></a>
-
 ## Themes: [Modus](https://github.com/protesilaos/modus-themes)
 
     (use-package modus-operandi-theme)
     (use-package modus-vivendi-theme)
 
-
-<a id="orgb821d6f"></a>
 
 ### [Change themes](https://github.com/hadronzoo/theme-changer) based on time of day
 
@@ -462,8 +316,6 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
       (change-theme 'modus-operandi 'modus-vivendi))
 
 
-<a id="org5e81fc5"></a>
-
 ### Disable the current theme when a theme is interactively loaded
 
 This doesn't happen often, but I'll be ready when it does.
@@ -472,8 +324,6 @@ This doesn't happen often, but I'll be ready when it does.
         (before disable-before-load (theme &optional no-confirm no-enable) activate)
       (mapc 'disable-theme custom-enabled-themes))
 
-
-<a id="org8ab1e2a"></a>
 
 ## Modeline: [smart-mode-line](https://github.com/Malabarba/smart-mode-line)
 
@@ -495,8 +345,6 @@ I hide all minor-modes by default for a clean modeline.  However, I can add them
       (rm-whitelist
        (mapconcat 'identity rm--whitelist-regexps "\\|")))
 
-
-<a id="org31ee2e5"></a>
 
 ## Fonts
 
@@ -524,8 +372,6 @@ I'm sure there's a better way to do this, but for now, this is the best I've got
                         :family "VariablePitch"
                         :height 130)
 
-
-<a id="org77dea9d"></a>
 
 ### Ligatures
 
@@ -555,8 +401,6 @@ These cause big problems with cc-mode (as in, totally freezing everything), so I
     ;;   (global-ligature-mode))
 
 
-<a id="orgcda6a3b"></a>
-
 ### [Unicode fonts](https://github.com/rolandwalker/unicode-fonts)
 
     (use-package persistent-soft)
@@ -567,12 +411,8 @@ These cause big problems with cc-mode (as in, totally freezing everything), so I
       (unicode-fonts-setup))
 
 
-<a id="org14ea5cc"></a>
-
 # Editing
 
-
-<a id="org46827ec"></a>
 
 ## Completion
 
@@ -581,8 +421,6 @@ I was using company, but I think it might've been causing issues with `awk-mode`
     (bind-key "M-/" #'hippie-expand)
 
 
-<a id="orga788d6a"></a>
-
 ## Ignore case
 
     (cuss completion-ignore-case t)
@@ -590,12 +428,8 @@ I was using company, but I think it might've been causing issues with `awk-mode`
     (cuss read-file-name-completion-ignore-case t)
 
 
-<a id="org706315a"></a>
-
 ## Selection & Minibuffer
 
-
-<a id="org294ff45"></a>
 
 ### Selectrum & Prescient
 
@@ -613,12 +447,8 @@ I was using company, but I think it might've been causing issues with `awk-mode`
       (selectrum-prescient-mode +1))
 
 
-<a id="org2c0ce4c"></a>
-
 ## Search
 
-
-<a id="org2ee70e6"></a>
 
 ### CtrlF for searching
 
@@ -631,16 +461,12 @@ I was using company, but I think it might've been causing issues with `awk-mode`
       ("C-s" . ctrlf-forward-regexp))
 
 
-<a id="orgce9fee5"></a>
-
 ### [Visual Regexp](https://github.com/benma/visual-regexp.el)
 
     (use-package visual-regexp
       :bind
       ([remap query-replace] . 'vr/query-replace))
 
-
-<a id="orgd0935a4"></a>
 
 ## Undo
 
@@ -661,12 +487,8 @@ I was using company, but I think it might've been causing issues with `awk-mode`
       (global-undo-fu-session-mode +1))
 
 
-<a id="org90fff82"></a>
-
 ## Visual editing
 
-
-<a id="orgaf545a8"></a>
 
 ### `zap-to-char` replacement
 
@@ -676,16 +498,12 @@ I was using company, but I think it might've been causing issues with `awk-mode`
       ([remap zap-up-to-char] . zop-up-to-char))
 
 
-<a id="orga6c374d"></a>
-
 ### Operate on a line if there's no current region
 
     (use-package whole-line-or-region
       :config
       (whole-line-or-region-global-mode +1))
 
-
-<a id="orgc10cc77"></a>
 
 ### Expand-region
 
@@ -695,8 +513,6 @@ I was using company, but I think it might've been causing issues with `awk-mode`
       ("C-+" . er/contract-region))
 
 
-<a id="orge349e7b"></a>
-
 ### Volatile highlights
 
     (use-package volatile-highlights
@@ -704,14 +520,10 @@ I was using company, but I think it might've been causing issues with `awk-mode`
       (volatile-highlights-mode 1))
 
 
-<a id="org2537d6e"></a>
-
 ### Visual line mode
 
     (global-visual-line-mode 1)
 
-
-<a id="orgb4e6549"></a>
 
 ### A better `move-beginning-of-line`
 
@@ -741,21 +553,15 @@ I was using company, but I think it might've been causing issues with `awk-mode`
     (bind-key "C-a" #'my/smarter-move-beginning-of-line)
 
 
-<a id="orga87bcd4"></a>
-
 ## Delete the selection when typing
 
     (delete-selection-mode 1)
 
 
-<a id="org383042b"></a>
-
 ## Clipboard
 
     (cuss save-interprogram-paste-before-kill t)
 
-
-<a id="orge8f1064"></a>
 
 ## Tabs & Spaces
 
@@ -763,12 +569,8 @@ I was using company, but I think it might've been causing issues with `awk-mode`
     (cuss sentence-end-double-space t)
 
 
-<a id="org7ebcef6"></a>
-
 # Programming
 
-
-<a id="org9139ba2"></a>
 
 ## Git
 
@@ -800,14 +602,10 @@ I was using company, but I think it might've been causing issues with `awk-mode`
       (forge-owned-accounts '(("duckwork"))))
 
 
-<a id="org158c62e"></a>
-
 ## Code display
 
     (add-hook 'prog-mode-hook #'prettify-symbols-mode)
 
-
-<a id="orga6fefd0"></a>
 
 ### Parentheses
 
@@ -827,8 +625,6 @@ I was using company, but I think it might've been causing issues with `awk-mode`
       (prog-mode . rainbow-delimiters-mode))
 
 
-<a id="orge880bac"></a>
-
 ## Line numbers
 
     (add-hook 'prog-mode-hook
@@ -838,12 +634,8 @@ I was using company, but I think it might've been causing issues with `awk-mode`
                 #'linum-mode))
 
 
-<a id="orgd13b98f"></a>
-
 ## Languages
 
-
-<a id="org7b82a1d"></a>
 
 ### Shell
 
@@ -857,8 +649,6 @@ I was using company, but I think it might've been causing issues with `awk-mode`
     (use-package fish-mode)
 
 
-<a id="orgfe2fd7e"></a>
-
 ### Lua
 
     (use-package lua-mode
@@ -866,15 +656,11 @@ I was using company, but I think it might've been causing issues with `awk-mode`
       :interpreter "lua")
 
 
-<a id="org3000823"></a>
-
 ### Fennel
 
     (use-package fennel-mode
       :mode "\\.fnl\\'")
 
-
-<a id="org38d26c9"></a>
 
 ### Web
 
@@ -889,19 +675,13 @@ I was using company, but I think it might've been causing issues with `awk-mode`
              ("\\.js\\'" . web-mode)))
 
 
-<a id="org9ae6b0f"></a>
-
 ### SSH config
 
     (use-package ssh-config-mode)
 
 
-<a id="org100f1c7"></a>
-
 # Writing
 
-
-<a id="orgfbddaf6"></a>
 
 ## Word count
 
@@ -911,8 +691,6 @@ I was using company, but I think it might've been causing issues with `awk-mode`
       :hook
       (text-mode . wc-mode))
 
-
-<a id="org32c015a"></a>
 
 ## Visual fill column
 
@@ -928,16 +706,12 @@ I was using company, but I think it might've been causing issues with `awk-mode`
       (org-mode . visual-fill-column-mode))
 
 
-<a id="orgcb552ec"></a>
-
 ## Mixed-pitch
 
     (use-package mixed-pitch
       :hook
       (text-mode . mixed-pitch-mode))
 
-
-<a id="org3025d5a"></a>
 
 ## Org mode
 
@@ -956,12 +730,8 @@ I was using company, but I think it might've been causing issues with `awk-mode`
       (org-mode . org-superstar-mode))
 
 
-<a id="org7eada39"></a>
-
 # Applications
 
-
-<a id="orgc966a52"></a>
 
 ## Gemini & Gopher
 
@@ -990,16 +760,12 @@ I was using company, but I think it might've been causing issues with `awk-mode`
                  :repo "https://git.sr.ht/~acdw/post-to-gemlog-blue.el"))
 
 
-<a id="orgf849ba8"></a>
-
 ## Pastebin
 
     (use-package 0x0
       :custom
       (0x0-default-service 'ttm))
 
-
-<a id="orge75cc1a"></a>
 
 ## Gnus
 
@@ -1014,8 +780,6 @@ I was using company, but I think it might've been causing issues with `awk-mode`
           '((nntp "news.gwene.org")))
 
 
-<a id="org82ec7aa"></a>
-
 ## Nov.el: read Ebooks
 
     (use-package nov
@@ -1026,8 +790,6 @@ I was using company, but I think it might've been causing issues with `awk-mode`
       (nov-mode . visual-line-mode)
       (nov-mode . visual-fill-column-mode))
 
-
-<a id="orga88ef69"></a>
 
 # Machine-specific configurations
 

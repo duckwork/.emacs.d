@@ -2,6 +2,7 @@
 #+AUTHOR: Case Duckworth
 #+BABEL: :cache yes
 #+PROPERTY: header-args :tangle init.el
+#+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 1
 
 * Preamble
