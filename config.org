@@ -569,6 +569,8 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
 *** Shell
 #+begin_src emacs-lisp
   (use-package shfmt
+    :custom
+    (shfmt-arguments '("-i" "4" "-ci"))
     :hook
     (sh-mode . shfmt-on-save-mode))
 
