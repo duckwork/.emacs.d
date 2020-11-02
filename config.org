@@ -299,9 +299,17 @@ This doesn't happen often, but I'll be ready when it does.
 
 I hide all minor-modes by default for a clean modeline.  However, I can add them back by adding them to the whitelist with ~(add-to-list 'rm-whitelist " REGEX")~.
 #+BEGIN_SRC emacs-lisp
+  (defun rm-whitelist-add (regexp)
+    "Add a regexp to the whitelist."
+    (setq rm-whitelist
+          (mapconcat 'identity rm--whitelist-regexps "\\|")))
+
+  (setq rm--whitelist-regexps '("^$"))
+
   (use-package rich-minority
     :custom
-    (rm-whitelist '("^$")))
+    (rm-whitelist
+     (mapconcat 'identity rm--whitelist-regexps "\\|")))
 #+END_SRC
 ** Fonts
 I'm sure there's a better way to do this, but for now, this is the best I've got.  I append to the ~face-font-family-alternatives~ because I don't know what kind of weird magic they're doing in there.
