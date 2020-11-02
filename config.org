@@ -595,6 +595,14 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
   (use-package ssh-config-mode)
 #+end_src
 * Writing
+** Word count
+#+begin_src emacs-lisp
+  (use-package wc-mode
+    :init
+    (rm-whitelist-add "WC")
+    :hook
+    (text-mode . wc-mode))
+#+end_src
 ** Visual fill column
 #+begin_src emacs-lisp
   (use-package visual-fill-column
