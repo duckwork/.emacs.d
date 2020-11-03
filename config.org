@@ -678,6 +678,14 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
   (use-package elpher
     :straight (elpher
                :repo "git://thelambdalab.xyz/elpher.git")
+    :config
+    (defun elpher:eww-browse-url (original url &optional new-window)
+      "Handle gemini/gopher links with eww."
+      (cond ((string-match-p "\\`\\(gemini\\|gopher\\)://" url)
+             (require 'elpher)
+             (elpher-go url))
+            (t (funcall original url new-window))))
+    (advice-add 'eww-browse-url :around 'elpher:eww-browse-url)
     :bind (:map elpher-mode-map
                 ("n" . elpher-next-link)
                 ("p" . elpher-prev-link)
