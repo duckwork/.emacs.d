@@ -345,7 +345,7 @@ I'm sure there's a better way to do this, but for now, this is the best I've got
           ("helv" "helvetica" "arial" "fixed")
           ;; now mine
           ("FixedPitch" "Go Mono" "DejaVu Sans Mono" "Consolas" "fixed")
-          ("VariablePitch" "Go" "DejaVu Sans" "Georgia" "fixed")))
+          ("VariablePitch" "Spectral Medium" "Go" "DejaVu Sans" "Georgia" "fixed")))
 
   (set-face-attribute 'default nil
                       :family "FixedPitch"
@@ -357,7 +357,7 @@ I'm sure there's a better way to do this, but for now, this is the best I've got
 
   (set-face-attribute 'variable-pitch nil
                       :family "VariablePitch"
-                      :height 130)
+                      :height 135)
 #+END_SRC
 *** Ligatures
 These cause big problems with cc-mode (as in, totally freezing everything), so I'm going to comment it out.
@@ -649,12 +649,6 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     :hook
     (org-mode . visual-fill-column-mode))
 #+end_src
-** Mixed-pitch
-#+begin_src emacs-lisp
-  (use-package mixed-pitch
-    :hook
-    (text-mode . mixed-pitch-mode))
-#+end_src
 ** Org mode
 #+begin_src emacs-lisp
   (use-package org
@@ -665,7 +659,9 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     (org-fontify-done-headline t)
     (org-hide-leading-stars t)
     (org-pretty-entities t)
-    (org-src-window-setup 'current-window))
+    (org-src-window-setup 'current-window)
+    :hook
+    (org-mode . variable-pitch-mode))
 
   (use-package org-superstar
     :hook
