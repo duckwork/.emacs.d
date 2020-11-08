@@ -627,6 +627,15 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
 #+begin_src emacs-lisp
   (use-package ssh-config-mode)
 #+end_src
+*** Lisp (SLIME)
+#+begin_src emacs-lisp
+  (use-package slime
+    :custom
+    (inferior-lisp-program "sbcl")
+    (slime-contribs '(slime-fancy))
+    :config
+    (load (expand-file-name "~/.quicklisp/slime-helper.el")))
+#+end_src
 * Writing
 ** Word count
 #+begin_src emacs-lisp
