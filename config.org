@@ -69,10 +69,20 @@ After the first run, the above ~init.el~ will be replaced by the tangled stuff h
     and the tangled file is compiled and loaded."
     (interactive)
     (when (equal (buffer-file-name)
-                 (expand-file-name (concat user-emacs-directory "config.org")))
-      ;; Avoid running hooks when tangling.
-      (let ((prog-mode-hook nil))
-        (org-babel-tangle))))
+                 (expand-file-name
+                  (concat user-emacs-directory "config.org")))
+        ;; Now with async!
+        (require 'async)
+        (async-start
+         `(lambda ()
+            ;; Avoid running hooks when tangling.
+            (let ((prog-mode-hook nil))
+              (require 'org)
+              (org-babel-tangle-file
+               (expand-file-name
+                (concat user-emacs-directory "config.org")))))
+         (lambda (_)
+           (message "Tangle complete.")))))
 
   (add-hook 'after-save-hook #'acdw/tangle-init)
 #+END_SRC
