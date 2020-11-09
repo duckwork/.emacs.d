@@ -678,7 +678,7 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
 ** Word count
 #+begin_src emacs-lisp
   (use-package wc-mode
-    :init
+    :config
     (rm-whitelist-add "WC")
     :hook
     (text-mode . wc-mode))
