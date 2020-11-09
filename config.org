@@ -678,6 +678,7 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
 *** Lisp (SLIME)
 #+begin_src emacs-lisp
   (use-package slime
+    :when (exectuable-find "sbcl")
     :custom
     (inferior-lisp-program "sbcl")
     (slime-contribs '(slime-fancy))
