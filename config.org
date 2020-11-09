@@ -287,9 +287,9 @@ I don't like the customize interface, but I still sometimes use it when I'm not 
 *** Miscellaneous
 **** Convert =^L= to a line
 #+begin_src emacs-lisp
-  (use-package page-break-lines
-    :config
-    (global-page-break-lines-mode 1))
+  (use-package form-feed
+    :hook
+    ((text-mode prog-mode) . form-feed-mode))
 #+end_src
 ** Themes: [[https://github.com/protesilaos/modus-themes][Modus]]
 #+BEGIN_SRC emacs-lisp
