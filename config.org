@@ -725,7 +725,13 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     :hook
     (org-mode . org-superstar-mode))
 #+end_src
-
+*** Org export to gemini
+#+begin_src emacs-lisp
+  (use-package ox-gemini
+    :straight (ox-gemini
+               :repo "https://git.sr.ht/~abrahms/ox-gemini"
+               :branch "main"))
+#+end_src
 * Applications
 ** Gemini & Gopher
 #+BEGIN_SRC emacs-lisp
