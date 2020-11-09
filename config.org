@@ -803,17 +803,19 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
 #+end_src
 * Machine-specific configurations
 #+begin_src emacs-lisp
-  (cond
-   (*acdw/at-home*
-    (use-package su
-      :config
-      (su-mode 1))
-    (use-package trashed
-      :custom
-      (delete-by-moving-to-trash t))
-    (use-package exec-path-from-shell
-      :demand
-      :config
-      (exec-path-from-shell-initialize)))
-   )
+  (use-package su
+    :when *acdw/at-home*
+    :config
+    (su-mode 1))
+ 
+  (use-package trashed
+    :when *acdw/at-home*
+    :custom
+    (delete-by-moving-to-trash t))
+ 
+  (use-package exec-path-from-shell
+    :when *acdw/at-home*
+    :demand
+    :config
+    (exec-path-from-shell-initialize)))
 #+end_src
