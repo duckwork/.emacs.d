@@ -324,6 +324,7 @@ I hide all minor-modes by default for a clean modeline.  However, I can add them
 #+BEGIN_SRC emacs-lisp
   (defun rm-whitelist-add (regexp)
     "Add a regexp to the whitelist."
+    (add-to-list 'rm--whitelist-regexps regexp)
     (setq rm-whitelist
           (mapconcat 'identity rm--whitelist-regexps "\\|")))
 
