@@ -744,7 +744,9 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
   (use-package gemini-mode
     :straight (gemini-mode
                :repo "https://git.carcosa.net/jmcbray/gemini.el.git")
-    :mode "\\.\\(gemini|gmi\\)\\'")
+    :mode "\\.\\(gemini|gmi\\)\\'"
+    :hook
+    (gemini-mode . visual-fill-column-mode))
 
   (use-package gemini-write
     :straight (gemini-write
