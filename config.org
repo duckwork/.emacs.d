@@ -801,21 +801,132 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     (nov-mode . visual-line-mode)
     (nov-mode . visual-fill-column-mode))
 #+end_src
+** Circe: IRC
+Commented for now while I figure out exactly what I want from IRC, et al.
+#+begin_src emacs-lisp
+  ;; (cuss auth-sources '("~/.authinfo"))
+
+  ;; (defun acdw/fetch-password (&rest params)
+  ;;   (require 'auth-source)
+  ;;   (let ((match (car (apply 'auth-source-search params))))
+  ;;     (if match
+  ;;         (let ((secret (plist-get match :secret)))
+  ;;           (if (functionp secret)
+  ;;               (funcall secret)
+  ;;             secret))
+  ;;       (error "Password not found for %S" params))))
+
+  ;; (defun acdw/nickserv-password (nick server)
+  ;;   (acdw/fetch-password :login nick :machine server))
+
+  ;; (defun acdw/setup-lui ()
+  ;;   (interactive)
+  ;;   (setq right-margin-width 5)
+  ;;   (setq fringes-outside-margins t)
+  ;;   (setq word-wrap t)
+  ;;   (setq wrap-prefix "                 ")
+  ;;   (setf (cdr (assoc 'continuation fringe-indicator-alist)) nil))
+
+  ;; (defun acdw/circe-prompt ()
+  ;;   (lui-set-prompt
+  ;;    (concat (propertize (concat (buffer-name) ">")
+  ;;                        'face 'circe-prompt-face)
+  ;;            " ")))
+
+  ;; (use-package circe
+  ;;   :init
+  ;;   (defun acdw/setup-circe ()
+  ;;     (whitespace-mode -1)
+  ;;     (enable-lui-autopaste))
+  ;;   :custom
+  ;;   (circe-default-part-message "Peace out, cub scouts")
+  ;;   (circe-default-quit-message "See You Space Cowpokes....")
+  ;;   (circe-default-realname "Case")
+  ;;   (circe-highlight-nick-type 'all)
+  ;;   (circe-reduce-lurker-spam t)
+  ;;   (circe-format-say "{nick:-15s}| {body}")
+  ;;   (circe-format-self-say "{nick:-15s}> {body}")
+  ;;   (circe-format-action "               * {nick} {body}")
+  ;;   (circe-format-message "               *{nick}* {body}")
+  ;;   (circe-format-message-action "               * *{nick}* {body}")
+  ;;   (circe-format-self-action "               * {nick} {body}")
+  ;;   (circe-use-cycle-completion t)
+  ;;   (circe-channel-killed-confirmation nil)
+  ;;   (circe-color-nicks-everywhere t)
+  ;;   (circe-default-nick "acdw")
+  ;;   (circe-default-user "acdw")
+  ;;   (circe-server-auto-join-default-type :after-auth)
+  ;;   (lui-time-stamp-position 'right-margin)
+  ;;   (lui-fill-type nil)
+  ;;   (lui-time-stamp-format "%H:%M")
+  ;;   (lui-track-bar-behavior 'before-switch-to-buffer)
+  ;;   (circe-network-options
+  ;;    `(("Freenode"
+  ;;       :tls t
+  ;;       :host "irc.acdw.net"
+  ;;       :port 16789
+  ;;       :nick "acdw"
+  ;;       :sasl-username "acdw"
+  ;;       :sasl-password "freenode:purple-mountains-majesty"
+  ;;       :channels ("#emacs"))
+  ;;      ("Tilde.chat"
+  ;;       :tls t
+  ;;       :host "irc.acdw.net"
+  ;;       :port 16789
+  ;;       :nick "acdw"
+  ;;       :sasl-username "acdw"
+  ;;       :sasl-password "tilde.chat:purple-mountains-majesty"
+  ;;       :channels ("#gemini" "#meta" "#team" "#bread"))))
+  ;;   :custom-face
+  ;;   (circe-highlight-nick-face ((t (:inherit bold))))
+  ;;   (circe-originator-face ((t (:weight bold))))
+  ;;   (circe-prompt-face ((t (:foreground "blue"))))
+  ;;   (lui-time-stamp-face ((t (:foreground "#808080" :height 0.8))))
+  ;;   :config
+  ;;   (enable-lui-track-bar)
+  ;;   (enable-circe-color-nicks)
+  ;;   (enable-circe-display-images)
+  ;;   :hook
+  ;;   (circe-channel-mode . acdw/setup-circe)
+  ;;   (circe-chat-mode . acdw/circe-prompt)
+  ;;   (lui-mode . acdw/setup-lui))
+#+end_src
+** Elfeed: Feed reader
+Elfeed keeps freezing emacs.  I'm commenting this for now.
+#+begin_src emacs-lisp
+  ;; (use-package elfeed
+  ;;   :custom
+  ;;   (elfeed-feeds
+  ;;    '(("https://acdw.net/atom.xml" me)
+  ;;      ("https://planet.emacslife.com/atom.xml" emacs programming blog)
+  ;;      ("https://www.xkcd.com/rss.xml" comics)
+  ;;      ("https://portal.mozz.us/gemini/breadpunk.club/~bakersdozen/gemlog/atom.xml" friends)
+  ;;      ("https://kotobank.ch/~vaartis/rss.xml" friends)
+  ;;      ("https://m455.casa/feed.rss" friends)
+  ;;      ("https://eli.li/feed.rss" friends)
+  ;;      ("http://len.falken.ink/" friends)
+  ;;      ("https://cadence.moe/blog/atom.xml?limit=30" friends)
+  ;;      ("https://benjaminwil.info/feed.xml" friends)
+  ;;      ("https://www.5snb.club/rss.xml" friends)
+  ;;      ("https://write.lain.faith/@/haskal/atom.xml" friends)
+  ;;      ("https://p1k3.com/feed" friends)
+  ;;      )))
+#+end_src
 * Machine-specific configurations
 #+begin_src emacs-lisp
   (use-package su
     :when *acdw/at-home*
     :config
     (su-mode 1))
- 
+
   (use-package trashed
     :when *acdw/at-home*
     :custom
     (delete-by-moving-to-trash t))
- 
+
   (use-package exec-path-from-shell
     :when *acdw/at-home*
     :demand
     :config
-    (exec-path-from-shell-initialize)))
+    (exec-path-from-shell-initialize))
 #+end_src
