@@ -355,20 +355,20 @@ I'm sure there's a better way to do this, but for now, this is the best I've got
           ("Sans Serif" "helv" "helvetica" "arial" "fixed")
           ("helv" "helvetica" "arial" "fixed")
           ;; now mine
-          ("FixedPitch" "Agave" "Go Mono" "DejaVu Sans Mono" "Consolas" "fixed")
-          ("VariablePitch" "Comic Neue" "Spectral Medium" "Go" "DejaVu Sans" "Georgia" "fixed")))
+          ("FixedPitch" "Go Mono" "DejaVu Sans Mono" "Consolas" "fixed")
+          ("VariablePitch" "Go" "DejaVu Sans" "Georgia" "fixed")))
 
   (set-face-attribute 'default nil
                       :family "FixedPitch"
-                      :height 160)
+                      :height 140)
 
   (set-face-attribute 'fixed-pitch nil
                       :family "FixedPitch"
-                      :height 160)
+                      :height 140)
 
   (set-face-attribute 'variable-pitch nil
                       :family "VariablePitch"
-                      :height 180)
+                      :height 150)
 #+END_SRC
 *** Ligatures
 These cause big problems with cc-mode (as in, totally freezing everything), so I'm going to comment it out.
