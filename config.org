@@ -35,22 +35,28 @@
     "If the current buffer is `config.org', tangle it, then compile
   and load the resulting files."
     (when (equal (buffer-file-name)
-		 (expand-file-name
-		  (concat user-emacs-directory "config.org")))
-      (let ((prog-mode-hook nil))
-	(require 'org)
-	(org-babel-tangle-file
-	 (expand-file-name
-	  (concat user-emacs-directory "config.org"))))))
+                 (expand-file-name
+                  (concat user-emacs-directory "config.org")))
+      (require 'async)
+      (async-start
+       (lambda ()
+         (let ((prog-mode-hook nil))
+           (require 'org)
+           (org-babel-tangle-file
+            (expand-file-name
+             (concat user-emacs-directory "config.org")))))
+       (lambda (response)
+         (acdw/load-init)
+         (message "Tangled and loaded: %s" response)))))
 
   (add-hook 'after-save-hook #'acdw/tangle-init)
 
   (defun acdw/load-init ()
     (interactive)
     (load-file (expand-file-name
-		(concat user-emacs-directory "early-init.el")))
+                (concat user-emacs-directory "early-init.el")))
     (load-file (expand-file-name
-		(concat user-emacs-directory "init.el"))))
+                (concat user-emacs-directory "init.el"))))
 #+end_src
 
 * Early initiation
@@ -60,26 +66,64 @@
 
   (setq load-prefer-newer t)
 
+#+end_src
+
+** Add PortableGit to the =exec-path= on Windows
+
+#+begin_src emacs-lisp :tangle early-init.el
   (when (eq system-type 'windows-nt)
     (add-to-list 'exec-path "~/bin")
     (add-to-list 'exec-path "C:/Users/aduckworth/Downloads/PortableGit/bin"))
+#+end_src
 
+** Bootstrap =straight.el=
+
+#+begin_src emacs-lisp :tangle early-init.el
   (defvar bootstrap-version)
   (let ((bootstrap-file
-	 (expand-file-name "straight/repos/straight.el/bootstrap.el"
-			   user-emacs-directory))
-	(bootstrap-version 5))
+         (expand-file-name "straight/repos/straight.el/bootstrap.el"
+                           user-emacs-directory))
+        (bootstrap-version 5))
     (unless (file-exists-p bootstrap-file)
       (with-current-buffer
-	  (url-retrieve-synchronously
-	   "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-	   'silent 'inhibit-cookies)
-	(goto-char (point-max))
-	(eval-print-last-sexp)))
+          (url-retrieve-synchronously
+           "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+           'silent 'inhibit-cookies)
+        (goto-char (point-max))
+        (eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
+#+end_src
 
+** Use =use-package=
+
+#+begin_src emacs-lisp :tangle early-init.el
   (setq straight-use-package-by-default t)
   (straight-use-package 'use-package)
+#+end_src
+
+** Keep =~/.emacs.d= tidy
+
+#+begin_src emacs-lisp
+  (straight-use-package 'no-littering)
+  (require 'no-littering)
+#+end_src
+
+** Additional =use-package= keywords
+
+*** =:custom-update=
+
+#+begin_src emacs-lisp
+  (use-package use-package-custom-update
+    :straight (use-package-custom-update
+	       :host github
+	       :repo "a13/use-package-custom-update"))
+#+end_src
+
+** Setup async
+
+#+begin_src emacs-lisp :tangle early-init.el
+  (straight-use-package 'async)
+  (require 'async)
 #+end_src
 
 * Macros
@@ -176,6 +220,14 @@ I also want to switch themes between night and day.
     (rm/whitelist-add "^$"))
 #+end_src
 
+** Show =^L= as a line
+
+#+begin_src emacs-lisp
+  (use-package form-feed
+    :hook
+    ((text-mode prog-mode) . form-feed-mode))
+#+end_src
+
 * Fonts
 
 #+begin_src emacs-lisp
@@ -221,27 +273,7 @@ I also want to switch themes between night and day.
   (add-hook 'text-mode-hook #'variable-pitch-mode)
 #+end_src
 
-* Emacs configuration [meta]
-
-** Keep =~/.emacs.d= tidy
-
-#+begin_src emacs-lisp
-  (straight-use-package 'no-littering)
-  (require 'no-littering)
-#+end_src
-
-** Additional =use-package= keywords
-
-*** =:custom-update=
-
-#+begin_src emacs-lisp
-  (use-package use-package-custom-update
-    :straight (use-package-custom-update
-	       :host github
-	       :repo "a13/use-package-custom-update"))
-#+end_src
-
-* TODO Ease of use
+* Ease of use
 
 ** Selectrum & Prescient
 
@@ -279,7 +311,23 @@ I also want to switch themes between night and day.
   (cuss initial-scratch-message ";; Hi there!\n")
 #+end_src
 
-** TODO Ignore case
+** Ignore case
+
+#+BEGIN_SRC emacs-lisp
+  (cuss completion-ignore-case t)
+  (cuss read-buffer-completion-ignore-case t)
+  (cuss read-file-name-completion-ignore-case t)
+#+END_SRC
+
+** Which key
+
+#+begin_src emacs-lisp
+  (use-package which-key
+    :custom
+    (which-key-popup-type 'minibuffer)
+    :config
+    (which-key-mode))
+#+end_src
 
 * Persistence
 
@@ -314,6 +362,19 @@ I also want to switch themes between night and day.
     (recentf-max-saved-items 100)
     :config
     (recentf-mode 1))
+#+end_src
+
+*** Easily navigate recent files
+
+#+begin_src emacs-lisp
+  (defun recentf-find-file ()
+    "Find a recent file using `completing-read'."
+    (interactive)
+    (let ((file (completing-read "Recent file: " recentf-list nil t)))
+      (when file
+        (find-file file))))
+
+  (bind-key "C-x C-r" #'recentf-find-file)
 #+end_src
 
 ** Save places in visited files
@@ -432,11 +493,14 @@ I also want to switch themes between night and day.
     (org-src-tab-acts-natively t)
     (org-hide-emphasis-markers t)
     (org-fontify-done-headline t)
+    (org-fontify-whole-heading-line t)
     (org-hide-leading-stars t)
-    (org-pretty-entities t))  
+    (org-hidden-keywords '(author date title))
+    (org-src-window-setup 'current-window)
+    (org-pretty-entities t))
 #+end_src
 
-* TODO Coding
+* Coding
 
 ** Indenting
 
