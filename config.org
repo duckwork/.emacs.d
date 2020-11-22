@@ -43,6 +43,8 @@
 	 (expand-file-name
 	  (concat user-emacs-directory "config.org"))))))
 
+  (add-hook 'after-save-hook #'acdw/tangle-init)
+
   (defun acdw/load-init ()
     (interactive)
     (load-file (expand-file-name
@@ -80,12 +82,55 @@
   (straight-use-package 'use-package)
 #+end_src
 
-* Theme
+* Macros
 
-I want to try using the [[https://github.com/kunalb/poet][Poet]] theme.
+** Customizing variables
 
 #+begin_src emacs-lisp
-  (use-package poet-theme)
+  (defmacro cuss (var val)
+    "Basically `use-package''s `:custom', but without using either."
+    `(progn
+       (funcall (or (get ',var 'custom-set) #'set-default)
+		',var ,val)))
+#+end_src
+
+* Theme
+
+I'm using the [[https://protesilaos.com/modus-themes/][Modus]] themes.
+
+#+begin_src emacs-lisp
+  (defmacro modus-themes-format-sexp (sexp &rest objects)
+    `(eval (read (format ,(format "%S" sexp) ,@objects))))
+
+  (dolist (theme '("operandi" "vivendi"))
+    (modus-themes-format-sexp
+     (use-package modus-%1$s-theme
+       :init
+       (setq modus-%1$s-theme-slanted-constructs t
+	     modus-%1$s-theme-bold-constructs t
+	     modus-%1$s-theme-fringes 'subtle
+	     modus-%1$s-theme-mode-line '3d
+	     modus-%1$s-theme-syntax 'yellow-comments
+	     modus-%1$s-theme-intense-hl-line nil
+	     modus-%1$s-theme-intense-paren-match t
+	     modus-%1$s-theme-links nil
+	     modus-%1$s-theme-no-mixed-fonts nil
+	     modus-%1$s-theme-prompts nil
+	     modus-%1$s-theme-completions nil
+	     modus-%1$s-theme-diffs nil
+	     modus-%1$s-theme-org-blocks 'grayscale
+	     modus-%1$s-theme-headings
+	     '((1 . section)
+	       (2 . line)
+	       (t . rainbow-line-no-bold))
+	     modus-%1$s-theme-variable-pitch-headings nil
+	     modus-%1$s-theme-scale-headings t
+	     modus-%1$s-theme-scale-1 1.1
+	     modus-%1$s-theme-scale-2 1.15
+	     modus-%1$s-theme-scale-3 1.21
+	     modus-%1$s-theme-scale-4 1.27
+	     modus-%1$s-theme-scale-5 1.33))
+     theme))
 #+end_src
 
 I also want to switch themes between night and day.
@@ -96,7 +141,7 @@ I also want to switch themes between night and day.
     (calendar-latitude 30.39)
     (calendar-longitude -91.83)
     :config
-    (change-theme 'poet 'poet-dark))
+    (change-theme 'modus-operandi 'modus-vivendi))
 #+end_src
 
 * Simplify GUI
@@ -109,32 +154,57 @@ I also want to switch themes between night and day.
   (global-visual-line-mode 1)
 #+end_src
 
+** Modeline
+
+#+begin_src emacs-lisp
+  (use-package smart-mode-line
+    :custom
+    (sml/no-confirm-load-theme t)
+    :config
+    (sml/setup))
+
+  (defun rm/whitelist-add (regexp)
+    "Add a REGEXP to the whitelist for `rich-minority'."
+    (if (listp 'rm--whitelist-regexps)
+	(add-to-list 'rm--whitelist-regexps regexp)
+      (setq rm--whitelist-regexps `(,regexp)))
+    (setq rm-whitelist
+	  (mapconcat 'identity rm--whitelist-regexps "\\|")))
+
+  (use-package rich-minority
+    :config
+    (rm/whitelist-add "^$"))
+#+end_src
+
 * Fonts
 
 #+begin_src emacs-lisp
   (require 'cl)
   (defun font-candidate (&rest fonts)
     (loop for font in fonts
-	  when (find-font (font-spec :name font))
-	  return font))
+          when (find-font (font-spec :name font))
+          return font))
 
   (set-face-attribute 'default nil
-		      :font
-		      (font-candidate
-		       "Go Mono-11"
-		       "Consolas-11"))
+                      :font
+                      (font-candidate
+                       "Linux Libertine Mono O-11"
+                       "Go Mono-11"
+                       "Consolas-11"))
 
   (set-face-attribute 'fixed-pitch nil
-		      :font
-		      (font-candidate
-		       "Go Mono-11"
-		       "Consolas-11"))
+                      :font
+                      (font-candidate
+                       "Linux Libertine Mono O-11"
+                       "Go Mono-11"
+                       "Consolas-11"))
 
   (set-face-attribute 'variable-pitch nil
-		      :font
-		      (font-candidate
-		       "Go-12"
-		       "Georgia-11"))
+                      :font
+                      (font-candidate
+                       "Linux Libertine O-12"
+                       "Go-12"
+                       "Georgia-11"))
 #+end_src
 
 ** Unicode
@@ -148,83 +218,428 @@ I also want to switch themes between night and day.
 ** Variable pitch faces
 
 #+begin_src emacs-lisp
-  (add-hook 'text-mode-hook
-	    (lambda ()
-	      (variable-pitch-mode 1)))
-#+end_
+  (add-hook 'text-mode-hook #'variable-pitch-mode)
+#+end_src
 
-* TODO Emacs configuration [meta]
+* Emacs configuration [meta]
 
 ** Keep =~/.emacs.d= tidy
 
+#+begin_src emacs-lisp
+  (straight-use-package 'no-littering)
+  (require 'no-littering)
+#+end_src
+
+** Additional =use-package= keywords
+
+*** =:custom-update=
+
+#+begin_src emacs-lisp
+  (use-package use-package-custom-update
+    :straight (use-package-custom-update
+	       :host github
+	       :repo "a13/use-package-custom-update"))
+#+end_src
+
 * TODO Ease of use
 
-** Selectrum
+** Selectrum & Prescient
 
-** Prescient
+#+begin_src emacs-lisp
+  (use-package selectrum
+    :config
+    (selectrum-mode 1))
+
+  (use-package prescient
+    :config
+    (prescient-persist-mode 1))
+
+  (use-package selectrum-prescient
+    :after (selectrum prescient)
+    :config
+    (selectrum-prescient-mode 1))
+#+end_src
 
 ** CtrlF
 
+#+begin_src emacs-lisp
+  (use-package ctrlf
+    :custom
+    (ctrlf-show-match-count-at-eol nil)
+    :config
+    (ctrlf-mode 1))
+#+end_src
+
 ** Startup
 
-** Ignore case
+#+begin_src emacs-lisp
+  (cuss inhibit-startup-buffer-menu t)
+  (cuss inhibit-startup-screen t)
+  (cuss initial-buffer-choice t)
+  (cuss initial-scratch-message ";; Hi there!\n")
+#+end_src
 
-* TODO Persistence
+** TODO Ignore case
+
+* Persistence
 
 ** Auto-saves
 
+#+begin_src emacs-lisp
+  (use-package super-save
+    :custom
+    (auto-save-default nil)
+    (super-save-exclue '(".gpg"))
+    :config
+    (super-save-mode 1))
+#+end_src
+
 ** Backup files
+
+#+begin_src emacs-lisp
+  (cuss backup-directory-alist
+	`((".*" . ,(no-littering-expand-var-file-name "backup/"))))
+#+end_src
 
 ** Recent files
 
+#+begin_src emacs-lisp
+  (use-package recentf
+    :custom-update
+    (recentf-exclude
+     '(no-littering-var-directory
+       no-littering-etc-directory))
+    :custom
+    (recentf-max-menu-items 100)
+    (recentf-max-saved-items 100)
+    :config
+    (recentf-mode 1))
+#+end_src
+
 ** Save places in visited files
+
+#+begin_src emacs-lisp
+  (use-package saveplace
+    :custom
+    (save-place-file (no-littering-expand-var-file-name "places"))
+    (save-place-forget-unreadable-files (not 
+					 (eq system-type 'windows-nt))
+    :config
+    (save-place-mode 1)))
+#+end_src
 
 ** Save history
 
+#+begin_src emacs-lisp
+  (use-package savehist
+    :custom
+    (savehist-additional-variables
+     '(kill-ring
+       search-ring
+       regexp-search-ring))
+    (savehist-save-minibuffer-history t)
+    :config
+    (savehist-mode 1))
+#+end_src
+
 ** Undo
 
-* TODO General editing
+#+begin_src emacs-lisp
+  (use-package undo-fu-session
+    :after (no-littering undo-fu)
+    :custom
+    (undo-fu-session-incompatible-files
+     '("COMMIT_EDITMSG\\'"
+       "/git-rebase-todo\\'"))
+    (undo-fu-session-directory
+     (no-littering-expand-var-file-name "undos/"))
+    :config
+    (global-undo-fu-session-mode 1))
+#+end_src
+
+* General editing
 
 ** Undo
+
+#+begin_src emacs-lisp
+  (use-package undo-fu
+    :bind
+    ("C-/" . undo-fu-only-undo)
+    ("C-?" . undo-fu-only-redo))
+#+end_src
 
 ** Find/replace
 
-** Expand region
+#+begin_src emacs-lisp
+  (use-package visual-regexp
+    :bind
+    ("C-c r" . 'vr/replace)
+    ("C-c q" . 'vr/query-replace))
+#+end_src
 
-* TODO Writing
+** Visual editing
+
+*** Volatile highlights
+
+#+begin_src emacs-lisp
+  (use-package volatile-highlights
+    :config
+    (volatile-highlights-mode 1))
+#+end_src
+
+*** Expand region
+
+ #+begin_src emacs-lisp
+   (use-package expand-region
+     :bind
+     ("C-=" . er/expand-region)
+     ("C-+" . er/contract-region))
+ #+end_src
+
+* Writing
 
 ** Word count
 
+#+begin_src emacs-lisp
+  (use-package wc-mode
+    :config
+    (rm/whitelist-add "WC")
+    :hook text-mode)
+#+end_src
+
 ** Visual fill column mode
+
+#+begin_src emacs-lisp
+  (use-package visual-fill-column
+    :custom
+    (split-window-preferred-function
+     'visual-fill-column-split-window-sensibly)
+    (visual-fill-column-center-text t)
+    (fill-column 80)
+    :config
+    (advice-add 'text-scale-adjust
+                :after #'visual-fill-column-adjust)
+    :hook
+    (text-mode . visual-fill-column-mode))
+#+end_src
 
 ** Org mode
 
+#+begin_src emacs-lisp
+  (use-package org
+    :custom
+    (org-startup-indented t)
+    (org-src-tab-acts-natively t)
+    (org-hide-emphasis-markers t)
+    (org-fontify-done-headline t)
+    (org-hide-leading-stars t)
+    (org-pretty-entities t))  
+#+end_src
+
 * TODO Coding
+
+** Indenting
+
+#+begin_src emacs-lisp
+  (use-package aggressive-indent
+    :config
+    (global-aggressive-indent-mode 1))
+#+end_src
 
 ** Display
 
 *** Prettify symbols mode
 
+#+begin_src emacs-lisp
+  (add-hook 'prog-mode-hook #'prettify-symbols-mode)
+#+end_src
+
 *** Parentheses and frens
+
+**** =show-paren-style=
+
+#+begin_src emacs-lisp
+  (cuss show-paren-style 'mixed)
+  (show-paren-mode 1)
+#+end_src
+
+**** Smartparens
+
+#+begin_src emacs-lisp
+  (use-package smartparens
+    :init
+    (defun acdw/setup-smartparens ()
+      (require 'smartparens-config)
+      (smartparens-mode 1))
+    :hook
+    (prog-mode . acdw/setup-smartparens))
+#+end_src
+
+**** Rainbow delimiters
+
+#+begin_src emacs-lisp
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
+#+end_src
 
 *** Line numbers
 
+#+begin_src emacs-lisp
+  (defun acdw/enable-line-numbers ()
+    "Enable line numbers, either through `display-line-numbers-mode'
+  or through `linum-mode'."
+    (if (and (fboundp 'display-line-numbers-mode)
+	     (display-graphic-p))
+	(display-line-numbers-mode 1)
+      (linum-mode 1)))
+
+  (add-hook 'prog-mode-hook #'acdw/enable-line-numbers)
+#+end_src
+
 ** Git
+
+#+begin_src emacs-lisp
+  (use-package magit
+    :bind
+    ("C-x g" . magit-status)
+    :custom-update
+    (magit-no-confirm '(stage-all-changes)))
+#+end_src
+
+*** Hook into =prescient=
+
+#+begin_src emacs-lisp
+  (define-advice magit-list-refs
+      (:around (orig &optional namespaces format sortby)
+	       prescient-sort)
+    "Apply prescient sorting when listing refs."
+    (let ((res (funcall orig namespaces format sortby)))
+      (if (or sortby
+	      magit-list-refs-sortby
+	      (not selectrum-should-sort-p))
+	  res
+	(prescient-sort res))))
+#+end_src
+
+*** Use =libgit= when I can build it (requires =cmake=)
+
+#+begin_src emacs-lisp
+  (when (executable-find "cmake")
+    (use-package libgit)
+    (use-package magit-libgit))
+#+end_src
+
+*** Git "forge" capabilities
+
+#+begin_src emacs-lisp
+  (use-package forge
+    :after magit
+    :custom
+    (forge-owned-accounts
+     '(("duckwork"))))
+#+end_src
 
 ** Programming languages
 
-*** Shell
+*** Fish shell
 
-*** Lisp
+#+begin_src emacs-lisp
+  (use-package fish-mode)
+#+end_src
 
-*** Fennel
+*** Lisps
+
+**** SLIME
+
+     #+begin_src emacs-lisp
+       (use-package slime
+	 :when (executable-find "sbcl")
+	 :custom
+	 (inferior-lisp-program "sbcl")
+	 (slime-contribs '(slime-fancy)))
+     #+end_src
+
+**** Fennel
+
+#+begin_src emacs-lisp
+  (use-package fennel-mode
+    :mode "\\.fnl\\'")
+#+end_src
 
 *** Lua
 
+#+begin_src emacs-lisp
+  (use-package lua-mode
+    :mode "\\.lua\\'"
+    :interpreter "lua")
+#+end_src
+
 *** Web (HTML/CSS/JS)
+
+#+begin_src emacs-lisp
+  (use-package web-mode
+    :mode (("\\.ts\\'" . web-mode)
+	   ("\\.html?\\'" . web-mode)
+	   ("\\.css?\\'" . web-mode)
+	   ("\\.js\\'" . web-mode)))
+#+end_src
+
+*** =~/.ssh/config=
+
+#+begin_src emacs-lisp
+  (use-package ssh-config-mode)
+#+end_src
 
 * Applications
 
 ** Elpher
 
+#+BEGIN_SRC emacs-lisp
+  (use-package elpher
+    :straight (elpher
+               :repo "git://thelambdalab.xyz/elpher.git")
+    :custom
+    (elpher-certificate-directory
+     (no-littering-expand-var-file-name "elpher-certificates/"))
+    (elpher-ipv4-always t)
+    :config
+    (defun elpher:eww-browse-url (original url &optional new-window)
+      "Handle gemini/gopher links with eww."
+      (cond ((string-match-p "\\`\\(gemini\\|gopher\\)://" url)
+             (require 'elpher)
+             (elpher-go url))
+            (t (funcall original url new-window))))
+    (advice-add 'eww-browse-url :around 'elpher:eww-browse-url)
+    :bind (:map elpher-mode-map
+                ("n" . elpher-next-link)
+                ("p" . elpher-prev-link)
+                ("o" . elpher-follow-current-link)
+                ("G" . elpher-go-current))
+    :hook
+    (elpher-mode . visual-fill-column-mode))
+
+  (use-package gemini-mode
+    :straight (gemini-mode
+               :repo "https://git.carcosa.net/jmcbray/gemini.el.git")
+    :mode "\\.\\(gemini|gmi\\)\\'"
+    :hook
+    (gemini-mode . visual-fill-column-mode))
+
+  (use-package gemini-write
+    :straight (gemini-write
+               :repo "https://alexschroeder.ch/cgit/gemini-write")
+    :config
+    (add-to-list 'elpher-gemini-tokens '("gem.acdw.net" . "yellow-people-eater")))
+
+  (use-package post-to-gemlog-blue
+    :straight (post-to-gemlog-blue
+               :repo "https://git.sr.ht/~acdw/post-to-gemlog-blue.el"))
+#+END_SRC
+
 ** Pastebin (0x0)
+
+#+BEGIN_SRC emacs-lisp
+  (use-package 0x0
+    :custom
+    (0x0-default-service 'ttm))
+#+END_SRC
