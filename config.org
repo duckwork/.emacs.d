@@ -1,136 +1,66 @@
-#+TITLE: Emacs config
+#+TITLE: Emacs configuration, literate style
 #+AUTHOR: Case Duckworth
-# -*- encoding: utf-8-unix -*-
-#+BABEL: :cache yes
 #+PROPERTY: header-args :tangle init.el
 #+OPTIONS: toc:nil
-#+BANKRUPTCY_COUNT: 1.5
-
-* Preamble
-
-** Inspiration
-
-I've been inspired by [[https://github.com/larstvei/dot-emacs][Lars Tveito]]'s config, which does exactly what I
-want: =init.el= is small and simple, and is replaced after the first
-run by the tangled contents of this file -- =config.org= -- which is
-furthermore automatically tangled.
-
-** Problems with this setup
-
-+ While =config.org= automatically tangles, I can't run =(load-file
-  init.el)= -- it results in an endless loop for some reason.  I might
-  need to look into a hook of some kind.
-
-* License
-
-Copyright © 2020 Case Duckworth <acdw@acdw.net>
-
-This work is free.  You can redistribute it and/or modify it under the
-terms of the Do What the Fuck You Want To Public License, Version 2,
-as published by Sam Hocevar.  See the LICENSE file, or below, for more
-details.
-
-NOTE: the WTFPL is probably (most definitely!) not compatible with GNU
-Emacs's license, and I'm not sure, though I'm pretty confident, that
-my =config.org= would be classified as a /derivative work/ under those
-terms.  Therefore, me licensing my =config.org= under the WTFPL is at
-best, unenforceable, and at worst, downright in violation of the GPL.
-
-SUE ME, RMS !!!
-
-#+begin_src text :tangle LICENSE
-  DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-
-  Version 2, December 2004
-
-  Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
-
-  Everyone is permitted to copy and distribute verbatim or modified copies of
-  this license document, and changing it is allowed as long as the name is changed.
-
-  DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-
-  TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
-
-     0. You just DO WHAT THE FUCK YOU WANT TO.
-
-#+end_src
+#+BANKRUPTCY_COUNT: 2
 
 * Bootstrap
 
-When this configuration is loaded for the first time, /this/ =init.el=
-is loaded:
+** Original init.el
 
 #+begin_src emacs-lisp :tangle no
-  ;; This file replaces itself with the actual configuration when first
-  ;; run.  To keep only this version tracked by git, run the command
+  ;; This file replaces itself with the actual configuration when
+  ;; first run.  To keep only this version in git, run this command:
   ;;
   ;; git update-index --assume-unchanged init.el
   ;;
-  ;; If it needs to be changed, start tracking it again with the command
+  ;; If it needs to be changed, start tracking it again thusly:
   ;;
   ;; git update-index --no-assume-unchanged init.el
-  ;;
-  ;; edit as needed, and run the first command again.
+
   (require 'org)
   (find-file (concat user-emacs-directory "config.org"))
   (org-babel-tangle)
-  (load-file (concat-user-emacs-directory "early-init.el"))
-  (load-file (concat-user-emacs-directory "init.el"))
+  (load-file (concat user-emacs-directory "early-init.el"))
+  (load-file (concat user-emacs-directory "init.el"))
+  (byte-compile-file (concat user-emacs-directory "init.el"))
 #+end_src
 
 ** Tangling
 
-After first running Emacs with this config, the above snippet will be
-replaced by the result of tangling this file.  However, when we edit
-=config.org=, we'll need to retangle it.  The default keybinding to
-tangle is =C-c C-v t=, which takes a while and is easy to forget.  So
-let's automatically tangle =config.org= on save.
-
-#+NAME: tangle-on-save
 #+begin_src emacs-lisp
-  ;;; init.el -*- lexical-binding: t; coding: utf-8-unix -*-
-  (defun acdw/tangle-init ()
-    "If the current buffer is `config.org', the code blocks are
-  tangled, and the tangled file is compiled and loaded."
-    (interactive)
-    (let (config-org (expand-file-name
-		      (concat user-emacs-directory "config.org")))
-    (when (equal (buffer-file-name) config-org)
-      (require 'async)
-      (async-start
-       `(lambda ()
-	  ;; Avoid running hooks when tangling.
-	  (let ((prog-mode-hook nil))
-	    (require 'org)
-	    (org-babel-tangle-file config-org)))
-       (lambda (_)
-	 (message "Tangle complete."))))))
+  ;; init.el -*- lexical-binding: t -*-
 
-  ;; Add a hook to tangle config.org.
-  (add-hook 'after-save-hook #'acdw/tangle-init)
+  (defun acdw/tangle-init ()
+    "If the current buffer is `config.org', tangle it, then compile
+  and load the resulting files."
+    (when (equal (buffer-file-name)
+		 (expand-file-name
+		  (concat user-emacs-directory "config.org")))
+      (let ((prog-mode-hook nil))
+	(require 'org)
+	(org-babel-tangle-file
+	 (expand-file-name
+	  (concat user-emacs-directory "config.org"))))))
+
+  (defun acdw/load-init ()
+    (interactive)
+    (load-file (expand-file-name
+		(concat user-emacs-directory "early-init.el")))
+    (load-file (expand-file-name
+		(concat user-emacs-directory "init.el"))))
 #+end_src
 
 * Early initiation
 
-Emacs 27.1+ uses =early-init.el= /in addition to/ =init.el=, mostly
-for settings related to packags.  Since I use =straight.el= for
-package management, I need to specify that in this file.
-
 #+begin_src emacs-lisp :tangle early-init.el
-  ;;; early-init.el -*- lexical-binding: t; no-byte-compile: t -*-
-  ;; DO NOT EDIT THIS FILE BY HAND.  Edit =config.org= instead!
+  ;; early-init.el -*- lexical-binding: t; no-byte-compile: t -*-
 
   (setq load-prefer-newer t)
 
-  (when (eq system-type 'windows-nt) ; I'm at work
+  (when (eq system-type 'windows-nt)
     (add-to-list 'exec-path "~/bin")
-    (add-to-list 'exec-path
-		 "C:/Users/aduckworth/Downloads/PortableGit/bin"))
-
-  ;; This DOES NOT WORK on Windows.
-  ;; Download the repo directly from Github and unzip it into
-  ;; ~/.emacs.d/straight/repos/straight.el.
+    (add-to-list 'exec-path "C:/Users/aduckworth/Downloads/PortableGit/bin"))
 
   (defvar bootstrap-version)
   (let ((bootstrap-file
@@ -146,128 +76,155 @@ package management, I need to specify that in this file.
 	(eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
 
-  ;; Use-package
-
   (setq straight-use-package-by-default t)
   (straight-use-package 'use-package)
-
-  ;; Use-package extra keywords
-
-  (use-package use-package-custom-update
-    :straight (use-package-custom-update
-	       :host github
-	       :repo "a13/use-package-custom-update"))
-	     
 #+end_src
 
-* Macros
+* Theme
 
-** cuss
-
-I like =use-package= a lot, but I don't like the weird
-"pseudo-package" things you see with a lot of =use-package= setups
-around the Internet.  They're cludgy, they /don't/ actually, in my
-opinion anyway, make the config any easier to read (how am I supposed
-to know what options are in =mule=, for example?!), and most
-importantly, =straight.el= doesn't really like them that much.
-
-*However*, I really like the =:custom= keyword in =use-package=,
- enough to implement it as my own macro.  =cuss= will automagically
- call =custom-set-variable= or =setq=, whichever is best for the
- variable being tweaked.  I pulled this straight from =use-package=,
- so I /know/ it works! :P
+I want to try using the [[https://github.com/kunalb/poet][Poet]] theme.
 
 #+begin_src emacs-lisp
-  (defmacro cuss (var val)
-    "Basically the `:custom' macro from `use-package', by itself."
-    `(progn
-       (funcall (or (get ',var 'custom-set) #'set-default)
-		',var ,val)))
-;;; test
+  (use-package poet-theme)
 #+end_src
 
-* Machines
-
-I use Emacs on a couple of different computers: my two at home, and
-assorted Windows machines at work.  I define a couple of constants to
-easily keep track of which computer I'm using.
+I also want to switch themes between night and day.
 
 #+begin_src emacs-lisp
-  (defconst *acdw/at-work* (eq system-type 'windows-nt))
-
-  (defconst *acdw/at-larry* (string= (system-name) "larry"))
-  (defconst *acdw/at-bax* (string= (system-name) "bax"))
-  (defconst *acdw/at-home* (or *acdw/at-larry* *acdw/at-bax*))
+  (use-package theme-changer
+    :custom
+    (calendar-latitude 30.39)
+    (calendar-longitude -91.83)
+    :config
+    (change-theme 'poet 'poet-dark))
 #+end_src
 
-* Files
-
-** Keep .emacs.d tidy
-
- By default, Emacs keeps files all over the damn place.  I like the
- =no-littering= package to keep files in one of two directories --
- =etc/= and =var/=.  I'm going to require it right away so that I can
- immediately use it.
-
- #+begin_src emacs-lisp
-   (use-package no-littering)
-   (require 'no-littering)
- #+end_src
-
-** Customize
-
-I don't use the customize interface -- but sometimes it's good to
-figure out what settings are available for a package.  So I keep the
-customizations in a file (some people just throw it in =/dev/null=),
-but I /don't/ load the file.
+* Simplify GUI
 
 #+begin_src emacs-lisp
-  (cuss custom-file (no-littering-expand-etc-file-name "custom.el"))
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+
+  (global-visual-line-mode 1)
 #+end_src
 
-** Encoding
-
-It's 2020 -- let's use UTF-8 everywhere.  Furthermore, even Notepad
-can figure out Unix line endings (=LF=) -- so let's only use that.
-
-I'm going to be perfectly honest here.  I'm not sure what like, any of
-these do.  I just threw everything =utf-8-unix= into a block and hope
-for the best.
+* Fonts
 
 #+begin_src emacs-lisp
-  (prefer-coding-system 'utf-8-unix)
-  (set-default-coding-systems 'utf-8-unix)
-  (set-terminal-coding-system 'utf-8-unix)
-  (set-keyboard-coding-system 'utf-8-unix)
-  (set-selection-coding-system 'utf-8-unix)
-  (set-file-name-coding-system 'utf-8-unix)
-  (set-clipboard-coding-system 'utf-8-unix)
-  (set-buffer-file-coding-system 'utf-8-unix)
-  (cuss locale-coding-system 'utf-8-unix)
-  (cuss x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+  (require 'cl)
+  (defun font-candidate (&rest fonts)
+    (loop for font in fonts
+	  when (find-font (font-spec :name font))
+	  return font))
+
+  (set-face-attribute 'default nil
+		      :font
+		      (font-candidate
+		       "Go Mono-11"
+		       "Consolas-11"))
+
+  (set-face-attribute 'fixed-pitch nil
+		      :font
+		      (font-candidate
+		       "Go Mono-11"
+		       "Consolas-11"))
+
+  (set-face-attribute 'variable-pitch nil
+		      :font
+		      (font-candidate
+		       "Go-12"
+		       "Georgia-11"))
 #+end_src
+
+** Unicode
+
+#+begin_src emacs-lisp
+  (use-package unicode-fonts
+    :config
+    (unicode-fonts-setup))
+#+end_src
+
+** Variable pitch faces
+
+#+begin_src emacs-lisp
+  (add-hook 'text-mode-hook
+	    (lambda ()
+	      (variable-pitch-mode 1)))
+#+end_
+
+* TODO Emacs configuration [meta]
+
+** Keep =~/.emacs.d= tidy
+
+* TODO Ease of use
+
+** Selectrum
+
+** Prescient
+
+** CtrlF
+
+** Startup
+
+** Ignore case
+
+* TODO Persistence
+
+** Auto-saves
+
+** Backup files
 
 ** Recent files
 
-Though I haven't used this feature ... yet, maybe if I use the =C-x
-C-r= binding that is suggested (like /everywhere/), it'll be easier
-for me to use.
+** Save places in visited files
 
-I'm putting =recentf= in a =use-package= declaration, by the way,
-because even though it's a part of Emacs, it's conveniently in its own
-package.
+** Save history
 
-#+begin_src emacs-lisp
-  (use-package recentf
-    :custom-update
-    (recentf-exclude
-     (no-littering-var-directory
-      no-littering-etc-directory))
-    :custom
-    (recentf-max-menu-items 100)
-    (recentf-max-saved-items 100)
-    :bind
-    ("C-x C-r" . recentf-open-files)
-    :config
-    (recentf-mode 1))
-#+end_src
+** Undo
+
+* TODO General editing
+
+** Undo
+
+** Find/replace
+
+** Expand region
+
+* TODO Writing
+
+** Word count
+
+** Visual fill column mode
+
+** Org mode
+
+* TODO Coding
+
+** Display
+
+*** Prettify symbols mode
+
+*** Parentheses and frens
+
+*** Line numbers
+
+** Git
+
+** Programming languages
+
+*** Shell
+
+*** Lisp
+
+*** Fennel
+
+*** Lua
+
+*** Web (HTML/CSS/JS)
+
+* Applications
+
+** Elpher
+
+** Pastebin (0x0)
