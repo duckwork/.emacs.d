@@ -219,6 +219,15 @@ I also want to switch themes between night and day.
     (change-theme 'modus-operandi 'modus-vivendi))
 #+end_src
 
+By default, Emacs loads themes on top of each other.  I don't want that, so let's apply this advice.
+
+#+begin_src emacs-lisp
+  (defadvice load-theme
+      (before disable-before-load
+              (theme &optional no-confirm no-enable) activate)
+    (mapc 'disable-theme custom-enabled-themes))
+#+end_src
+
 * Simplify GUI
 
 #+begin_src emacs-lisp
@@ -259,6 +268,13 @@ I also want to switch themes between night and day.
     ((text-mode prog-mode) . form-feed-mode))
 #+end_src
 
+** Cursor
+
+#+begin_src emacs-lisp
+  (cuss cursor-type 'bar)
+  (cuss cursor-in-non-selected-windows 'hollow)
+#+end_src
+
 * Fonts
 
 #+begin_src emacs-lisp
@@ -271,6 +287,7 @@ I also want to switch themes between night and day.
   (set-face-attribute 'default nil
                       :font
                       (font-candidate
+                       "Libertinus Mono-11"
                        "Linux Libertine Mono O-11"
                        "Go Mono-11"
                        "Consolas-11"))
@@ -278,6 +295,7 @@ I also want to switch themes between night and day.
   (set-face-attribute 'fixed-pitch nil
                       :font
                       (font-candidate
+                       "Libertinus Mono-11"
                        "Linux Libertine Mono O-11"
                        "Go Mono-11"
                        "Consolas-11"))
@@ -285,6 +303,7 @@ I also want to switch themes between night and day.
   (set-face-attribute 'variable-pitch nil
                       :font
                       (font-candidate
+                       "Libertinus Serif-12"
                        "Linux Libertine O-12"
                        "Go-12"
                        "Georgia-11"))
