@@ -379,6 +379,47 @@ By default, Emacs loads themes on top of each other.  I don't want that, so let'
     (which-key-mode))
 #+end_src
 
+** Miscellaneous settings
+
+*** Set view mode when in a read-only file
+
+#+begin_src emacs-lisp
+  (cuss view-read-only t)
+#+end_src
+
+*** Don't use dialog boxen
+
+#+begin_src emacs-lisp
+  (cuss use-dialog-box nil)
+#+end_src
+
+*** Enable all functions
+
+#+begin_src emacs-lisp
+  (cuss disabled-command-function nil)
+#+end_src
+
+*** Shorter confirmations
+
+#+begin_src emacs-lisp
+  (fset 'yes-or-no-p #'y-or-n-p)
+#+end_src
+
+*** Uniquify buffer names
+
+#+begin_src emacs-lisp
+  (cuss uniquify-buffer-name-style 'forward)
+#+end_src
+
+*** Show buffer boundaries
+
+#+begin_src emacs-lisp
+  (cuss indicate-buffer-boundaries
+        '((top . right)
+          (bottom . right)
+          (t . nil)))
+#+end_src
+
 * Persistence
 
 ** Auto-saves
