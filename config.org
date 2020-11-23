@@ -97,12 +97,14 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 
 #+end_src
 
-** Add PortableGit to the =exec-path= on Windows
+** Add more paths to the =exec-path= when using Windows
 
 #+begin_src emacs-lisp :tangle early-init.el
   (when (eq system-type 'windows-nt)
-    (add-to-list 'exec-path "~/bin")
-    (add-to-list 'exec-path "C:/Users/aduckworth/Downloads/PortableGit/bin"))
+    (dolist (path '("~/bin"
+                    "C:/Users/aduckworth/Downloads/PortableGit/bin"
+                    "C:/Users/aduckworth/Downloads/PortableGit/usr/bin"))
+      (add-to-list 'exec-path path)))
 #+end_src
 
 ** Bootstrap =straight.el=
