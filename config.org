@@ -293,6 +293,8 @@ I also want to switch themes between night and day.
 
 * Fonts
 
+See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-launching-emacs-in-daemon-mode][this StackExchange question and answer]] for more information on why I have these font settings applied in a hook.
+
 #+begin_src emacs-lisp
   (require 'cl)
   (defun font-candidate (&rest fonts)
@@ -300,29 +302,37 @@ I also want to switch themes between night and day.
           when (find-font (font-spec :name font))
           return font))
 
-  (set-face-attribute 'default nil
-                      :font
-                      (font-candidate
-                       "Libertinus Mono-11"
-                       "Linux Libertine Mono O-11"
-                       "Go Mono-11"
-                       "Consolas-11"))
+  (defun acdw/setup-fonts ()
+    "Setup fonts.  This has to happen after the frame is set up for
+    the first time, so add it to `focus-in-hook'.  It removes
+    itself."
+    (set-face-attribute 'default nil
+                        :font
+                        (font-candidate
+                         "Libertinus Mono-11"
+                         "Linux Libertine Mono O-11"
+                         "Go Mono-11"
+                         "Consolas-11"))
 
-  (set-face-attribute 'fixed-pitch nil
-                      :font
-                      (font-candidate
-                       "Libertinus Mono-11"
-                       "Linux Libertine Mono O-11"
-                       "Go Mono-11"
-                       "Consolas-11"))
+    (set-face-attribute 'fixed-pitch nil
+                        :font
+                        (font-candidate
+                         "Libertinus Mono-11"
+                         "Linux Libertine Mono O-11"
+                         "Go Mono-11"
+                         "Consolas-11"))
 
-  (set-face-attribute 'variable-pitch nil
-                      :font
-                      (font-candidate
-                       "Libertinus Serif-12"
-                       "Linux Libertine O-12"
-                       "Go-12"
-                       "Georgia-11"))
+    (set-face-attribute 'variable-pitch nil
+                        :font
+                        (font-candidate
+                         "Libertinus Serif-14"
+                         "Linux Libertine O-12"
+                         "Go-12"
+                         "Georgia-11"))
+
+    (remove-hook 'focus-in-hook #'acdw/setup-fonts))
+
+  (add-hook 'focus-in-hook #'acdw/setup-fonts)
 #+end_src
 
 ** Unicode
