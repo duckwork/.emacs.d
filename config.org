@@ -926,8 +926,10 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
     "Enable line numbers, either through `display-line-numbers-mode'
   or through `linum-mode'."
     (if (and (fboundp 'display-line-numbers-mode)
-	     (display-graphic-p))
-	(display-line-numbers-mode 1)
+             (display-graphic-p))
+        (progn
+          (display-line-numbers-mode 1)
+          (cuss display-line-numbers-width 2))
       (linum-mode 1)))
 
   (add-hook 'prog-mode-hook #'acdw/enable-line-numbers)
