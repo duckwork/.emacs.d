@@ -910,6 +910,15 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
     :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
+*** Rainbow mode
+
+#+begin_src emacs-lisp
+  (use-package rainbow-mode
+    :custom
+    (rainbow-x-colors nil)
+    :hook prog-mode)
+#+end_src
+
 *** Line numbers
 
 #+begin_src emacs-lisp
