@@ -861,6 +861,19 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
     (global-aggressive-indent-mode 1))
 #+end_src
 
+*** Smart tabs
+
+#+begin_src emacs-lisp
+  (use-package smart-tabs-mode
+    :custom
+    (whitespace-style
+     '(face trailing tabs spaces lines newline
+            empty indentation space-before-tab
+            space-mark tab-mark newline-mark))
+    :config
+    (smart-tabs-insinuate 'c 'c++ 'javascript 'java 'ruby))
+#+end_src
+
 ** Display
 
 *** Prettify symbols mode
