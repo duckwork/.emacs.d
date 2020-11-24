@@ -439,6 +439,7 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
 *** Uniquify buffer names
 
 #+begin_src emacs-lisp
+  (require 'uniquify)
   (cuss uniquify-buffer-name-style 'forward)
 #+end_src
 
