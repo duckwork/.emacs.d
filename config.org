@@ -989,14 +989,14 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
 
 *** Lisps
 
-**** SLIME
+**** Common Lisp (SLIME)
 
      #+begin_src emacs-lisp
        (use-package slime
-	 :when (executable-find "sbcl")
-	 :custom
-	 (inferior-lisp-program "sbcl")
-	 (slime-contribs '(slime-fancy)))
+         :when (executable-find "sbcl")
+         :custom
+         (inferior-lisp-program "sbcl")
+         (slime-contribs '(slime-fancy)))
      #+end_src
 
 **** Fennel
@@ -1019,9 +1019,9 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
 #+begin_src emacs-lisp
   (use-package web-mode
     :mode (("\\.ts\\'" . web-mode)
-	   ("\\.html?\\'" . web-mode)
-	   ("\\.css?\\'" . web-mode)
-	   ("\\.js\\'" . web-mode)))
+           ("\\.html?\\'" . web-mode)
+           ("\\.css?\\'" . web-mode)
+           ("\\.js\\'" . web-mode)))
 #+end_src
 
 *** =~/.ssh/config=
