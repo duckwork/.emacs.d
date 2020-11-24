@@ -164,8 +164,8 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 #+begin_src emacs-lisp
   (use-package use-package-custom-update
     :straight (use-package-custom-update
-	       :host github
-	       :repo "a13/use-package-custom-update"))
+               :host github
+               :repo "a13/use-package-custom-update"))
 #+end_src
 
 ** Setup async
@@ -184,7 +184,7 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
     "Basically `use-package''s `:custom', but without using either."
     `(progn
        (funcall (or (get ',var 'custom-set) #'set-default)
-		',var ,val)))
+                ',var ,val)))
 #+end_src
 
 * Theme
@@ -200,29 +200,29 @@ I'm using the [[https://protesilaos.com/modus-themes/][Modus]] themes.
      (use-package modus-%1$s-theme
        :init
        (setq modus-%1$s-theme-slanted-constructs t
-	     modus-%1$s-theme-bold-constructs t
-	     modus-%1$s-theme-fringes 'subtle
-	     modus-%1$s-theme-mode-line '3d
-	     modus-%1$s-theme-syntax 'yellow-comments
-	     modus-%1$s-theme-intense-hl-line nil
-	     modus-%1$s-theme-intense-paren-match t
-	     modus-%1$s-theme-links nil
-	     modus-%1$s-theme-no-mixed-fonts nil
-	     modus-%1$s-theme-prompts nil
-	     modus-%1$s-theme-completions nil
-	     modus-%1$s-theme-diffs nil
-	     modus-%1$s-theme-org-blocks 'grayscale
-	     modus-%1$s-theme-headings
-	     '((1 . section)
-	       (2 . line)
-	       (t . rainbow-line-no-bold))
-	     modus-%1$s-theme-variable-pitch-headings nil
-	     modus-%1$s-theme-scale-headings t
-	     modus-%1$s-theme-scale-1 1.1
-	     modus-%1$s-theme-scale-2 1.15
-	     modus-%1$s-theme-scale-3 1.21
-	     modus-%1$s-theme-scale-4 1.27
-	     modus-%1$s-theme-scale-5 1.33))
+             modus-%1$s-theme-bold-constructs t
+             modus-%1$s-theme-fringes 'subtle
+             modus-%1$s-theme-mode-line '3d
+             modus-%1$s-theme-syntax 'yellow-comments
+             modus-%1$s-theme-intense-hl-line nil
+             modus-%1$s-theme-intense-paren-match t
+             modus-%1$s-theme-links nil
+             modus-%1$s-theme-no-mixed-fonts nil
+             modus-%1$s-theme-prompts nil
+             modus-%1$s-theme-completions nil
+             modus-%1$s-theme-diffs nil
+             modus-%1$s-theme-org-blocks 'grayscale
+             modus-%1$s-theme-headings
+             '((1 . section)
+               (2 . line)
+               (t . rainbow-line-no-bold))
+             modus-%1$s-theme-variable-pitch-headings nil
+             modus-%1$s-theme-scale-headings t
+             modus-%1$s-theme-scale-1 1.1
+             modus-%1$s-theme-scale-2 1.15
+             modus-%1$s-theme-scale-3 1.21
+             modus-%1$s-theme-scale-4 1.27
+             modus-%1$s-theme-scale-5 1.33))
      theme))
 #+end_src
 
