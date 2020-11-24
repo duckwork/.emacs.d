@@ -374,6 +374,11 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
   (use-package ctrlf
     :custom
     (ctrlf-show-match-count-at-eol nil)
+    :bind
+    ("C-s" . ctrlf-forward-regexp)
+    ("C-r" . ctrlf-backward-regexp)
+    ("C-M-s" . ctrlf-forward-literal)
+    ("C-M-r" . ctrlf-backward-literal)
     :config
     (ctrlf-mode 1))
 #+end_src
