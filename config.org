@@ -452,6 +452,38 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
           (t . nil)))
 #+end_src
 
+*** Hippie expand
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "M-/") 'hippie-expand)
+#+end_src
+
+*** iBuffer
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
+#+end_src
+
+*** Zap-up-to-char, not zap-to-char
+
+#+begin_src emacs-lisp
+  (autoload 'zap-up-to-char "misc"
+    "Kill up to, but not including, ARGth occurrence of CHAR." t)
+
+  (global-set-key (kbd "M-z") 'zap-up-to-char)
+#+end_src
+
+*** Other "[[https://git.sr.ht/~technomancy/better-defaults/tree/master/better-defaults.el][better defaults]]"
+
+#+begin_src emacs-lisp
+  (cuss save-interprogram-paste-before-kill t)
+  (cuss apropos-do-all t)
+  (cuss mouse-yank-at-point t)
+  (cuss require-final-newline t)
+  (cuss visible-bell (not (string= (system-name) "larry")))
+  (cuss ediff-window-setup-function #'ediff-setup-windows-plain)
+#+end_src
+
 * Persistence
 
 ** Auto-saves
@@ -469,7 +501,12 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
 
 #+begin_src emacs-lisp
   (cuss backup-directory-alist
-	`((".*" . ,(no-littering-expand-var-file-name "backup/"))))
+        `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
+
+  (cuss backup-by-copying 1)
+  (cuss delete-old-versions -1)
+  (cuss version-control t)
+  (cuss vc-make-backup-files t)
 #+end_src
 
 ** Recent files
@@ -506,8 +543,8 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
   (use-package saveplace
     :custom
     (save-place-file (no-littering-expand-var-file-name "places"))
-    (save-place-forget-unreadable-files (not 
-					 (eq system-type 'windows-nt))
+    (save-place-forget-unreadable-files (not
+                                         (eq system-type 'windows-nt))
     :config
     (save-place-mode 1)))
 #+end_src
@@ -522,6 +559,8 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
        search-ring
        regexp-search-ring))
     (savehist-save-minibuffer-history t)
+    (history-length t)
+    (history-delete-duplicates t)
     :config
     (savehist-mode 1))
 #+end_src
@@ -548,17 +587,24 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
 I'm going to be honest -- most of this is a stab in the dark.
 
 #+begin_src emacs-lisp
-  (prefer-coding-system 'utf-8-unix)
-  (set-default-coding-systems 'utf-8-unix)
-  (set-terminal-coding-system 'utf-8-unix)
-  (set-keyboard-coding-system 'utf-8-unix)
-  (set-selection-coding-system 'utf-8-unix)
-  (set-file-name-coding-system 'utf-8-unix)
-  (set-clipboard-coding-system 'utf-8-unix)
-  (set-buffer-file-coding-system 'utf-8-unix)
-  (cuss locale-coding-system 'utf-8-unix)
-  (cuss x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+  (set-language-environment 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (cuss locale-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+
+  ;; from https://www.emacswiki.org/emacs/EndOfLineTips
+
+  (defun acdw/no-junk-please-were-unixish ()
+    "Convert line endings to UNIX, dammit."
+    (let ((coding-str (symbol-name buffer-file-coding-system)))
+      (when (string-match "-\\(?:dos\\|mac\\)$" coding-str)
+        (set-buffer-file-coding-system 'unix))))
+
+  (add-hook 'find-file-hooks #'acdw/no-junk-please-were-unixish)
 #+end_src
+
 ** Undo
 
 #+begin_src emacs-lisp
@@ -595,6 +641,19 @@ I'm going to be honest -- most of this is a stab in the dark.
      ("C-=" . er/expand-region)
      ("C-+" . er/contract-region))
  #+end_src
+
+** Clean up white space on save
+
+#+begin_src emacs-lisp
+  (add-hook 'before-save-hook #'whitespace-cleanup)
+  (add-hook 'before-save-hook #'delete-trailing-whitespace)
+#+end_src
+
+** Automatically revert a file to what it is on disk
+
+#+begin_src emacs-lisp
+  (global-auto-revert-mode 1)
+#+end_src
 
 * Writing
 
