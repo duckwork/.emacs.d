@@ -266,10 +266,10 @@ I also want to switch themes between night and day.
   (defun rm/whitelist-add (regexp)
     "Add a REGEXP to the whitelist for `rich-minority'."
     (if (listp 'rm--whitelist-regexps)
-	(add-to-list 'rm--whitelist-regexps regexp)
+        (add-to-list 'rm--whitelist-regexps regexp)
       (setq rm--whitelist-regexps `(,regexp)))
     (setq rm-whitelist
-	  (mapconcat 'identity rm--whitelist-regexps "\\|")))
+          (mapconcat 'identity rm--whitelist-regexps "\\|")))
 
   (use-package rich-minority
     :config
