@@ -237,22 +237,20 @@ I also want to switch themes between night and day.
     (change-theme 'modus-operandi 'modus-vivendi))
 #+end_src
 
-By default, Emacs loads themes on top of each other.  I don't want that, so let's apply this advice.
-
-#+begin_src emacs-lisp
-  (defadvice load-theme
-      (before disable-before-load
-              (theme &optional no-confirm no-enable) activate)
-    (mapc 'disable-theme custom-enabled-themes))
-#+end_src
-
 * Simplify GUI
+
+** Remove unneeded GUI elements
 
 #+begin_src emacs-lisp
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
+  (horizontal-scroll-bar-mode -1)
+#+end_src
 
+** Word wrap and operate visually
+
+#+begin_src emacs-lisp
   (global-visual-line-mode 1)
 #+end_src
 
