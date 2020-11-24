@@ -103,6 +103,18 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 
 #+end_src
 
+** Increase the garbage collector
+
+#+begin_src emacs-lisp :tangle early-init.el
+  (setq gc-cons-threshold (* 100 100 1000))
+
+  (add-hook 'after-init-hook
+            (lambda ()
+              (setq gc-cons-threshold (* 100 100 100))
+              (message "gc-cons-threshold restored to %S"
+                       gc-cons-threshold)))
+#+end_src
+
 ** Add more paths to the =exec-path= when using Windows
 
 #+begin_src emacs-lisp :tangle early-init.el
