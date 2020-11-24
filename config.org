@@ -950,14 +950,14 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
 #+begin_src emacs-lisp
   (define-advice magit-list-refs
       (:around (orig &optional namespaces format sortby)
-	       prescient-sort)
+               prescient-sort)
     "Apply prescient sorting when listing refs."
     (let ((res (funcall orig namespaces format sortby)))
       (if (or sortby
-	      magit-list-refs-sortby
-	      (not selectrum-should-sort-p))
-	  res
-	(prescient-sort res))))
+              magit-list-refs-sortby
+              (not selectrum-should-sort-p))
+          res
+        (prescient-sort res))))
 #+end_src
 
 *** Use =libgit= when I can build it (requires =cmake=)
