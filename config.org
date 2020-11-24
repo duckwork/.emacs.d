@@ -973,6 +973,7 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
 #+begin_src emacs-lisp
   (use-package forge
     :after magit
+    :unless (eq system-type 'windows-nt)
     :custom
     (forge-owned-accounts
      '(("duckwork"))))
