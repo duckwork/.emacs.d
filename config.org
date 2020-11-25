@@ -306,6 +306,7 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
     "Setup fonts.  This has to happen after the frame is set up for
     the first time, so add it to `focus-in-hook'.  It removes
     itself."
+    (interactive)
     (set-face-attribute 'default nil
                         :font
                         (font-candidate
