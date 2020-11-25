@@ -1093,6 +1093,13 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
     :straight (gemini-mode
                :repo "https://git.carcosa.net/jmcbray/gemini.el.git")
     :mode "\\.\\(gemini|gmi\\)\\'"
+    :custom-face
+    (gemini-heading-face-1
+     ((t (:inherit (elpher-gemini-heading1)))))
+    (gemini-heading-face2
+     ((t (:inherit (elpher-gemini-heading2)))))
+    (gemini-heading-face3
+     ((t (:inherit (elpher-gemini-heading3)))))
     :hook
     (gemini-mode . visual-fill-column-mode))
 
