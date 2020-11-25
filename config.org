@@ -1,20 +1,22 @@
-#+TITLE: Emacs config
-#+AUTHOR: Case Duckworth
-#+BABEL: :cache yes
+#+TITLE:Emacs configuration, literate style
+#+AUTHOR:Case Duckworth
 #+PROPERTY: header-args :tangle init.el
 #+OPTIONS: toc:nil
-#+BANKRUPTCY_COUNT: 1
+#+BANKRUPTCY_COUNT: 2
 
-* Preamble
+* About me
 
-I wanted to write my Emacs configuration in [[https://orgmode.org][Org mode]] for a while, but never could quite figure out how.  Finally, I found [[https://github.com/larstvei/dot-emacs][Lars Tveito]]'s config, which does exactly what I want: =init.el= is small and simple, and replaced after the first run, and =init.org= is automatically tangled.  So I'm very excited.
+#+begin_src emacs-lisp
+  ;; init.el -*- lexical-binding: t -*-
+  (setq user-full-name "Case Duckworth"
+        user-mail-address "acdw@acdw.net")
+#+end_src
 
 * License
 
 Copyright © 2020 Case Duckworth <acdw@acdw.net>
-This work is free. You can redistribute it and/or modify it under the
-terms of the Do What The Fuck You Want To Public License, Version 2,
-as published by Sam Hocevar. See the LICENSE file, or below, for more details.
+
+This work is free.  You can redistribute it and/or modify it under the terms of the Do What the Fuck You Want To Public License, Version 2, as published by Sam Hocevar.  See the =LICENSE= file, tangled from the following source block, for details.
 
 #+begin_src text :tangle LICENSE
   DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
@@ -31,97 +33,101 @@ as published by Sam Hocevar. See the LICENSE file, or below, for more details.
   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
      0. You just DO WHAT THE FUCK YOU WANT TO.
-
-
 #+end_src
 
-Probably that's not legal under the terms of the GPL or whatever Emacs is licensed under.
-SUE ME, RMS
+** Note on the license
+
+It's highly likely that the WTFPL is completely incompatible with the GPL, for what should be fairly obvious reasons.  To that, I say:
+
+*SUE ME, RMS!*
 
 * Bootstrap
 
-/Check out Lars's config for the reasoning behind this./
+** Original init.el
 
-When this configuration is loaded for the first time, this ~init.el~ is loaded:
-
-#+BEGIN_SRC emacs-lisp :tangle no
-  ;; This file replaces itself with the actual configuration when first run.  To keep only this version in git, run this command:
+#+begin_src emacs-lisp :tangle no
+  ;; This file replaces itself with the actual configuration when
+  ;; first run.  To keep only this version in git, run this command:
+  ;;
   ;; git update-index --assume-unchanged init.el
   ;;
   ;; If it needs to be changed, start tracking it again thusly:
+  ;;
   ;; git update-index --no-assume-unchanged init.el
 
   (require 'org)
-  (find-file (concat user-emacs-directory "init.org"))
+  (find-file (concat user-emacs-directory "config.org"))
   (org-babel-tangle)
   (load-file (concat user-emacs-directory "early-init.el"))
   (load-file (concat user-emacs-directory "init.el"))
   (byte-compile-file (concat user-emacs-directory "init.el"))
-#+END_SRC
+#+end_src
 
 ** Tangling
-After the first run, the above ~init.el~ will be replaced by the tangled stuff here.  However, when /this/ file is edited, we'll need to re-tangle everything.  However, nobody has time to do that manually with =C-c C-v t=, /every time/!  Luckily, Emacs is highly programmable.
 
-#+NAME: tangle-on-save
-#+BEGIN_SRC emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (defun acdw/tangle-init ()
-    "If the current buffer is `init.org', the code blocks are tangled,
-    and the tangled file is compiled and loaded."
-    (interactive)
+    "If the current buffer is `config.org', tangle it, then compile
+  and load the resulting files."
     (when (equal (buffer-file-name)
                  (expand-file-name
                   (concat user-emacs-directory "config.org")))
-        ;; Now with async!
-        (require 'async)
-        (async-start
-         `(lambda ()
-            ;; Avoid running hooks when tangling.
-            (let ((prog-mode-hook nil))
-              (require 'org)
-              (org-babel-tangle-file
-               (expand-file-name
-                (concat user-emacs-directory "config.org")))))
-         (lambda (_)
-           (message "Tangle complete.")))))
+      (require 'async)
+      (async-start
+       (lambda ()
+         (let ((prog-mode-hook nil))
+           (require 'org)
+           (org-babel-tangle-file
+            (expand-file-name
+             (concat user-emacs-directory "config.org")))))
+       (lambda (response)
+         (acdw/load-init)
+         (message "Tangled and loaded: %s" response)))))
 
   (add-hook 'after-save-hook #'acdw/tangle-init)
-#+END_SRC
+
+  (defun acdw/load-init ()
+    (interactive)
+    (load-file (expand-file-name
+                (concat user-emacs-directory "early-init.el")))
+    (load-file (expand-file-name
+                (concat user-emacs-directory "init.el"))))
+#+end_src
 
 * Early initiation
-Emacs 27.1+ uses ~early-init.el~, which is evaluated before things like ~package.el~ and other stuff.  So I have a few settings in there.
 
-** Preamble
-Of course, first thing is the modeline.  After that, I set ~load-prefer-newer~ because, well, it /should/.
-#+BEGIN_SRC emacs-lisp :tangle early-init.el
-  ;;; early-init.el -*- lexical-binding: t; no-byte-compile: t -*-
+#+begin_src emacs-lisp :tangle early-init.el
+  ;; early-init.el -*- lexical-binding: t; no-byte-compile: t -*-
 
-(setq load-prefer-newer t)
-#+END_SRC
+  (setq load-prefer-newer t)
 
-** Computers
-I have to set these constants before bootstrapping the package manager, since ~straight.el~ depends on Git, and at work, those are in a weird place.
+#+end_src
 
-#+BEGIN_SRC emacs-lisp :tangle early-init.el
-  (defconst *acdw/at-work* (eq system-type 'windows-nt))
-  (defconst *acdw/at-larry* (string= (system-name) "larry"))
-  (defconst *acdw/at-bax* (string= (system-name) "bax"))
-  (defconst *acdw/at-home* (or *acdw/at-larry* *acdw/at-bax*))
-#+END_SRC
+** Increase the garbage collector
 
-** Package management
- I've started using straight.el, which is great.  It grabs packages from git, and apparently will let me fork and edit them, which I'll probably get around to ... eventually.
+#+begin_src emacs-lisp :tangle early-init.el
+  (setq gc-cons-threshold (* 100 100 1000))
 
-*** At work, Git's in a weird place
-#+BEGIN_SRC emacs-lisp :tangle early-init.el
-  (when *acdw/at-work*
-    (add-to-list 'exec-path "~/bin")
-    (add-to-list 'exec-path "C:/Users/aduckworth/Downloads/PortableGit/bin"))
-#+END_SRC
+  (add-hook 'after-init-hook
+            (lambda ()
+              (setq gc-cons-threshold (* 100 100 100))
+              (message "gc-cons-threshold restored to %S"
+                       gc-cons-threshold)))
+#+end_src
 
-*** [[https://github.com/raxod502/straight.el][straight.el]]
-I don't know why, but for some reason the bootstrapping doesn't work on Windows.  I have to download the repo directly from github and put it in the right place (=~/.emacs.d/straight/repos/straight.el/=).
+** Add more paths to the =exec-path= when using Windows
 
-#+BEGIN_SRC emacs-lisp :tangle early-init.el
+#+begin_src emacs-lisp :tangle early-init.el
+  (when (eq system-type 'windows-nt)
+    (dolist (path '("~/bin"
+                    "C:/Users/aduckworth/Downloads/PortableGit/bin"
+                    "C:/Users/aduckworth/Downloads/PortableGit/usr/bin"))
+      (add-to-list 'exec-path path)))
+#+end_src
+
+** Bootstrap =straight.el=
+
+#+begin_src emacs-lisp :tangle early-init.el
   (defvar bootstrap-version)
   (let ((bootstrap-file
          (expand-file-name "straight/repos/straight.el/bootstrap.el"
@@ -135,458 +141,830 @@ I don't know why, but for some reason the bootstrapping doesn't work on Windows.
         (goto-char (point-max))
         (eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
-#+END_SRC
+#+end_src
 
-*** [[https://github.com/jwiegley/use-package][use-package]]
-Yeah, you know it, I know it, we all love it.  It's use-package.
-#+BEGIN_SRC emacs-lisp :tangle early-init.el
+** Use =use-package=
+
+#+begin_src emacs-lisp :tangle early-init.el
   (setq straight-use-package-by-default t)
   (straight-use-package 'use-package)
-#+END_SRC
-* Begin init.el
-#+BEGIN_SRC emacs-lisp :noweb tangle
-  ;;; init.el -*- lexical-binding: t; coding: utf-8 -*-
-  <<tangle-on-save>>
-#+END_SRC
-* Macros
-** cuss
-I like ~use-package~,  but I don't like doing the weird "pseudo-package" stuff a lot of people do in their emacs configs.  Partially because I have to set ~:straight nil~ on a lot of built-in packages, but also because I think being /that/ obsessive over one interface through the whole config is ... I don't know, short-sighted?
+#+end_src
 
-Either way, I /do/ like the ~:custom~ interface that ~use-package~ has, so I've re-implemented it in my own macro.  This way I don't have to worry about whether to ~setq~ or ~custom-set-variable~ or whatever.  Just ~cuss~!
-#+BEGIN_SRC emacs-lisp
+** Keep =~/.emacs.d= tidy
+
+#+begin_src emacs-lisp
+  (straight-use-package 'no-littering)
+  (require 'no-littering)
+#+end_src
+
+** Additional =use-package= keywords
+
+*** =:custom-update=
+
+#+begin_src emacs-lisp
+  (use-package use-package-custom-update
+    :straight (use-package-custom-update
+               :host github
+               :repo "a13/use-package-custom-update"))
+#+end_src
+
+** Setup async
+
+#+begin_src emacs-lisp :tangle early-init.el
+  (straight-use-package 'async)
+  (require 'async)
+#+end_src
+
+* Macros
+
+** Customizing variables
+
+#+begin_src emacs-lisp
   (defmacro cuss (var val)
-    "Basically `use-package''s `:custom', but without either."
+    "Basically `use-package''s `:custom', but without using either."
     `(progn
        (funcall (or (get ',var 'custom-set) #'set-default)
                 ',var ,val)))
-#+END_SRC
-* Files
-** [[https://github.com/emacscollective/no-littering][Keep .emacs.d tidy]]
-#+BEGIN_SRC emacs-lisp
-  (straight-use-package 'no-littering)
-  (require 'no-littering)
-#+END_SRC
-** Customize
-I don't like the customize interface, but I still sometimes use it when I'm not sure what the name of a variable is.  So I save the stuff to a file, I just don't load it or keep track of it.
-#+BEGIN_SRC emacs-lisp
-  (cuss custom-file (no-littering-expand-etc-file-name "custom.el"))
-#+END_SRC
-** Encoding
-#+BEGIN_SRC emacs-lisp
-  (prefer-coding-system 'utf-8-unix)
-  (set-default-coding-systems 'utf-8-unix)
-  (set-terminal-coding-system 'utf-8-unix)
-  (set-keyboard-coding-system 'utf-8-unix)
-  (set-selection-coding-system 'utf-8-unix)
-  (set-file-name-coding-system 'utf-8-unix)
-  (set-clipboard-coding-system 'utf-8-unix)
-  (set-buffer-file-coding-system 'utf-8-unix)
-  (cuss locale-coding-system 'utf-8)
-  (cuss x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
-#+END_SRC
-** Recent files
-#+BEGIN_SRC emacs-lisp
-  (use-package recentf
-    :config
-    (add-to-list 'recentf-exclude no-littering-var-directory)
-    (add-to-list 'recentf-exclude no-littering-etc-directory)
-    :custom
-    (recentf-max-menu-items 100)
-    (recentf-max-saved-items 100)
-    :config
-    (recentf-mode 1))
-#+END_SRC
-** Backups
-#+BEGIN_SRC emacs-lisp
-  (cuss backup-directory-alist
-        `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
-#+END_SRC
-** [[https://github.com/bbatsov/super-save][Autosave]]
-#+BEGIN_SRC emacs-lisp
-  (use-package super-save
-    :custom
-    (auto-save-default nil)
-    (super-save-exclude '(".gpg"))
-    :config
-    (super-save-mode 1))
-#+END_SRC
-** [[https://www.emacswiki.org/emacs/SavePlace][Save places]]
-#+BEGIN_SRC emacs-lisp
-  (use-package saveplace
-    :custom
-    (save-place-file (no-littering-expand-var-file-name "places"))
-    (save-place-forget-unreadable-files (not *acdw/at-work*))
-    :config
-    (save-place-mode 1))
-#+END_SRC
-** [[https://www.emacswiki.org/emacs/SaveHist][Save history]]
-#+BEGIN_SRC emacs-lisp
-  (use-package savehist
-    :custom
-    (savehist-addtional-variables
-     '(kill-ring
-       search-ring
-       regexp-search-ring))
-    (savehist-save-minibuffer-history t)
-    :config
-    (savehist-mode 1))
-#+END_SRC
-* User interface
-** Look
-*** Frames and windows
-**** Frame defaults
-#+BEGIN_SRC emacs-lisp
-  (cuss default-frame-alist '((tool-bar-lines . 0)
-                              (menu-bar-lines . 0)
-                              (vertical-scroll-bars . nil)
-                              (horizontal-scroll-bars . nil)
-                              (right-divider-width . 2)
-                              (bottom-divider-width . 2)
-                              (left-fringe-width . 2)
-                              (right-fringe-width . 2)))
+#+end_src
 
-  ;; also disable these with modes, so I can re-enable them more easily
+* Theme
+
+I'm using the [[https://protesilaos.com/modus-themes/][Modus]] themes.
+
+#+begin_src emacs-lisp
+  (defmacro modus-themes-format-sexp (sexp &rest objects)
+    `(eval (read (format ,(format "%S" sexp) ,@objects))))
+
+  (dolist (theme '("operandi" "vivendi"))
+    (modus-themes-format-sexp
+     (use-package modus-%1$s-theme
+       :init
+       (setq modus-%1$s-theme-slanted-constructs t
+             modus-%1$s-theme-bold-constructs t
+             modus-%1$s-theme-fringes 'subtle
+             modus-%1$s-theme-mode-line '3d
+             modus-%1$s-theme-syntax 'yellow-comments
+             modus-%1$s-theme-intense-hl-line nil
+             modus-%1$s-theme-intense-paren-match t
+             modus-%1$s-theme-links nil
+             modus-%1$s-theme-no-mixed-fonts nil
+             modus-%1$s-theme-prompts nil
+             modus-%1$s-theme-completions nil
+             modus-%1$s-theme-diffs nil
+             modus-%1$s-theme-org-blocks 'grayscale
+             modus-%1$s-theme-headings
+             '((1 . section)
+               (2 . line)
+               (t . rainbow-line-no-bold))
+             modus-%1$s-theme-variable-pitch-headings nil
+             modus-%1$s-theme-scale-headings t
+             modus-%1$s-theme-scale-1 1.1
+             modus-%1$s-theme-scale-2 1.15
+             modus-%1$s-theme-scale-3 1.21
+             modus-%1$s-theme-scale-4 1.27
+             modus-%1$s-theme-scale-5 1.33))
+     theme))
+#+end_src
+
+I also want to switch themes between night and day.
+
+#+begin_src emacs-lisp
+  (use-package theme-changer
+    :custom
+    (calendar-latitude 30.39)
+    (calendar-longitude -91.83)
+    :config
+    (change-theme 'modus-operandi 'modus-vivendi))
+#+end_src
+
+* Simplify GUI
+
+** Remove unneeded GUI elements
+
+#+begin_src emacs-lisp
   (menu-bar-mode -1)
   (tool-bar-mode -1)
   (scroll-bar-mode -1)
-#+END_SRC
-**** Resizing
-#+BEGIN_SRC emacs-lisp
-  (cuss frame-resize-pixelwise t)
-  (cuss window-combination-resize t)
-#+END_SRC
-*** Buffers
-#+BEGIN_SRC emacs-lisp
-  (cuss uniquify-buffer-name-style 'forward)
-
-  (cuss indicate-buffer-boundaries
-        '((top . right)
-          (bottom . right)
-          (t . nil)))
-#+END_SRC
-**** Startup buffer
-#+BEGIN_SRC emacs-lisp
-  (cuss inhibit-startup-buffer-menu t)
-  (cuss inhibit-startup-screen t)
-  (cuss initial-buffer-choice t) ; start in *scratch*
-  (cuss initial-scratch-message nil)
-#+END_SRC
-*** Cursor
-#+BEGIN_SRC emacs-lisp
-  (cuss cursor-type 'bar)
-  (cuss cursor-in-non-selected-windows 'hollow)
-  (blink-cursor-mode 0)
-#+END_SRC
-*** Interactivity
-**** Mouse
-#+BEGIN_SRC emacs-lisp
-  (cuss mouse-yank-at-point t)
-#+END_SRC
-**** Dialogs
-#+BEGIN_SRC emacs-lisp
-  (cuss use-dialog-box nil)
-#+END_SRC
-**** Disabled functions
-#+BEGIN_SRC emacs-lisp
-  (cuss disabled-command-function nil)
-#+END_SRC
-**** Function aliases
-#+begin_src emacs-lisp
-  (fset 'yes-or-no-p #'y-or-n-p)
+  (horizontal-scroll-bar-mode -1)
 #+end_src
-*** Miscellaneous
-**** Convert =^L= to a line
+
+** Word wrap and operate visually
+
+#+begin_src emacs-lisp
+  (global-visual-line-mode 1)
+#+end_src
+
+** Modeline
+
+#+begin_src emacs-lisp
+  (use-package smart-mode-line
+    :custom
+    (sml/no-confirm-load-theme t)
+    :config
+    (sml/setup))
+
+  (defun rm/whitelist-add (regexp)
+    "Add a REGEXP to the whitelist for `rich-minority'."
+    (if (listp 'rm--whitelist-regexps)
+        (add-to-list 'rm--whitelist-regexps regexp)
+      (setq rm--whitelist-regexps `(,regexp)))
+    (setq rm-whitelist
+          (mapconcat 'identity rm--whitelist-regexps "\\|")))
+
+  (use-package rich-minority
+    :config
+    (rm/whitelist-add "^$"))
+#+end_src
+
+** Show =^L= as a line
+
 #+begin_src emacs-lisp
   (use-package form-feed
     :hook
     ((text-mode prog-mode) . form-feed-mode))
 #+end_src
-** Themes: [[https://github.com/protesilaos/modus-themes][Modus]]
-#+BEGIN_SRC emacs-lisp
-  (use-package modus-operandi-theme)
-  (use-package modus-vivendi-theme)
-#+END_SRC
-*** [[https://github.com/hadronzoo/theme-changer][Change themes]] based on time of day
-#+BEGIN_SRC emacs-lisp
-  (use-package theme-changer
-    :init
-    (setq calendar-location-name "Baton Rouge, LA"
-          calendar-latitude 30.39
-          calendar-longitude -91.83)
-    :config
-    (change-theme 'modus-operandi 'modus-vivendi))
-#+END_SRC
-*** Disable the current theme when a theme is interactively loaded
-This doesn't happen often, but I'll be ready when it does.
+
+** Cursor
+
 #+begin_src emacs-lisp
-  (defadvice load-theme
-      (before disable-before-load (theme &optional no-confirm no-enable) activate)
-    (mapc 'disable-theme custom-enabled-themes))
+  (cuss cursor-type 'bar)
+  (cuss cursor-in-non-selected-windows 'hollow)
 #+end_src
-** Modeline: [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]]
-#+BEGIN_SRC emacs-lisp
-  (use-package smart-mode-line
-    :config
-    (sml/setup))
-#+END_SRC
 
-I hide all minor-modes by default for a clean modeline.  However, I can add them back by adding them to the whitelist with ~(add-to-list 'rm-whitelist " REGEX")~.
-#+BEGIN_SRC emacs-lisp
-  (defun rm-whitelist-add (regexp)
-    "Add a regexp to the whitelist."
-    (add-to-list 'rm--whitelist-regexps regexp)
-    (setq rm-whitelist
-          (mapconcat 'identity rm--whitelist-regexps "\\|")))
+* Fonts
 
-  (setq rm--whitelist-regexps '("^$"))
+See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-launching-emacs-in-daemon-mode][this StackExchange question and answer]] for more information on why I have these font settings applied in a hook.
 
-  (use-package rich-minority
-    :custom
-    (rm-whitelist
-     (mapconcat 'identity rm--whitelist-regexps "\\|")))
-#+END_SRC
-** Fonts
-I'm sure there's a better way to do this, but for now, this is the best I've got.  I append to the ~face-font-family-alternatives~ because I don't know what kind of weird magic they're doing in there.
-#+BEGIN_SRC emacs-lisp
-  (cuss face-font-family-alternatives
-        '(("Monospace" "courier" "fixed")
-          ("Monospace Serif" "Courier 10 Pitch" "Consolas" "Courier Std" "FreeMono" "Nimbus Mono L" "courier" "fixed")
-          ("courier" "CMU Typewriter Text" "fixed")
-          ("Sans Serif" "helv" "helvetica" "arial" "fixed")
-          ("helv" "helvetica" "arial" "fixed")
-          ;; now mine
-          ("FixedPitch" "Go Mono" "DejaVu Sans Mono" "Consolas" "fixed")
-          ("VariablePitch" "Spectral Medium" "Go" "DejaVu Sans" "Georgia" "fixed")))
-
-  (set-face-attribute 'default nil
-                      :family "FixedPitch"
-                      :height 110)
-
-  (set-face-attribute 'fixed-pitch nil
-                      :family "FixedPitch"
-                      :height 110)
-
-  (set-face-attribute 'variable-pitch nil
-                      :family "VariablePitch"
-                      :height 135)
-#+END_SRC
-*** Ligatures
-These cause big problems with cc-mode (as in, totally freezing everything), so I'm going to comment it out.
 #+begin_src emacs-lisp
-  ;; (use-package ligature
-  ;;   :straight (ligature
-  ;;              :host github
-  ;;              :repo "mickeynp/ligature.el")
-  ;;   :config
-  ;;   (ligature-set-ligatures 'prog-mode
-  ;;                           '("++" "--" "/=" "&&" "||" "||="
-  ;;                             "->" "=>" "::" "__"
-  ;;                             "==" "===" "!=" "=/=" "!=="
-  ;;                             "<=" ">=" "<=>"
-  ;;                             "/*" "*/" "//" "///"
-  ;;                             "\\n" "\\\\"
-  ;;                             "<<" "<<<" "<<=" ">>" ">>>" ">>="
-  ;;                             "|=" "^="
-  ;;                             "**" "--" "---" "----" "-----"
-  ;;                             "==" "===" "====" "====="
-  ;;                             "</" "<!--" "</>" "-->" "/>"
-  ;;                             ":=" "..." ":>" ":<" ">:" "<:"
-  ;;                             "::=" ;; add others here
-  ;;                             ))
-  ;;   :config
-  ;;   (global-ligature-mode))
-#+end_src
-*** [[https://github.com/rolandwalker/unicode-fonts][Unicode fonts]]
-#+BEGIN_SRC emacs-lisp
-  (use-package persistent-soft)
+  (require 'cl)
+  (defun font-candidate (&rest fonts)
+    (loop for font in fonts
+          when (find-font (font-spec :name font))
+          return font))
 
+  (defun acdw/setup-fonts ()
+    "Setup fonts.  This has to happen after the frame is set up for
+    the first time, so add it to `focus-in-hook'.  It removes
+    itself."
+    (interactive)
+    (set-face-attribute 'default nil
+                        :font
+                        (font-candidate
+                         "Libertinus Mono-11"
+                         "Linux Libertine Mono O-11"
+                         "Go Mono-11"
+                         "Consolas-11"))
+
+    (set-face-attribute 'fixed-pitch nil
+                        :font
+                        (font-candidate
+                         "Libertinus Mono-11"
+                         "Linux Libertine Mono O-11"
+                         "Go Mono-11"
+                         "Consolas-11"))
+
+    (set-face-attribute 'variable-pitch nil
+                        :font
+                        (font-candidate
+                         "Libertinus Serif-14"
+                         "Linux Libertine O-12"
+                         "Georgia-11"))
+
+    (remove-hook 'focus-in-hook #'acdw/setup-fonts))
+
+  (add-hook 'focus-in-hook #'acdw/setup-fonts)
+#+end_src
+
+** Unicode
+
+#+begin_src emacs-lisp
   (use-package unicode-fonts
-    :after persistent-soft
     :config
     (unicode-fonts-setup))
+#+end_src
 
-#+END_SRC
-* Editing
-** Completion
-I was using company, but I think it might've been causing issues with ~awk-mode~, so I'm trying ~hippie-mode~ right now.  So far, I'm also enjoying not having a popup all the time.
-#+BEGIN_SRC emacs-lisp
-  (bind-key "M-/" #'hippie-expand)
-#+END_SRC
+** Variable pitch faces
+
+#+begin_src emacs-lisp
+  (add-hook 'text-mode-hook #'variable-pitch-mode)
+#+end_src
+
+* Ease of use
+
+** Selectrum & Prescient
+
+#+begin_src emacs-lisp
+  (use-package selectrum
+    :config
+    (selectrum-mode 1))
+
+  (use-package prescient
+    :config
+    (prescient-persist-mode 1))
+
+  (use-package selectrum-prescient
+    :after (selectrum prescient)
+    :config
+    (selectrum-prescient-mode 1))
+#+end_src
+
+** CtrlF
+
+#+begin_src emacs-lisp
+  (use-package ctrlf
+    :custom
+    (ctrlf-show-match-count-at-eol nil)
+    :bind
+    ("C-s" . ctrlf-forward-regexp)
+    ("C-r" . ctrlf-backward-regexp)
+    ("C-M-s" . ctrlf-forward-literal)
+    ("C-M-r" . ctrlf-backward-literal)
+    :config
+    (ctrlf-mode 1))
+#+end_src
+
+** Startup
+
+#+begin_src emacs-lisp
+  (cuss inhibit-startup-buffer-menu t)
+  (cuss inhibit-startup-screen t)
+  (cuss initial-buffer-choice t)
+  (cuss initial-scratch-message ";; Hi there!\n")
+#+end_src
+
 ** Ignore case
+
 #+BEGIN_SRC emacs-lisp
   (cuss completion-ignore-case t)
   (cuss read-buffer-completion-ignore-case t)
   (cuss read-file-name-completion-ignore-case t)
 #+END_SRC
-** Selection & Minibuffer
-*** Selectrum & Prescient
+
+** Which key
+
 #+begin_src emacs-lisp
-    (use-package selectrum
-      :config
-      (selectrum-mode +1))
-
-    (use-package prescient
-      :config
-      (prescient-persist-mode +1))
-
-    (use-package selectrum-prescient
-      :after (selectrum prescient)
-      :config
-      (selectrum-prescient-mode +1))
-#+end_src
-** Search
-*** CtrlF for searching
-#+BEGIN_SRC emacs-lisp
-  (use-package ctrlf
+  (use-package which-key
     :custom
-    (ctrlf-show-match-count-at-eol nil)
+    (which-key-popup-type 'minibuffer)
     :config
-    (ctrlf-mode +1)
-    :bind
-    ("C-s" . ctrlf-forward-regexp))
-#+END_SRC
-*** [[https://github.com/benma/visual-regexp.el][Visual Regexp]]
-#+begin_src emacs-lisp
-  (use-package visual-regexp
-    :bind
-    ([remap query-replace] . 'vr/query-replace))
+    (which-key-mode))
 #+end_src
-** Undo
-#+BEGIN_SRC emacs-lisp
-  (use-package undo-fu
-    :bind
-    ("C-/" . undo-fu-only-undo)
-    ("C-?" . undo-fu-only-redo))
 
+** Miscellaneous settings
+
+*** Set view mode when in a read-only file
+
+#+begin_src emacs-lisp
+  (cuss view-read-only t)
+#+end_src
+
+*** Don't use dialog boxen
+
+#+begin_src emacs-lisp
+  (cuss use-dialog-box nil)
+#+end_src
+
+*** Enable all functions
+
+#+begin_src emacs-lisp
+  (cuss disabled-command-function nil)
+#+end_src
+
+*** Shorter confirmations
+
+#+begin_src emacs-lisp
+  (fset 'yes-or-no-p #'y-or-n-p)
+#+end_src
+
+*** Uniquify buffer names
+
+#+begin_src emacs-lisp
+  (require 'uniquify)
+  (cuss uniquify-buffer-name-style 'forward)
+#+end_src
+
+*** Show buffer boundaries
+
+#+begin_src emacs-lisp
+  (cuss indicate-buffer-boundaries
+        '((top . right)
+          (bottom . right)
+          (t . nil)))
+#+end_src
+
+*** Hippie expand
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "M-/") 'hippie-expand)
+#+end_src
+
+*** iBuffer
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
+#+end_src
+
+*** Zap-up-to-char, not zap-to-char
+
+#+begin_src emacs-lisp
+  (autoload 'zap-up-to-char "misc"
+    "Kill up to, but not including, ARGth occurrence of CHAR." t)
+
+  (global-set-key (kbd "M-z") 'zap-up-to-char)
+#+end_src
+
+*** Other "[[https://git.sr.ht/~technomancy/better-defaults/tree/master/better-defaults.el][better defaults]]"
+
+#+begin_src emacs-lisp
+  (cuss save-interprogram-paste-before-kill t)
+  (cuss apropos-do-all t)
+  (cuss mouse-yank-at-point t)
+  (cuss require-final-newline t)
+  (cuss visible-bell (not (string= (system-name) "larry")))
+  (cuss ediff-window-setup-function #'ediff-setup-windows-plain)
+#+end_src
+
+*** So-long-mode
+
+#+begin_src emacs-lisp
+  (if (boundp 'global-so-long-mode)
+      (global-so-long-mode))
+#+end_src
+
+*** Change =just-one-space= to =cycle-space=
+
+#+begin_src emacs-lisp
+  (defun acdw/cycle-spacing-1 ()
+    (interactive)
+    (cycle-spacing -1))
+
+  (bind-key [remap just-one-space] #'acdw/cycle-spacing-1)
+#+end_src
+
+* Persistence
+
+** Auto-saves
+
+#+begin_src emacs-lisp
+  (use-package super-save
+    :custom
+    (auto-save-default nil)
+    (super-save-exclue '(".gpg"))
+    :config
+    (super-save-mode 1))
+#+end_src
+
+** Backup files
+
+#+begin_src emacs-lisp
+  (cuss backup-directory-alist
+        `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
+
+  (cuss backup-by-copying 1)
+  (cuss delete-old-versions -1)
+  (cuss version-control t)
+  (cuss vc-make-backup-files t)
+#+end_src
+
+** Recent files
+
+#+begin_src emacs-lisp
+  (use-package recentf
+    :custom-update
+    (recentf-exclude
+     '(no-littering-var-directory
+       no-littering-etc-directory))
+    :custom
+    (recentf-max-menu-items 100)
+    (recentf-max-saved-items 100)
+    :config
+    (recentf-mode 1))
+#+end_src
+
+*** Easily navigate recent files
+
+#+begin_src emacs-lisp
+  (defun recentf-find-file ()
+    "Find a recent file using `completing-read'."
+    (interactive)
+    (let ((file (completing-read "Recent file: " recentf-list nil t)))
+      (when file
+        (find-file file))))
+
+  (bind-key "C-x C-r" #'recentf-find-file)
+#+end_src
+
+** Save places in visited files
+
+#+begin_src emacs-lisp
+  (use-package saveplace
+    :custom
+    (save-place-file (no-littering-expand-var-file-name "places"))
+    (save-place-forget-unreadable-files (not
+                                         (eq system-type 'windows-nt))
+    :config
+    (save-place-mode 1)))
+#+end_src
+
+** Save history
+
+#+begin_src emacs-lisp
+  (use-package savehist
+    :custom
+    (savehist-additional-variables
+     '(kill-ring
+       search-ring
+       regexp-search-ring))
+    (savehist-save-minibuffer-history t)
+    (history-length t)
+    (history-delete-duplicates t)
+    :config
+    (savehist-mode 1))
+#+end_src
+
+** Undo
+
+#+begin_src emacs-lisp
   (use-package undo-fu-session
-    :after no-littering
+    :after (no-littering undo-fu)
     :custom
     (undo-fu-session-incompatible-files
-     '("/COMMIT_EDITMSG\\'"
+     '("COMMIT_EDITMSG\\'"
        "/git-rebase-todo\\'"))
     (undo-fu-session-directory
      (no-littering-expand-var-file-name "undos/"))
     :config
-    (global-undo-fu-session-mode +1))
-#+END_SRC
+    (global-undo-fu-session-mode 1))
+#+end_src
+
+* General editing
+
+** File encoding
+
+I'm going to be honest -- most of this is a stab in the dark.
+
+#+begin_src emacs-lisp
+  (set-language-environment 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (cuss locale-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-selection-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+
+  ;; from https://www.emacswiki.org/emacs/EndOfLineTips
+
+  (defun acdw/no-junk-please-were-unixish ()
+    "Convert line endings to UNIX, dammit."
+    (let ((coding-str (symbol-name buffer-file-coding-system)))
+      (when (string-match "-\\(?:dos\\|mac\\)$" coding-str)
+        (set-buffer-file-coding-system 'unix))))
+
+  (add-hook 'find-file-hooks #'acdw/no-junk-please-were-unixish)
+#+end_src
+
+** Undo
+
+#+begin_src emacs-lisp
+  (use-package undo-fu
+    :bind
+    ("C-/" . undo-fu-only-undo)
+    ("C-?" . undo-fu-only-redo))
+#+end_src
+
+** Find/replace
+
+#+begin_src emacs-lisp
+  (use-package visual-regexp
+    :bind
+    ("C-c r" . 'vr/replace)
+    ("C-c q" . 'vr/query-replace))
+#+end_src
+
 ** Visual editing
-*** ~zap-to-char~ replacement
-#+BEGIN_SRC emacs-lisp
-  (use-package zop-to-char
-    :bind
-    ([remap zap-to-char] . zop-to-char)
-    ([remap zap-up-to-char] . zop-up-to-char))
-#+END_SRC
-*** Operate on a line if there's no current region
-#+BEGIN_SRC emacs-lisp
-  (use-package whole-line-or-region
-    :config
-    (whole-line-or-region-global-mode +1))
-#+END_SRC
-*** Expand-region
-#+BEGIN_SRC emacs-lisp
-  (use-package expand-region
-    :bind
-    ("C-=" . er/expand-region)
-    ("C-+" . er/contract-region))
-#+END_SRC
+
 *** Volatile highlights
-#+BEGIN_SRC emacs-lisp
+
+#+begin_src emacs-lisp
   (use-package volatile-highlights
     :config
     (volatile-highlights-mode 1))
-#+END_SRC
-*** Visual line mode
-#+BEGIN_SRC emacs-lisp
-  (global-visual-line-mode 1)
-#+END_SRC
-*** A better ~move-beginning-of-line~
-#+BEGIN_SRC emacs-lisp
-  (defun my/smarter-move-beginning-of-line (arg)
-    "Move point back to indentation of beginning of line.
+#+end_src
 
-  Move point to the first non-whitespace character on this line.
-  If point is already there, move to the beginning of the line.
-  Effectively toggle between the first non-whitespace character and
-  the beginning of the line.
+*** Expand region
 
-  If ARG is not nil or 1, move forward ARG - 1 lines first.  If
-  point reaches the beginning or end of the buffer, stop there."
-    (interactive "^p")
-    (setq arg (or arg 1))
+ #+begin_src emacs-lisp
+   (use-package expand-region
+     :bind
+     ("C-=" . er/expand-region)
+     ("C-+" . er/contract-region))
+ #+end_src
 
-    ;; Move lines first
-    (when (/= arg 1)
-      (let ((line-move-visual nil))
-        (forward-line (1- arg))))
+** Clean up white space on save
 
-    (let ((orig-point (point)))
-      (back-to-indentation)
-      (when (= orig-point (point))
-        (move-beginning-of-line 1))))
+#+begin_src emacs-lisp
+  (add-hook 'before-save-hook #'whitespace-cleanup)
+  (add-hook 'before-save-hook #'delete-trailing-whitespace)
+#+end_src
 
-  (bind-key "C-a" #'my/smarter-move-beginning-of-line)
-#+END_SRC
-** Delete the selection when typing
-#+BEGIN_SRC emacs-lisp
-  (delete-selection-mode 1)
-#+END_SRC
-** Clipboard
-#+BEGIN_SRC emacs-lisp
-  (cuss save-interprogram-paste-before-kill t)
-#+END_SRC
-** Tabs & Spaces
-#+BEGIN_SRC emacs-lisp
-  (cuss sentence-end-double-space t)
+** Automatically revert a file to what it is on disk
 
-  ;; cf https://dougie.io/emacs/indentation/
-  ;; Create a variable for our preferred tab width
-  (setq custom-tab-width 4)
+#+begin_src emacs-lisp
+  (global-auto-revert-mode 1)
+#+end_src
 
-  ;; Two callable functions for enabling/disabling tabs in Emacs
-  (defun disable-tabs () (setq indent-tabs-mode nil))
-  (defun enable-tabs  ()
-    (setq indent-tabs-mode t)
-    (setq tab-width custom-tab-width))
+* Writing
 
-  ;; Hooks to Enable Tabs
-  (add-hook 'prog-mode-hook 'enable-tabs)
-  ;; Hooks to Disable Tabs
-  (add-hook 'lisp-mode-hook 'disable-tabs)
-  (add-hook 'emacs-lisp-mode-hook 'disable-tabs)
+** Word count
 
-  ;; Language-Specific Tweaks
-  (setq-default python-indent-offset custom-tab-width) ;; Python
-  (setq-default js-indent-level custom-tab-width)      ;; Javascript
+#+begin_src emacs-lisp
+  (use-package wc-mode
+    :config
+    (rm/whitelist-add "WC")
+    :hook text-mode)
+#+end_src
 
-  ;; Make the backspace properly erase the tab instead of
-  ;; removing 1 space at a time.
-  (setq backward-delete-char-untabify-method 'hungry)
+** Visual fill column mode
 
-  ;; WARNING: This will change your life
-  ;; (OPTIONAL) Visualize tabs as a pipe character - "|"
-  ;; This will also show trailing characters as they are useful to spot.
-  (setq whitespace-style '(face tabs tab-mark trailing))
-  (custom-set-faces
-   '(whitespace-tab ((t (:foreground "#636363")))))
-  (setq whitespace-display-mappings
-    '((tab-mark 9 [124 9] [92 9]))) ; 124 is the ascii ID for '\|'
-  (global-whitespace-mode) ; Enable whitespace mode everywhere
+#+begin_src emacs-lisp
+  (use-package visual-fill-column
+    :custom
+    (split-window-preferred-function
+     'visual-fill-column-split-window-sensibly)
+    (visual-fill-column-center-text t)
+    (fill-column 80)
+    :config
+    (advice-add 'text-scale-adjust
+                :after #'visual-fill-column-adjust)
+    :hook
+    (text-mode . visual-fill-column-mode))
+#+end_src
 
+** Org mode
+
+#+begin_src emacs-lisp
+  (use-package org
+    :custom
+    (org-startup-indented t)
+    (org-src-tab-acts-natively t)
+    (org-hide-emphasis-markers t)
+    (org-fontify-done-headline t)
+    (org-fontify-whole-heading-line t)
+    (org-hide-leading-stars t)
+    (org-hidden-keywords '(author date title))
+    (org-src-window-setup 'current-window)
+    (org-pretty-entities t))
+#+end_src
+
+*** Ensure blank lines between headings and before contents
+
+from [[https://github.com/alphapapa/unpackaged.el#ensure-blank-lines-between-headings-and-before-contents][unpackaged.el]]
+
+#+begin_src emacs-lisp
+  ;;;###autoload
+  (defun unpackaged/org-fix-blank-lines (&optional prefix)
+    "Ensure that blank lines exist between headings and between
+  headings and their contents.  With prefix, operate on whole
+  buffer.  Ensures that blank lines exist after each headings's
+  drawers."
+    (interactive "P")
+    (org-map-entries
+     (lambda ()
+       (org-with-wide-buffer
+        ;; `org-map-entries' narrows the buffer, which prevents us
+        ;; from seeing newlines before the current heading, so we
+        ;; do this part widened.
+        (while (not (looking-back "\n\n" nil))
+          ;; Insert blank lines before heading.
+          (insert "\n")))
+       (let ((end (org-entry-end-position)))
+         ;; Insert blank lines before entry content.
+         (forward-line)
+         (while (and (org-at-planning-p)
+                     (< (point) (point-max)))
+           ;; Skip planning lines
+           (forward-line))
+         (while (re-search-forward org-drawer-regexp end t)
+           ;; Skip drawers.  You might think that
+           ;; `org-at-drawer-p' would suffice, but for some reason
+           ;; it doesn't work correctly when operating on hidden
+           ;; text.  This works, taken from
+           ;; `org-agenda-get-some-entry-text'.
+           (re-search-forward "^[ \t]*:END:.*\n?" end t)
+           (goto-char (match-end 0)))
+         (unless (or (= (point) (point-max))
+                     (org-at-heading-p)
+                     (looking-at-p "\n"))
+           (insert "\n"))))
+     t (if prefix
+           nil
+         'tree)))
+#+end_src
+
+*** ~org-return-dwim~
+
+from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el]]
+
+#+begin_src emacs-lisp
+  (defun unpackaged/org-element-descendant-of (type element)
+    "Return non-nil if ELEMENT is a descendant of TYPE.
+  TYPE should be an element type, like `item' or `paragraph'.
+  ELEMENT should be a list like that returned by
+  `org-element-context'."
+    ;; MAYBE: Use `org-element-lineage'.
+    (when-let* ((parent (org-element-property :parent element)))
+      (or (eq type (car parent))
+          (unpackaged/org-element-descendant-of type parent))))
+
+  ;;;###autoload
+  (defun unpackaged/org-return-dwim (&optional default)
+    "A helpful replacement for `org-return'.  With prefix, call `org-return'.
+
+  On headings, move point to position after entry content.  In
+  lists, insert a new item or end the list, with checkbox if
+  appropriate.  In tables, insert a new row or end the table."
+    ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
+    (interactive "P")
+    (if default
+        (org-return)
+      (cond
+       ;; Act depending on context around point.
+
+       ;; NOTE: I prefer RET to not follow links, but by uncommenting this block,
+       ;; links will be followed.
+
+       ;; ((eq 'link (car (org-element-context)))
+       ;;  ;; Link: Open it.
+       ;;  (org-open-at-point-global))
+
+       ((org-at-heading-p)
+        ;; Heading: Move to position after entry content.
+        ;; NOTE: This is probably the most interesting feature of this function.
+        (let ((heading-start (org-entry-beginning-position)))
+          (goto-char (org-entry-end-position))
+          (cond ((and (org-at-heading-p)
+                      (= heading-start (org-entry-beginning-position)))
+                 ;; Entry ends on its heading; add newline after
+                 (end-of-line)
+                 (insert "\n\n"))
+                (t
+                 ;; Entry ends after its heading; back up
+                 (forward-line -1)
+                 (end-of-line)
+                 (when (org-at-heading-p)
+                   ;; At the same heading
+                   (forward-line)
+                   (insert "\n")
+                   (forward-line -1))
+                 ;; FIXME: looking-back is supposed to be called with more arguments.
+                 (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n")))))
+                   (insert "\n"))
+                 (forward-line -1)))))
+
+       ((org-at-item-checkbox-p)
+        ;; Checkbox: Insert new item with checkbox.
+        (org-insert-todo-heading nil))
+
+       ((org-in-item-p)
+        ;; Plain list.  Yes, this gets a little complicated...
+        (let ((context (org-element-context)))
+          (if (or (eq 'plain-list (car context))  ; First item in list
+                  (and (eq 'item (car context))
+                       (not (eq (org-element-property :contents-begin context)
+                                (org-element-property :contents-end context))))
+                  (unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
+              ;; Non-empty item: Add new item.
+              (org-insert-item)
+            ;; Empty item: Close the list.
+            ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
+            (delete-region (line-beginning-position) (line-end-position))
+            (insert "\n"))))
+
+       ((when (fboundp 'org-inlinetask-in-task-p)
+          (org-inlinetask-in-task-p))
+        ;; Inline task: Don't insert a new heading.
+        (org-return))
+
+       ((org-at-table-p)
+        (cond ((save-excursion
+                 (beginning-of-line)
+                 ;; See `org-table-next-field'.
+                 (cl-loop with end = (line-end-position)
+                          for cell = (org-element-table-cell-parser)
+                          always (equal (org-element-property :contents-begin cell)
+                                        (org-element-property :contents-end cell))
+                          while (re-search-forward "|" end t)))
+               ;; Empty row: end the table.
+               (delete-region (line-beginning-position) (line-end-position))
+               (org-return))
+              (t
+               ;; Non-empty row: call `org-return'.
+               (org-return))))
+       (t
+        ;; All other cases: call `org-return'.
+        (org-return)))))
+
+  (bind-key "RET" #'unpackaged/org-return-dwim 'org-mode-map)
+#+end_src
+
+* Coding
+
+** Formatting
+
+*** Indenting
+
+#+begin_src emacs-lisp
+  (use-package aggressive-indent
+    :config
+    (global-aggressive-indent-mode 1))
+#+end_src
+
+*** Smart tabs
+
+#+begin_src emacs-lisp
   (use-package smart-tabs-mode
+    :custom
+    (whitespace-style
+     '(face trailing tabs spaces lines newline
+            empty indentation space-before-tab
+            space-mark tab-mark newline-mark))
+    :config
+    (smart-tabs-insinuate 'c 'c++ 'javascript 'java 'ruby))
+#+end_src
+
+** Display
+
+*** Prettify symbols mode
+
+#+begin_src emacs-lisp
+  (add-hook 'prog-mode-hook #'prettify-symbols-mode)
+#+end_src
+
+*** Parentheses and frens
+
+**** =show-paren-style=
+
+#+begin_src emacs-lisp
+  (cuss show-paren-style 'mixed)
+  (show-paren-mode 1)
+#+end_src
+
+**** Smartparens
+
+#+begin_src emacs-lisp
+  (use-package smartparens
     :init
-    (smart-tabs-insinuate 'c 'javascript))
-#+END_SRC
-* Programming
+    (defun acdw/setup-smartparens ()
+      (require 'smartparens-config)
+      (smartparens-mode 1))
+    :hook
+    (prog-mode . acdw/setup-smartparens))
+#+end_src
+
+**** Rainbow delimiters
+
+#+begin_src emacs-lisp
+  (use-package rainbow-delimiters
+    :hook (prog-mode . rainbow-delimiters-mode))
+#+end_src
+
+*** Rainbow mode
+
+#+begin_src emacs-lisp
+  (use-package rainbow-mode
+    :custom
+    (rainbow-x-colors nil)
+    :hook prog-mode)
+#+end_src
+
+*** Line numbers
+
+#+begin_src emacs-lisp
+  (defun acdw/enable-line-numbers ()
+    "Enable line numbers, either through `display-line-numbers-mode'
+  or through `linum-mode'."
+    (if (and (fboundp 'display-line-numbers-mode)
+             (display-graphic-p))
+        (progn
+          (display-line-numbers-mode 1)
+          (cuss display-line-numbers-width 2))
+      (linum-mode 1)))
+
+  (add-hook 'prog-mode-hook #'acdw/enable-line-numbers)
+#+end_src
+
 ** Git
-#+BEGIN_SRC emacs-lisp
+
+#+begin_src emacs-lisp
   (use-package magit
     :bind
     ("C-x g" . magit-status)
-    :config
-    (add-to-list 'magit-no-confirm 'stage-all-changes))
+    :custom-update
+    (magit-no-confirm '(stage-all-changes)))
+#+end_src
 
-  ;; hook into `prescient'
+*** Hook into =prescient=
+
+#+begin_src emacs-lisp
   (define-advice magit-list-refs
       (:around (orig &optional namespaces format sortby)
                prescient-sort)
@@ -597,143 +975,89 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
               (not selectrum-should-sort-p))
           res
         (prescient-sort res))))
+#+end_src
 
+*** Use =libgit= when I can build it (requires =cmake=)
+
+#+begin_src emacs-lisp
   (when (executable-find "cmake")
     (use-package libgit)
     (use-package magit-libgit))
+#+end_src
 
+*** Git "forge" capabilities
+
+#+begin_src emacs-lisp
   (use-package forge
     :after magit
+    :unless (eq system-type 'windows-nt)
     :custom
-    (forge-owned-accounts '(("duckwork"))))
-#+END_SRC
-** Code display
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'prog-mode-hook #'prettify-symbols-mode)
-#+END_SRC
-*** Parentheses
-#+BEGIN_SRC emacs-lisp
-  (cuss show-paren-style 'mixed)
-  (show-paren-mode +1)
+    (forge-owned-accounts
+     '(("duckwork"))))
+#+end_src
 
-  (use-package smartparens
-    :init
-    (defun acdw/setup-smartparens ()
-      (require 'smartparens-config)
-      (smartparens-mode +1))
-    :hook
-    (prog-mode . acdw/setup-smartparens))
+** Programming languages
 
-  (use-package rainbow-delimiters
-    :hook
-    (prog-mode . rainbow-delimiters-mode))
-#+END_SRC
-** Line numbers
-#+BEGIN_SRC emacs-lisp
-  (add-hook 'prog-mode-hook
-            (if (and (fboundp 'display-line-numbers-mode)
-                     (display-graphic-p))
-                #'display-line-numbers-mode
-              #'linum-mode))
-#+END_SRC
-** Languages
-*** Shell
+*** Fish shell
+
 #+begin_src emacs-lisp
-  (use-package shfmt
-    :custom
-    (shfmt-arguments '("-i" "4" "-ci"))
-    :hook
-    (sh-mode . shfmt-on-save-mode))
-
-  ;; fish
   (use-package fish-mode)
 #+end_src
+
+*** Lisps
+
+**** Common Lisp (SLIME)
+
+     #+begin_src emacs-lisp
+       (use-package slime
+         :when (executable-find "sbcl")
+         :custom
+         (inferior-lisp-program "sbcl")
+         (slime-contribs '(slime-fancy)))
+     #+end_src
+
+**** Fennel
+
+#+begin_src emacs-lisp
+  (use-package fennel-mode
+    :mode "\\.fnl\\'")
+#+end_src
+
 *** Lua
-#+BEGIN_SRC emacs-lisp
+
+#+begin_src emacs-lisp
   (use-package lua-mode
     :mode "\\.lua\\'"
     :interpreter "lua")
-#+END_SRC
-*** Fennel
-#+BEGIN_SRC emacs-lisp
-  (use-package fennel-mode
-    :mode "\\.fnl\\'")
-#+END_SRC
-*** Web
-#+BEGIN_SRC emacs-lisp
+#+end_src
+
+*** Web (HTML/CSS/JS)
+
+#+begin_src emacs-lisp
   (use-package web-mode
-    :custom
-    (web-mode-markup-indent-offset 2)
-    (web-mode-code-indent-offset 2)
-    (web-mode-css-indent-offset 2)
     :mode (("\\.ts\\'" . web-mode)
            ("\\.html?\\'" . web-mode)
            ("\\.css?\\'" . web-mode)
            ("\\.js\\'" . web-mode)))
-#+END_SRC
-*** SSH config
+#+end_src
+
+*** =~/.ssh/config=
+
 #+begin_src emacs-lisp
   (use-package ssh-config-mode)
 #+end_src
-*** Lisp (SLIME)
-#+begin_src emacs-lisp
-  (use-package slime
-    :when (exectuable-find "sbcl")
-    :custom
-    (inferior-lisp-program "sbcl")
-    (slime-contribs '(slime-fancy))
-    :config
-    (load (expand-file-name "~/.quicklisp/slime-helper.el")))
-#+end_src
-* Writing
-** Word count
-#+begin_src emacs-lisp
-  (use-package wc-mode
-    :config
-    (rm-whitelist-add "WC")
-    :hook
-    (text-mode . wc-mode))
-#+end_src
-** Visual fill column
-#+begin_src emacs-lisp
-  (use-package visual-fill-column
-    :custom
-    (split-window-preferred-function 'visual-fill-column-split-window-sensibly)
-    (visual-fill-column-center-text t)
-    (fill-column 80)
-    :config
-    (advice-add 'text-scale-adjust
-                :after #'visual-fill-column-adjust)
-    :hook
-    (org-mode . visual-fill-column-mode))
-#+end_src
-** Org mode
-#+begin_src emacs-lisp
-  (use-package org
-    :custom
-    (org-startup-indented t)
-    (org-src-tab-acts-natively t)
-    (org-hide-emphasis-markers t)
-    (org-fontify-done-headline t)
-    (org-hide-leading-stars t)
-    (org-pretty-entities t)
-    (org-src-window-setup 'current-window)
-    :hook
-    (org-mode . variable-pitch-mode))
 
-  (use-package org-superstar
-    :hook
-    (org-mode . org-superstar-mode))
-#+end_src
-*** Org export to gemini
+*** Go
+
 #+begin_src emacs-lisp
-  (use-package ox-gemini
-    :straight (ox-gemini
-               :repo "https://git.sr.ht/~abrahms/ox-gemini"
-               :branch "main"))
+  (use-package go-mode
+    :mode "\\.go\\'")
 #+end_src
+
 * Applications
-** Gemini & Gopher
+
+** Elpher
+
 #+BEGIN_SRC emacs-lisp
   (use-package elpher
     :straight (elpher
@@ -742,6 +1066,13 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     (elpher-certificate-directory
      (no-littering-expand-var-file-name "elpher-certificates/"))
     (elpher-ipv4-always t)
+    :custom-face
+    (elpher-gemini-heading1
+     ((t (:inherit (modus-theme-heading-1)))))
+    (elpher-gemini-heading2
+     ((t (:inherit (modus-theme-heading-2)))))
+    (elpher-gemini-heading3
+     ((t (:inherit (modus-theme-heading-3)))))
     :config
     (defun elpher:eww-browse-url (original url &optional new-window)
       "Handle gemini/gopher links with eww."
@@ -762,60 +1093,31 @@ I was using company, but I think it might've been causing issues with ~awk-mode~
     :straight (gemini-mode
                :repo "https://git.carcosa.net/jmcbray/gemini.el.git")
     :mode "\\.\\(gemini|gmi\\)\\'"
+    :custom-face
+    (gemini-heading-face-1
+     ((t (:inherit (elpher-gemini-heading1)))))
+    (gemini-heading-face2
+     ((t (:inherit (elpher-gemini-heading2)))))
+    (gemini-heading-face3
+     ((t (:inherit (elpher-gemini-heading3)))))
     :hook
     (gemini-mode . visual-fill-column-mode))
 
   (use-package gemini-write
     :straight (gemini-write
-               :repo "https://alexschroeder.ch/cgit/gemini-write"))
+               :repo "https://alexschroeder.ch/cgit/gemini-write")
+    :config
+    (add-to-list 'elpher-gemini-tokens '("gem.acdw.net" . "yellow-people-eater")))
 
   (use-package post-to-gemlog-blue
     :straight (post-to-gemlog-blue
                :repo "https://git.sr.ht/~acdw/post-to-gemlog-blue.el"))
 #+END_SRC
-** Pastebin
+
+** Pastebin (0x0)
+
 #+BEGIN_SRC emacs-lisp
   (use-package 0x0
     :custom
     (0x0-default-service 'ttm))
 #+END_SRC
-** Gnus
-#+begin_src emacs-lisp
-  (cuss gnus-select-method
-        '(nnimap "imap.fastmail.com"
-                 (nnimap-inbox "INBOX")
-                 (nnimap-split-methods default)
-                 (nnimap-expunge t)
-                 (nnimap-stream ssl)))
-
-  (cuss gnus-secondary-select-methods
-        '((nntp "news.gwene.org")))
-#+end_src
-** Nov.el: read Ebooks
-#+begin_src emacs-lisp
-  (use-package nov
-    :mode ("\\.epub\\'" . nov-mode)
-    :custom
-    (nov-text-width t)
-    :hook
-    (nov-mode . visual-line-mode)
-    (nov-mode . visual-fill-column-mode))
-#+end_src
-* Machine-specific configurations
-#+begin_src emacs-lisp
-  (use-package su
-    :when *acdw/at-home*
-    :config
-    (su-mode 1))
- 
-  (use-package trashed
-    :when *acdw/at-home*
-    :custom
-    (delete-by-moving-to-trash t))
- 
-  (use-package exec-path-from-shell
-    :when *acdw/at-home*
-    :demand
-    :config
-    (exec-path-from-shell-initialize)))
-#+end_src
