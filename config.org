@@ -484,6 +484,13 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
   (cuss ediff-window-setup-function #'ediff-setup-windows-plain)
 #+end_src
 
+*** So-long-mode
+
+#+begin_src emacs-lisp
+  (if (boundp 'global-so-long-mode)
+      (global-so-long-mode))
+#+end_src
+
 * Persistence
 
 ** Auto-saves
