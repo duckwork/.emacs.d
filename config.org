@@ -1,5 +1,5 @@
-#+TITLE: Emacs configuration, literate style
-#+AUTHOR: Case Duckworth
+#+TITLE:Emacs configuration, literate style
+#+AUTHOR:Case Duckworth
 #+PROPERTY: header-args :tangle init.el
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 2
