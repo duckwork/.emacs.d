@@ -491,6 +491,16 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
       (global-so-long-mode))
 #+end_src
 
+*** Change =just-one-space= to =cycle-space=
+
+#+begin_src emacs-lisp
+  (defun acdw/cycle-spacing-1 ()
+    (interactive)
+    (cycle-spacing -1))
+
+  (bind-key [remap just-one-space] #'acdw/cycle-spacing-1)
+#+end_src
+
 * Persistence
 
 ** Auto-saves
