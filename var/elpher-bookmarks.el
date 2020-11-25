@@ -4,7 +4,8 @@
 ; Feel free to edit by hand, but take care to ensure
 ; the list structure remains intact.
 
-(("cosmic voyage" "gemini://cosmic.voyage/")
+(("BREADPUNK" "gemini://breadpunk.club/")
+ ("cosmic voyage" "gemini://cosmic.voyage/")
  ("kayw" "gemini://salejandro.me/")
  ("gem.acdw.net" "gemini://gem.acdw.net/")
  ("Spacewalk" "gemini://rawtext.club/~sloum/spacewalk.gmi")
