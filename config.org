@@ -94,6 +94,22 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
                 (concat user-emacs-directory "init.el"))))
 #+end_src
 
+** Miscellaneous bootstrappy stuff
+
+*** Add =~/.emacs.d/lisp/= to =load-path=
+
+#+begin_src emacs-lisp
+  (add-to-list 'load-path
+               (concat user-emacs-directory
+                       (convert-standard-filename "lisp/")))
+#+end_src
+
+*** Require my secrets
+
+#+begin_src emacs-lisp
+  (require 'acdw-secrets)
+#+end_src
+
 * Early initiation
 
 #+begin_src emacs-lisp :tangle early-init.el
@@ -1107,7 +1123,8 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
     :straight (gemini-write
                :repo "https://alexschroeder.ch/cgit/gemini-write")
     :config
-    (add-to-list 'elpher-gemini-tokens '("gem.acdw.net" . "yellow-people-eater")))
+    (add-to-list 'elpher-gemini-tokens
+                 (acdw-secrets/elpher-gemini-tokens)))
 
   (use-package post-to-gemlog-blue
     :straight (post-to-gemlog-blue
