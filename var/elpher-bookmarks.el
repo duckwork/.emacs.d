@@ -10,4 +10,4 @@
  ("CAPCOM" "gemini://gemini.circumlunar.space/capcom/")
  ("cosmic voyage" "gemini://cosmic.voyage/")
  ("kayw" "gemini://salejandro.me/")
- ("weechat relay" "gemini://low-key.me/guides/weechat_irc_relay.gmi"))
+ ("low-key: weechat relay" "gemini://low-key.me/guides/weechat_irc_relay.gmi"))
