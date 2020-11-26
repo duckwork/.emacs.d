@@ -1,8 +1,12 @@
 #+TITLE:Emacs configuration, literate style
 #+AUTHOR:Case Duckworth
 #+PROPERTY: header-args :tangle init.el
+#+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
+#+OPTIONS: title:t
 #+BANKRUPTCY_COUNT: 2
+
+This is my Emacs configuration.  It's also a literate =org-mode= file.  Yeah, I'm a cool guy.
 
 * About me
 
@@ -729,6 +733,12 @@ I'm going to be honest -- most of this is a stab in the dark.
     (org-hidden-keywords '(author date title))
     (org-src-window-setup 'current-window)
     (org-pretty-entities t))
+#+end_src
+
+*** Enable markdown export
+
+#+begin_src emacs-lisp
+  (require 'ox-md)
 #+end_src
 
 *** Ensure blank lines between headings and before contents

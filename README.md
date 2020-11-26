@@ -1,683 +1,641 @@
+This is my Emacs configuration.  It's also a literate `org-mode` file.  Yeah, I'm a cool guy.
 
 
-# Preamble
+# About me
 
-I wanted to write my Emacs configuration in [Org mode](https://orgmode.org) for a while, but never could quite figure out how.  Finally, I found [Lars Tveito](https://github.com/larstvei/dot-emacs)'s config, which does exactly what I want: `init.el` is small and simple, and replaced after the first run, and `init.org` is automatically tangled.  So I'm very excited.
+	;; init.el -*- lexical-binding: t -*-
+	(setq user-full-name "Case Duckworth"
+		  user-mail-address "acdw@acdw.net")
 
 
 # License
 
-WTFPL.  For more info, see `LICENSE`.
+Copyright © 2020 Case Duckworth <acdw@acdw.net>
 
-Probably that's not legal under the terms of the GPL or whatever Emacs is licensed under.
-SUE ME, RMS
+This work is free.  You can redistribute it and/or modify it under the terms of the Do What the Fuck You Want To Public License, Version 2, as published by Sam Hocevar.  See the `LICENSE` file, tangled from the following source block, for details.
+
+	DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+
+	Version 2, December 2004
+
+	Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+
+	Everyone is permitted to copy and distribute verbatim or modified copies of
+	this license document, and changing it is allowed as long as the name is changed.
+
+	DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+
+	TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+
+	   0. You just DO WHAT THE FUCK YOU WANT TO.
+
+
+## Note on the license
+
+It's highly likely that the WTFPL is completely incompatible with the GPL, for what should be fairly obvious reasons.  To that, I say:
+
+**SUE ME, RMS!**
 
 
 # Bootstrap
 
-*Check out Lars's config for the reasoning behind this.*
 
-When this configuration is loaded for the first time, this `init.el` is loaded:
+## Original init.el
 
-    ;; This file replaces itself with the actual configuration when first run.  To keep only this version in git, run this command:
-    ;; git update-index --assume-unchanged init.el
-    ;;
-    ;; If it needs to be changed, start tracking it again thusly:
-    ;; git update-index --no-assume-unchanged init.el
-    
-    (require 'org)
-    (find-file (concat user-emacs-directory "init.org"))
-    (org-babel-tangle)
-    (load-file (concat user-emacs-directory "early-init.el"))
-    (load-file (concat user-emacs-directory "init.el"))
-    (byte-compile-file (concat user-emacs-directory "init.el"))
+	;; This file replaces itself with the actual configuration when
+	;; first run.  To keep only this version in git, run this command:
+	;;
+	;; git update-index --assume-unchanged init.el
+	;;
+	;; If it needs to be changed, start tracking it again thusly:
+	;;
+	;; git update-index --no-assume-unchanged init.el
+
+	(require 'org)
+	(find-file (concat user-emacs-directory "config.org"))
+	(org-babel-tangle)
+	(load-file (concat user-emacs-directory "early-init.el"))
+	(load-file (concat user-emacs-directory "init.el"))
+	(byte-compile-file (concat user-emacs-directory "init.el"))
 
 
 ## Tangling
 
-After the first run, the above `init.el` will be replaced by the tangled stuff here.  However, when *this* file is edited, we'll need to re-tangle everything.  However, nobody has time to do that manually with `C-c C-v t`, *every time*!  Luckily, Emacs is highly programmable.
+	(defun acdw/tangle-init ()
+	  "If the current buffer is `config.org', tangle it, then compile
+	and load the resulting files."
+	  (when (equal (buffer-file-name)
+    	       (expand-file-name
+    		(concat user-emacs-directory "config.org")))
+		(require 'async)
+		(async-start
+		 (lambda ()
+		   (let ((prog-mode-hook nil))
+    	 (require 'org)
+    	 (org-babel-tangle-file
+    	  (expand-file-name
+    	   (concat user-emacs-directory "config.org")))))
+		 (lambda (response)
+		   (acdw/load-init)
+		   (message "Tangled and loaded: %s" response)))))
 
-    (defun acdw/tangle-init ()
-      "If the current buffer is `init.org', the code blocks are tangled,
-      and the tangled file is compiled and loaded."
-      (interactive)
-      (when (equal (buffer-file-name)
-                   (expand-file-name (concat user-emacs-directory "config.org")))
-        ;; Avoid running hooks when tangling.
-        (let ((prog-mode-hook nil))
-          (org-babel-tangle))))
-    
-    (add-hook 'after-save-hook #'acdw/tangle-init)
+	(add-hook 'after-save-hook #'acdw/tangle-init)
+
+	(defun acdw/load-init ()
+	  (interactive)
+	  (load-file (expand-file-name
+    	      (concat user-emacs-directory "early-init.el")))
+	  (load-file (expand-file-name
+    	      (concat user-emacs-directory "init.el"))))
+
+
+## Miscellaneous bootstrappy stuff
+
+
+### Add `~/.emacs.d/lisp/` to `load-path`
+
+	(add-to-list 'load-path
+    	     (concat user-emacs-directory
+    		     (convert-standard-filename "lisp/")))
+
+
+### Require my secrets
+
+	(require 'acdw-secrets)
 
 
 # Early initiation
 
-Emacs 27.1+ uses `early-init.el`, which is evaluated before things like `package.el` and other stuff.  So I have a few settings in there.
+	;; early-init.el -*- lexical-binding: t; no-byte-compile: t -*-
+
+	(setq load-prefer-newer t)
 
 
-## Preamble
+## Increase the garbage collector
 
-Of course, first thing is the modeline.  After that, I set `load-prefer-newer` because, well, it *should*.
+	(setq gc-cons-threshold (* 100 100 1000))
 
-      ;;; early-init.el -*- lexical-binding: t; no-byte-compile: t -*-
-    
-    (setq load-prefer-newer t)
-
-
-## Computers
-
-I have to set these constants before bootstrapping the package manager, since `straight.el` depends on Git, and at work, those are in a weird place.
-
-    (defconst *acdw/at-work* (eq system-type 'windows-nt))
-    (defconst *acdw/at-larry* (string= (system-name) "larry"))
-    (defconst *acdw/at-bax* (string= (system-name) "bax"))
-    (defconst *acdw/at-home* (or *acdw/at-larry* *acdw/at-bax*))
+	(add-hook 'after-init-hook
+    	  (lambda ()
+    	    (setq gc-cons-threshold (* 100 100 100))
+    	    (message "gc-cons-threshold restored to %S"
+    		     gc-cons-threshold)))
 
 
-## Package management
+## Add more paths to the `exec-path` when using Windows
 
-I've started using straight.el, which is great.  It grabs packages from git, and apparently will let me fork and edit them, which I'll probably get around to &#x2026; eventually.
-
-
-### At work, Git's in a weird place
-
-    (when *acdw/at-work*
-      (add-to-list 'exec-path "~/bin")
-      (add-to-list 'exec-path "C:/Users/aduckworth/Downloads/PortableGit/bin"))
+	(when (eq system-type 'windows-nt)
+	  (dolist (path '("~/bin"
+    		  "C:/Users/aduckworth/Downloads/PortableGit/bin"
+    		  "C:/Users/aduckworth/Downloads/PortableGit/usr/bin"))
+		(add-to-list 'exec-path path)))
 
 
-### [straight.el](https://github.com/raxod502/straight.el)
+## Bootstrap `straight.el`
 
-I don't know why, but for some reason the bootstrapping doesn't work on Windows.  I have to download the repo directly from github and put it in the right place (`~/.emacs.d/straight/repos/straight.el/`).
-
-    (defvar bootstrap-version)
-    (let ((bootstrap-file
-           (expand-file-name "straight/repos/straight.el/bootstrap.el"
-                             user-emacs-directory))
-          (bootstrap-version 5))
-      (unless (file-exists-p bootstrap-file)
-        (with-current-buffer
-            (url-retrieve-synchronously
-             "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-             'silent 'inhibit-cookies)
-          (goto-char (point-max))
-          (eval-print-last-sexp)))
-      (load bootstrap-file nil 'nomessage))
+	(defvar bootstrap-version)
+	(let ((bootstrap-file
+		   (expand-file-name "straight/repos/straight.el/bootstrap.el"
+    			 user-emacs-directory))
+		  (bootstrap-version 5))
+	  (unless (file-exists-p bootstrap-file)
+		(with-current-buffer
+    	(url-retrieve-synchronously
+    	 "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+    	 'silent 'inhibit-cookies)
+		  (goto-char (point-max))
+		  (eval-print-last-sexp)))
+	  (load bootstrap-file nil 'nomessage))
 
 
-### [use-package](https://github.com/jwiegley/use-package)
+## Use `use-package`
 
-Yeah, you know it, I know it, we all love it.  It's use-package.
-
-    (setq straight-use-package-by-default t)
-    (straight-use-package 'use-package)
+	(setq straight-use-package-by-default t)
+	(straight-use-package 'use-package)
 
 
-# Begin init.el
+## Keep `~/.emacs.d` tidy
 
-    ;;; init.el -*- lexical-binding: t; coding: utf-8 -*-
-    <<tangle-on-save>>
+	(straight-use-package 'no-littering)
+	(require 'no-littering)
+
+
+## Additional `use-package` keywords
+
+
+### `:custom-update`
+
+	(use-package use-package-custom-update
+	  :straight (use-package-custom-update
+    	     :host github
+    	     :repo "a13/use-package-custom-update"))
+
+
+## Setup async
+
+	(straight-use-package 'async)
+	(require 'async)
 
 
 # Macros
 
 
-## cuss
+## Customizing variables
 
-I like `use-package`,  but I don't like doing the weird "pseudo-package" stuff a lot of people do in their emacs configs.  Partially because I have to set `:straight nil` on a lot of built-in packages, but also because I think being *that* obsessive over one interface through the whole config is &#x2026; I don't know, short-sighted?
+	(defmacro cuss (var val)
+	  "Basically `use-package''s `:custom', but without using either."
+	  `(progn
+		 (funcall (or (get ',var 'custom-set) #'set-default)
+    	      ',var ,val)))
 
-Either way, I *do* like the `:custom` interface that `use-package` has, so I've re-implemented it in my own macro.  This way I don't have to worry about whether to `setq` or `custom-set-variable` or whatever.  Just `cuss`!
 
-    (defmacro cuss (var val)
-      "Basically `use-package''s `:custom', but without either."
-      `(progn
-         (funcall (or (get ',var 'custom-set) #'set-default)
-                  ',var ,val)))
+# Theme
 
+I'm using the [Modus](https://protesilaos.com/modus-themes/) themes.
 
-# Files
+	(defmacro modus-themes-format-sexp (sexp &rest objects)
+	  `(eval (read (format ,(format "%S" sexp) ,@objects))))
 
+	(dolist (theme '("operandi" "vivendi"))
+	  (modus-themes-format-sexp
+	   (use-package modus-%1$s-theme
+		 :init
+		 (setq modus-%1$s-theme-slanted-constructs t
+    	   modus-%1$s-theme-bold-constructs t
+    	   modus-%1$s-theme-fringes 'subtle
+    	   modus-%1$s-theme-mode-line '3d
+    	   modus-%1$s-theme-syntax 'yellow-comments
+    	   modus-%1$s-theme-intense-hl-line nil
+    	   modus-%1$s-theme-intense-paren-match t
+    	   modus-%1$s-theme-links nil
+    	   modus-%1$s-theme-no-mixed-fonts nil
+    	   modus-%1$s-theme-prompts nil
+    	   modus-%1$s-theme-completions nil
+    	   modus-%1$s-theme-diffs nil
+    	   modus-%1$s-theme-org-blocks 'grayscale
+    	   modus-%1$s-theme-headings
+    	   '((1 . section)
+    	     (2 . line)
+    	     (t . rainbow-line-no-bold))
+    	   modus-%1$s-theme-variable-pitch-headings nil
+    	   modus-%1$s-theme-scale-headings t
+    	   modus-%1$s-theme-scale-1 1.1
+    	   modus-%1$s-theme-scale-2 1.15
+    	   modus-%1$s-theme-scale-3 1.21
+    	   modus-%1$s-theme-scale-4 1.27
+    	   modus-%1$s-theme-scale-5 1.33))
+	   theme))
+
+I also want to switch themes between night and day.
+
+	(use-package theme-changer
+	  :custom
+	  (calendar-latitude 30.39)
+	  (calendar-longitude -91.83)
+	  :config
+	  (change-theme 'modus-operandi 'modus-vivendi))
 
-## [Keep .emacs.d tidy](https://github.com/emacscollective/no-littering)
 
-    (straight-use-package 'no-littering)
-    (require 'no-littering)
+# Simplify GUI
 
 
-## Customize
+## Remove unneeded GUI elements
 
-I don't like the customize interface, but I still sometimes use it when I'm not sure what the name of a variable is.  So I save the stuff to a file, I just don't load it or keep track of it.
+	(menu-bar-mode -1)
+	(tool-bar-mode -1)
+	(scroll-bar-mode -1)
+	(horizontal-scroll-bar-mode -1)
 
-    (cuss custom-file (no-littering-expand-etc-file-name "custom.el"))
 
+## Word wrap and operate visually
 
-## Encoding
+	(global-visual-line-mode 1)
 
-    (prefer-coding-system 'utf-8-unix)
-    (set-default-coding-systems 'utf-8-unix)
-    (set-terminal-coding-system 'utf-8-unix)
-    (set-keyboard-coding-system 'utf-8-unix)
-    (set-selection-coding-system 'utf-8-unix)
-    (set-file-name-coding-system 'utf-8-unix)
-    (set-clipboard-coding-system 'utf-8-unix)
-    (set-buffer-file-coding-system 'utf-8-unix)
-    (cuss locale-coding-system 'utf-8)
-    (cuss x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
 
+## Modeline
 
-## Recent files
+	(use-package smart-mode-line
+	  :custom
+	  (sml/no-confirm-load-theme t)
+	  :config
+	  (sml/setup))
 
-    (use-package recentf
-      :config
-      (add-to-list 'recentf-exclude no-littering-var-directory)
-      (add-to-list 'recentf-exclude no-littering-etc-directory)
-      :custom
-      (recentf-max-menu-items 100)
-      (recentf-max-saved-items 100)
-      :config
-      (recentf-mode 1))
+	(defun rm/whitelist-add (regexp)
+	  "Add a REGEXP to the whitelist for `rich-minority'."
+	  (if (listp 'rm--whitelist-regexps)
+		  (add-to-list 'rm--whitelist-regexps regexp)
+		(setq rm--whitelist-regexps `(,regexp)))
+	  (setq rm-whitelist
+    	(mapconcat 'identity rm--whitelist-regexps "\\|")))
 
+	(use-package rich-minority
+	  :config
+	  (rm/whitelist-add "^$"))
 
-## Backups
 
-    (cuss backup-directory-alist
-          `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
+## Show `^L` as a line
 
+	(use-package form-feed
+	  :hook
+	  ((text-mode prog-mode) . form-feed-mode))
 
-## [Autosave](https://github.com/bbatsov/super-save)
 
-    (use-package super-save
-      :custom
-      (auto-save-default nil)
-      (super-save-exclude '(".gpg"))
-      :config
-      (super-save-mode 1))
+## Cursor
 
+	(cuss cursor-type 'bar)
+	(cuss cursor-in-non-selected-windows 'hollow)
 
-## [Save places](https://www.emacswiki.org/emacs/SavePlace)
 
-    (use-package saveplace
-      :custom
-      (save-place-file (no-littering-expand-var-file-name "places"))
-      (save-place-forget-unreadable-files (not *acdw/at-work*))
-      :config
-      (save-place-mode 1))
+# Fonts
 
+See [this StackExchange question and answer](https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-launching-emacs-in-daemon-mode) for more information on why I have these font settings applied in a hook.
 
-## [Save history](https://www.emacswiki.org/emacs/SaveHist)
+	(require 'cl)
+	(defun font-candidate (&rest fonts)
+	  (loop for font in fonts
+    	when (find-font (font-spec :name font))
+    	return font))
 
-    (use-package savehist
-      :custom
-      (savehist-addtional-variables
-       '(kill-ring
-         search-ring
-         regexp-search-ring))
-      (savehist-save-minibuffer-history t)
-      :config
-      (savehist-mode 1))
+	(defun acdw/setup-fonts ()
+	  "Setup fonts.  This has to happen after the frame is set up for
+	  the first time, so add it to `focus-in-hook'.  It removes
+	  itself."
+	  (interactive)
+	  (set-face-attribute 'default nil
+    		      :font
+    		      (font-candidate
+    		       "Libertinus Mono-11"
+    		       "Linux Libertine Mono O-11"
+    		       "Go Mono-11"
+    		       "Consolas-11"))
 
+	  (set-face-attribute 'fixed-pitch nil
+    		      :font
+    		      (font-candidate
+    		       "Libertinus Mono-11"
+    		       "Linux Libertine Mono O-11"
+    		       "Go Mono-11"
+    		       "Consolas-11"))
 
-# User interface
+	  (set-face-attribute 'variable-pitch nil
+    		      :font
+    		      (font-candidate
+    		       "Libertinus Serif-14"
+    		       "Linux Libertine O-12"
+    		       "Georgia-11"))
 
+	  (remove-hook 'focus-in-hook #'acdw/setup-fonts))
 
-## Look
+	(add-hook 'focus-in-hook #'acdw/setup-fonts)
 
 
-### Frames and windows
+## Unicode
 
-1.  Frame defaults
+	(use-package unicode-fonts
+	  :config
+	  (unicode-fonts-setup))
 
-        (cuss default-frame-alist '((tool-bar-lines . 0)
-                                    (menu-bar-lines . 0)
-                                    (vertical-scroll-bars . nil)
-                                    (horizontal-scroll-bars . nil)
-                                    (right-divider-width . 2)
-                                    (bottom-divider-width . 2)
-                                    (left-fringe-width . 2)
-                                    (right-fringe-width . 2)))
-        
-        ;; also disable these with modes, so I can re-enable them more easily
-        (menu-bar-mode -1)
-        (tool-bar-mode -1)
-        (scroll-bar-mode -1)
 
-2.  Resizing
+## Variable pitch faces
 
-        (cuss frame-resize-pixelwise t)
-        (cuss window-combination-resize t)
+	(add-hook 'text-mode-hook #'variable-pitch-mode)
 
 
-### Buffers
+# Ease of use
 
-    (cuss uniquify-buffer-name-style 'forward)
-    
-    (cuss indicate-buffer-boundaries
-          '((top . right)
-            (bottom . right)
-            (t . nil)))
 
-1.  Startup buffer
+## Selectrum & Prescient
 
-        (cuss inhibit-startup-buffer-menu t)
-        (cuss inhibit-startup-screen t)
-        (cuss initial-buffer-choice t) ; start in *scratch*
-        (cuss initial-scratch-message nil)
+	(use-package selectrum
+	  :config
+	  (selectrum-mode 1))
 
+	(use-package prescient
+	  :config
+	  (prescient-persist-mode 1))
 
-### Cursor
+	(use-package selectrum-prescient
+	  :after (selectrum prescient)
+	  :config
+	  (selectrum-prescient-mode 1))
 
-    (cuss cursor-type 'bar)
-    (cuss cursor-in-non-selected-windows 'hollow)
-    (blink-cursor-mode 0)
 
+## CtrlF
 
-### Interactivity
+	(use-package ctrlf
+	  :custom
+	  (ctrlf-show-match-count-at-eol nil)
+	  :bind
+	  ("C-s" . ctrlf-forward-regexp)
+	  ("C-r" . ctrlf-backward-regexp)
+	  ("C-M-s" . ctrlf-forward-literal)
+	  ("C-M-r" . ctrlf-backward-literal)
+	  :config
+	  (ctrlf-mode 1))
 
-1.  Mouse
 
-        (cuss mouse-yank-at-point t)
+## Startup
 
-2.  Dialogs
-
-        (cuss use-dialog-box nil)
-
-3.  Disabled functions
-
-        (cuss disabled-command-function nil)
-
-4.  Function aliases
-
-        (fset 'yes-or-no-p #'y-or-n-p)
-
-
-### Miscellaneous
-
-1.  Convert `^L` to a line
-
-        (use-package page-break-lines
-          :config
-          (global-page-break-lines-mode 1))
-
-
-## Themes: [Modus](https://github.com/protesilaos/modus-themes)
-
-    (use-package modus-operandi-theme)
-    (use-package modus-vivendi-theme)
-
-
-### [Change themes](https://github.com/hadronzoo/theme-changer) based on time of day
-
-    (use-package theme-changer
-      :init
-      (setq calendar-location-name "Baton Rouge, LA"
-            calendar-latitude 30.39
-            calendar-longitude -91.83)
-      :config
-      (change-theme 'modus-operandi 'modus-vivendi))
-
-
-### Disable the current theme when a theme is interactively loaded
-
-This doesn't happen often, but I'll be ready when it does.
-
-    (defadvice load-theme
-        (before disable-before-load (theme &optional no-confirm no-enable) activate)
-      (mapc 'disable-theme custom-enabled-themes))
-
-
-## Modeline: [smart-mode-line](https://github.com/Malabarba/smart-mode-line)
-
-    (use-package smart-mode-line
-      :config
-      (sml/setup))
-
-I hide all minor-modes by default for a clean modeline.  However, I can add them back by adding them to the whitelist with `(add-to-list 'rm-whitelist " REGEX")`.
-
-    (defun rm-whitelist-add (regexp)
-      "Add a regexp to the whitelist."
-      (setq rm-whitelist
-            (mapconcat 'identity rm--whitelist-regexps "\\|")))
-    
-    (setq rm--whitelist-regexps '("^$"))
-    
-    (use-package rich-minority
-      :custom
-      (rm-whitelist
-       (mapconcat 'identity rm--whitelist-regexps "\\|")))
-
-
-## Fonts
-
-I'm sure there's a better way to do this, but for now, this is the best I've got.  I append to the `face-font-family-alternatives` because I don't know what kind of weird magic they're doing in there.
-
-    (cuss face-font-family-alternatives
-          '(("Monospace" "courier" "fixed")
-            ("Monospace Serif" "Courier 10 Pitch" "Consolas" "Courier Std" "FreeMono" "Nimbus Mono L" "courier" "fixed")
-            ("courier" "CMU Typewriter Text" "fixed")
-            ("Sans Serif" "helv" "helvetica" "arial" "fixed")
-            ("helv" "helvetica" "arial" "fixed")
-            ;; now mine
-            ("FixedPitch" "Go Mono" "DejaVu Sans Mono" "Consolas" "fixed")
-            ("VariablePitch" "Go" "DejaVu Sans" "Georgia" "fixed")))
-    
-    (set-face-attribute 'default nil
-                        :family "FixedPitch"
-                        :height 110)
-    
-    (set-face-attribute 'fixed-pitch nil
-                        :family "FixedPitch"
-                        :height 110)
-    
-    (set-face-attribute 'variable-pitch nil
-                        :family "VariablePitch"
-                        :height 130)
-
-
-### Ligatures
-
-These cause big problems with cc-mode (as in, totally freezing everything), so I'm going to comment it out.
-
-    ;; (use-package ligature
-    ;;   :straight (ligature
-    ;;              :host github
-    ;;              :repo "mickeynp/ligature.el")
-    ;;   :config
-    ;;   (ligature-set-ligatures 'prog-mode
-    ;;                           '("++" "--" "/=" "&&" "||" "||="
-    ;;                             "->" "=>" "::" "__"
-    ;;                             "==" "===" "!=" "=/=" "!=="
-    ;;                             "<=" ">=" "<=>"
-    ;;                             "/*" "*/" "//" "///"
-    ;;                             "\\n" "\\\\"
-    ;;                             "<<" "<<<" "<<=" ">>" ">>>" ">>="
-    ;;                             "|=" "^="
-    ;;                             "**" "--" "---" "----" "-----"
-    ;;                             "==" "===" "====" "====="
-    ;;                             "</" "<!--" "</>" "-->" "/>"
-    ;;                             ":=" "..." ":>" ":<" ">:" "<:"
-    ;;                             "::=" ;; add others here
-    ;;                             ))
-    ;;   :config
-    ;;   (global-ligature-mode))
-
-
-### [Unicode fonts](https://github.com/rolandwalker/unicode-fonts)
-
-    (use-package persistent-soft)
-    
-    (use-package unicode-fonts
-      :after persistent-soft
-      :config
-      (unicode-fonts-setup))
-
-
-# Editing
-
-
-## Completion
-
-I was using company, but I think it might've been causing issues with `awk-mode`, so I'm trying `hippie-mode` right now.  So far, I'm also enjoying not having a popup all the time.
-
-    (bind-key "M-/" #'hippie-expand)
+	(cuss inhibit-startup-buffer-menu t)
+	(cuss inhibit-startup-screen t)
+	(cuss initial-buffer-choice t)
+	(cuss initial-scratch-message ";; Hi there!\n")
 
 
 ## Ignore case
 
-    (cuss completion-ignore-case t)
-    (cuss read-buffer-completion-ignore-case t)
-    (cuss read-file-name-completion-ignore-case t)
+	(cuss completion-ignore-case t)
+	(cuss read-buffer-completion-ignore-case t)
+	(cuss read-file-name-completion-ignore-case t)
 
 
-## Selection & Minibuffer
+## Which key
+
+	(use-package which-key
+	  :custom
+	  (which-key-popup-type 'minibuffer)
+	  :config
+	  (which-key-mode))
 
 
-### Selectrum & Prescient
-
-    (use-package selectrum
-      :config
-      (selectrum-mode +1))
-    
-    (use-package prescient
-      :config
-      (prescient-persist-mode +1))
-    
-    (use-package selectrum-prescient
-      :after (selectrum prescient)
-      :config
-      (selectrum-prescient-mode +1))
+## Miscellaneous settings
 
 
-## Search
+### Set view mode when in a read-only file
+
+	(cuss view-read-only t)
 
 
-### CtrlF for searching
+### Don't use dialog boxen
 
-    (use-package ctrlf
-      :custom
-      (ctrlf-show-match-count-at-eol nil)
-      :config
-      (ctrlf-mode +1)
-      :bind
-      ("C-s" . ctrlf-forward-regexp))
+	(cuss use-dialog-box nil)
 
 
-### [Visual Regexp](https://github.com/benma/visual-regexp.el)
+### Enable all functions
 
-    (use-package visual-regexp
-      :bind
-      ([remap query-replace] . 'vr/query-replace))
+	(cuss disabled-command-function nil)
+
+
+### Shorter confirmations
+
+	(fset 'yes-or-no-p #'y-or-n-p)
+
+
+### Uniquify buffer names
+
+	(require 'uniquify)
+	(cuss uniquify-buffer-name-style 'forward)
+
+
+### Show buffer boundaries
+
+	(cuss indicate-buffer-boundaries
+		  '((top . right)
+    	(bottom . right)
+    	(t . nil)))
+
+
+### Hippie expand
+
+	(global-set-key (kbd "M-/") 'hippie-expand)
+
+
+### iBuffer
+
+	(global-set-key (kbd "C-x C-b") 'ibuffer)
+
+
+### Zap-up-to-char, not zap-to-char
+
+	(autoload 'zap-up-to-char "misc"
+	  "Kill up to, but not including, ARGth occurrence of CHAR." t)
+
+	(global-set-key (kbd "M-z") 'zap-up-to-char)
+
+
+### Other "[better defaults](https://git.sr.ht/~technomancy/better-defaults/tree/master/better-defaults.el)"
+
+	(cuss save-interprogram-paste-before-kill t)
+	(cuss apropos-do-all t)
+	(cuss mouse-yank-at-point t)
+	(cuss require-final-newline t)
+	(cuss visible-bell (not (string= (system-name) "larry")))
+	(cuss ediff-window-setup-function #'ediff-setup-windows-plain)
+
+
+### So-long-mode
+
+	(if (boundp 'global-so-long-mode)
+		(global-so-long-mode))
+
+
+### Change `just-one-space` to `cycle-space`
+
+	(defun acdw/cycle-spacing-1 ()
+	  (interactive)
+	  (cycle-spacing -1))
+
+	(bind-key [remap just-one-space] #'acdw/cycle-spacing-1)
+
+
+# Persistence
+
+
+## Auto-saves
+
+	(use-package super-save
+	  :custom
+	  (auto-save-default nil)
+	  (super-save-exclue '(".gpg"))
+	  :config
+	  (super-save-mode 1))
+
+
+## Backup files
+
+	(cuss backup-directory-alist
+		  `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
+
+	(cuss backup-by-copying 1)
+	(cuss delete-old-versions -1)
+	(cuss version-control t)
+	(cuss vc-make-backup-files t)
+
+
+## Recent files
+
+	(use-package recentf
+	  :custom-update
+	  (recentf-exclude
+	   '(no-littering-var-directory
+		 no-littering-etc-directory))
+	  :custom
+	  (recentf-max-menu-items 100)
+	  (recentf-max-saved-items 100)
+	  :config
+	  (recentf-mode 1))
+
+
+### Easily navigate recent files
+
+	(defun recentf-find-file ()
+	  "Find a recent file using `completing-read'."
+	  (interactive)
+	  (let ((file (completing-read "Recent file: " recentf-list nil t)))
+		(when file
+		  (find-file file))))
+
+	(bind-key "C-x C-r" #'recentf-find-file)
+
+
+## Save places in visited files
+
+	(use-package saveplace
+	  :custom
+	  (save-place-file (no-littering-expand-var-file-name "places"))
+	  (save-place-forget-unreadable-files (not
+    				       (eq system-type 'windows-nt))
+	  :config
+	  (save-place-mode 1)))
+
+
+## Save history
+
+	(use-package savehist
+	  :custom
+	  (savehist-additional-variables
+	   '(kill-ring
+		 search-ring
+		 regexp-search-ring))
+	  (savehist-save-minibuffer-history t)
+	  (history-length t)
+	  (history-delete-duplicates t)
+	  :config
+	  (savehist-mode 1))
 
 
 ## Undo
 
-    (use-package undo-fu
-      :bind
-      ("C-/" . undo-fu-only-undo)
-      ("C-?" . undo-fu-only-redo))
-    
-    (use-package undo-fu-session
-      :after no-littering
-      :custom
-      (undo-fu-session-incompatible-files
-       '("/COMMIT_EDITMSG\\'"
-         "/git-rebase-todo\\'"))
-      (undo-fu-session-directory
-       (no-littering-expand-var-file-name "undos/"))
-      :config
-      (global-undo-fu-session-mode +1))
+	(use-package undo-fu-session
+	  :after (no-littering undo-fu)
+	  :custom
+	  (undo-fu-session-incompatible-files
+	   '("COMMIT_EDITMSG\\'"
+		 "/git-rebase-todo\\'"))
+	  (undo-fu-session-directory
+	   (no-littering-expand-var-file-name "undos/"))
+	  :config
+	  (global-undo-fu-session-mode 1))
+
+
+# General editing
+
+
+## File encoding
+
+I'm going to be honest &#x2013; most of this is a stab in the dark.
+
+	(set-language-environment 'utf-8)
+	(set-terminal-coding-system 'utf-8)
+	(cuss locale-coding-system 'utf-8)
+	(set-default-coding-systems 'utf-8)
+	(set-selection-coding-system 'utf-8)
+	(prefer-coding-system 'utf-8)
+
+	;; from https://www.emacswiki.org/emacs/EndOfLineTips
+
+	(defun acdw/no-junk-please-were-unixish ()
+	  "Convert line endings to UNIX, dammit."
+	  (let ((coding-str (symbol-name buffer-file-coding-system)))
+		(when (string-match "-\\(?:dos\\|mac\\)$" coding-str)
+		  (set-buffer-file-coding-system 'unix))))
+
+	(add-hook 'find-file-hooks #'acdw/no-junk-please-were-unixish)
+
+
+## Undo
+
+	(use-package undo-fu
+	  :bind
+	  ("C-/" . undo-fu-only-undo)
+	  ("C-?" . undo-fu-only-redo))
+
+
+## Find/replace
+
+	(use-package visual-regexp
+	  :bind
+	  ("C-c r" . 'vr/replace)
+	  ("C-c q" . 'vr/query-replace))
 
 
 ## Visual editing
 
 
-### `zap-to-char` replacement
-
-    (use-package zop-to-char
-      :bind
-      ([remap zap-to-char] . zop-to-char)
-      ([remap zap-up-to-char] . zop-up-to-char))
-
-
-### Operate on a line if there's no current region
-
-    (use-package whole-line-or-region
-      :config
-      (whole-line-or-region-global-mode +1))
-
-
-### Expand-region
-
-    (use-package expand-region
-      :bind
-      ("C-=" . er/expand-region)
-      ("C-+" . er/contract-region))
-
-
 ### Volatile highlights
 
-    (use-package volatile-highlights
-      :config
-      (volatile-highlights-mode 1))
+	(use-package volatile-highlights
+	  :config
+	  (volatile-highlights-mode 1))
 
 
-### Visual line mode
+### Expand region
 
-    (global-visual-line-mode 1)
-
-
-### A better `move-beginning-of-line`
-
-    (defun my/smarter-move-beginning-of-line (arg)
-      "Move point back to indentation of beginning of line.
-    
-    Move point to the first non-whitespace character on this line.
-    If point is already there, move to the beginning of the line.
-    Effectively toggle between the first non-whitespace character and
-    the beginning of the line.
-    
-    If ARG is not nil or 1, move forward ARG - 1 lines first.  If
-    point reaches the beginning or end of the buffer, stop there."
-      (interactive "^p")
-      (setq arg (or arg 1))
-    
-      ;; Move lines first
-      (when (/= arg 1)
-        (let ((line-move-visual nil))
-          (forward-line (1- arg))))
-    
-      (let ((orig-point (point)))
-        (back-to-indentation)
-        (when (= orig-point (point))
-          (move-beginning-of-line 1))))
-    
-    (bind-key "C-a" #'my/smarter-move-beginning-of-line)
+	(use-package expand-region
+	  :bind
+	  ("C-=" . er/expand-region)
+	  ("C-+" . er/contract-region))
 
 
-## Delete the selection when typing
+## Clean up white space on save
 
-    (delete-selection-mode 1)
-
-
-## Clipboard
-
-    (cuss save-interprogram-paste-before-kill t)
+	(add-hook 'before-save-hook #'whitespace-cleanup)
+	(add-hook 'before-save-hook #'delete-trailing-whitespace)
 
 
-## Tabs & Spaces
+## Automatically revert a file to what it is on disk
 
-    (cuss indent-tabs-mode nil)
-    (cuss sentence-end-double-space t)
-
-
-# Programming
-
-
-## Git
-
-    (use-package magit
-      :bind
-      ("C-x g" . magit-status)
-      :config
-      (add-to-list 'magit-no-confirm 'stage-all-changes))
-    
-    ;; hook into `prescient'
-    (define-advice magit-list-refs
-        (:around (orig &optional namespaces format sortby)
-                 prescient-sort)
-      "Apply prescient sorting when listing refs."
-      (let ((res (funcall orig namespaces format sortby)))
-        (if (or sortby
-                magit-list-refs-sortby
-                (not selectrum-should-sort-p))
-            res
-          (prescient-sort res))))
-    
-    (when (executable-find "cmake")
-      (use-package libgit)
-      (use-package magit-libgit))
-    
-    (use-package forge
-      :after magit
-      :custom
-      (forge-owned-accounts '(("duckwork"))))
-
-
-## Code display
-
-    (add-hook 'prog-mode-hook #'prettify-symbols-mode)
-
-
-### Parentheses
-
-    (cuss show-paren-style 'mixed)
-    (show-paren-mode +1)
-    
-    (use-package smartparens
-      :init
-      (defun acdw/setup-smartparens ()
-        (require 'smartparens-config)
-        (smartparens-mode +1))
-      :hook
-      (prog-mode . acdw/setup-smartparens))
-    
-    (use-package rainbow-delimiters
-      :hook
-      (prog-mode . rainbow-delimiters-mode))
-
-
-## Line numbers
-
-    (add-hook 'prog-mode-hook
-              (if (and (fboundp 'display-line-numbers-mode)
-                       (display-graphic-p))
-                  #'display-line-numbers-mode
-                #'linum-mode))
-
-
-## Languages
-
-
-### Shell
-
-    (use-package shfmt
-      :custom
-      (shfmt-arguments '("-i" "4" "-ci"))
-      :hook
-      (sh-mode . shfmt-on-save-mode))
-    
-    ;; fish
-    (use-package fish-mode)
-
-
-### Lua
-
-    (use-package lua-mode
-      :mode "\\.lua\\'"
-      :interpreter "lua")
-
-
-### Fennel
-
-    (use-package fennel-mode
-      :mode "\\.fnl\\'")
-
-
-### Web
-
-    (use-package web-mode
-      :custom
-      (web-mode-markup-indent-offset 2)
-      (web-mode-code-indent-offset 2)
-      (web-mode-css-indent-offset 2)
-      :mode (("\\.ts\\'" . web-mode)
-             ("\\.html?\\'" . web-mode)
-             ("\\.css?\\'" . web-mode)
-             ("\\.js\\'" . web-mode)))
-
-
-### SSH config
-
-    (use-package ssh-config-mode)
+	(global-auto-revert-mode 1)
 
 
 # Writing
@@ -685,125 +643,435 @@ I was using company, but I think it might've been causing issues with `awk-mode`
 
 ## Word count
 
-    (use-package wc-mode
-      :init
-      (rm-whitelist-add "WC")
-      :hook
-      (text-mode . wc-mode))
+	(use-package wc-mode
+	  :config
+	  (rm/whitelist-add "WC")
+	  :hook text-mode)
 
 
-## Visual fill column
+## Visual fill column mode
 
-    (use-package visual-fill-column
-      :custom
-      (split-window-preferred-function 'visual-fill-column-split-window-sensibly)
-      (visual-fill-column-center-text t)
-      (fill-column 100)
-      :config
-      (advice-add 'text-scale-adjust
-                  :after #'visual-fill-column-adjust)
-      :hook
-      (org-mode . visual-fill-column-mode))
-
-
-## Mixed-pitch
-
-    (use-package mixed-pitch
-      :hook
-      (text-mode . mixed-pitch-mode))
+	(use-package visual-fill-column
+	  :custom
+	  (split-window-preferred-function
+	   'visual-fill-column-split-window-sensibly)
+	  (visual-fill-column-center-text t)
+	  (fill-column 80)
+	  :config
+	  (advice-add 'text-scale-adjust
+    	      :after #'visual-fill-column-adjust)
+	  :hook
+	  (text-mode . visual-fill-column-mode))
 
 
 ## Org mode
 
-    (use-package org
-      :custom
-      (org-startup-indented t)
-      (org-src-tab-acts-natively t)
-      (org-hide-emphasis-markers t)
-      (org-fontify-done-headline t)
-      (org-hide-leading-stars t)
-      (org-pretty-entities t)
-      (org-src-window-setup 'current-window))
-    
-    (use-package org-superstar
-      :hook
-      (org-mode . org-superstar-mode))
+	(use-package org
+	  :custom
+	  (org-startup-indented t)
+	  (org-src-tab-acts-natively t)
+	  (org-hide-emphasis-markers t)
+	  (org-fontify-done-headline t)
+	  (org-fontify-whole-heading-line t)
+	  (org-hide-leading-stars t)
+	  (org-hidden-keywords '(author date title))
+	  (org-src-window-setup 'current-window)
+	  (org-pretty-entities t))
+
+
+### Enable markdown export
+
+	(require 'ox-md)
+
+
+### Ensure blank lines between headings and before contents
+
+from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lines-between-headings-and-before-contents)
+
+	;;;###autoload
+	(defun unpackaged/org-fix-blank-lines (&optional prefix)
+	  "Ensure that blank lines exist between headings and between
+	headings and their contents.  With prefix, operate on whole
+	buffer.  Ensures that blank lines exist after each headings's
+	drawers."
+	  (interactive "P")
+	  (org-map-entries
+	   (lambda ()
+		 (org-with-wide-buffer
+		  ;; `org-map-entries' narrows the buffer, which prevents us
+		  ;; from seeing newlines before the current heading, so we
+		  ;; do this part widened.
+		  (while (not (looking-back "\n\n" nil))
+    	;; Insert blank lines before heading.
+    	(insert "\n")))
+		 (let ((end (org-entry-end-position)))
+		   ;; Insert blank lines before entry content.
+		   (forward-line)
+		   (while (and (org-at-planning-p)
+    		   (< (point) (point-max)))
+    	 ;; Skip planning lines
+    	 (forward-line))
+		   (while (re-search-forward org-drawer-regexp end t)
+    	 ;; Skip drawers.  You might think that
+    	 ;; `org-at-drawer-p' would suffice, but for some reason
+    	 ;; it doesn't work correctly when operating on hidden
+    	 ;; text.  This works, taken from
+    	 ;; `org-agenda-get-some-entry-text'.
+    	 (re-search-forward "^[ \t]*:END:.*\n?" end t)
+    	 (goto-char (match-end 0)))
+		   (unless (or (= (point) (point-max))
+    		   (org-at-heading-p)
+    		   (looking-at-p "\n"))
+    	 (insert "\n"))))
+	   t (if prefix
+    	 nil
+		   'tree)))
+
+
+### `org-return-dwim`
+
+from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#org-return-dwim)
+
+	(defun unpackaged/org-element-descendant-of (type element)
+	  "Return non-nil if ELEMENT is a descendant of TYPE.
+	TYPE should be an element type, like `item' or `paragraph'.
+	ELEMENT should be a list like that returned by
+	`org-element-context'."
+	  ;; MAYBE: Use `org-element-lineage'.
+	  (when-let* ((parent (org-element-property :parent element)))
+		(or (eq type (car parent))
+    	(unpackaged/org-element-descendant-of type parent))))
+
+	;;;###autoload
+	(defun unpackaged/org-return-dwim (&optional default)
+	  "A helpful replacement for `org-return'.  With prefix, call `org-return'.
+
+	On headings, move point to position after entry content.  In
+	lists, insert a new item or end the list, with checkbox if
+	appropriate.  In tables, insert a new row or end the table."
+	  ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
+	  (interactive "P")
+	  (if default
+		  (org-return)
+		(cond
+		 ;; Act depending on context around point.
+
+		 ;; NOTE: I prefer RET to not follow links, but by uncommenting this block,
+		 ;; links will be followed.
+
+		 ;; ((eq 'link (car (org-element-context)))
+		 ;;  ;; Link: Open it.
+		 ;;  (org-open-at-point-global))
+
+		 ((org-at-heading-p)
+		  ;; Heading: Move to position after entry content.
+		  ;; NOTE: This is probably the most interesting feature of this function.
+		  (let ((heading-start (org-entry-beginning-position)))
+    	(goto-char (org-entry-end-position))
+    	(cond ((and (org-at-heading-p)
+    		    (= heading-start (org-entry-beginning-position)))
+    	       ;; Entry ends on its heading; add newline after
+    	       (end-of-line)
+    	       (insert "\n\n"))
+    	      (t
+    	       ;; Entry ends after its heading; back up
+    	       (forward-line -1)
+    	       (end-of-line)
+    	       (when (org-at-heading-p)
+    		 ;; At the same heading
+    		 (forward-line)
+    		 (insert "\n")
+    		 (forward-line -1))
+    	       ;; FIXME: looking-back is supposed to be called with more arguments.
+    	       (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n")))))
+    		 (insert "\n"))
+    	       (forward-line -1)))))
+
+		 ((org-at-item-checkbox-p)
+		  ;; Checkbox: Insert new item with checkbox.
+		  (org-insert-todo-heading nil))
+
+		 ((org-in-item-p)
+		  ;; Plain list.  Yes, this gets a little complicated...
+		  (let ((context (org-element-context)))
+    	(if (or (eq 'plain-list (car context))  ; First item in list
+    		(and (eq 'item (car context))
+    		     (not (eq (org-element-property :contents-begin context)
+    			      (org-element-property :contents-end context))))
+    		(unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
+    	    ;; Non-empty item: Add new item.
+    	    (org-insert-item)
+    	  ;; Empty item: Close the list.
+    	  ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
+    	  (delete-region (line-beginning-position) (line-end-position))
+    	  (insert "\n"))))
+
+		 ((when (fboundp 'org-inlinetask-in-task-p)
+    	(org-inlinetask-in-task-p))
+		  ;; Inline task: Don't insert a new heading.
+		  (org-return))
+
+		 ((org-at-table-p)
+		  (cond ((save-excursion
+    	       (beginning-of-line)
+    	       ;; See `org-table-next-field'.
+    	       (cl-loop with end = (line-end-position)
+    			for cell = (org-element-table-cell-parser)
+    			always (equal (org-element-property :contents-begin cell)
+    				      (org-element-property :contents-end cell))
+    			while (re-search-forward "|" end t)))
+    	     ;; Empty row: end the table.
+    	     (delete-region (line-beginning-position) (line-end-position))
+    	     (org-return))
+    	    (t
+    	     ;; Non-empty row: call `org-return'.
+    	     (org-return))))
+		 (t
+		  ;; All other cases: call `org-return'.
+		  (org-return)))))
+
+	(bind-key "RET" #'unpackaged/org-return-dwim 'org-mode-map)
+
+
+# Coding
+
+
+## Formatting
+
+
+### Indenting
+
+	(use-package aggressive-indent
+	  :config
+	  (global-aggressive-indent-mode 1))
+
+
+### Smart tabs
+
+	(use-package smart-tabs-mode
+	  :custom
+	  (whitespace-style
+	   '(face trailing tabs spaces lines newline
+    	  empty indentation space-before-tab
+    	  space-mark tab-mark newline-mark))
+	  :config
+	  (smart-tabs-insinuate 'c 'c++ 'javascript 'java 'ruby))
+
+
+## Display
+
+
+### Prettify symbols mode
+
+	(add-hook 'prog-mode-hook #'prettify-symbols-mode)
+
+
+### Parentheses and frens
+
+1.  `show-paren-style`
+
+		(cuss show-paren-style 'mixed)
+		(show-paren-mode 1)
+
+2.  Smartparens
+
+		(use-package smartparens
+		  :init
+		  (defun acdw/setup-smartparens ()
+			(require 'smartparens-config)
+			(smartparens-mode 1))
+		  :hook
+		  (prog-mode . acdw/setup-smartparens))
+
+3.  Rainbow delimiters
+
+		(use-package rainbow-delimiters
+		  :hook (prog-mode . rainbow-delimiters-mode))
+
+
+### Rainbow mode
+
+	(use-package rainbow-mode
+	  :custom
+	  (rainbow-x-colors nil)
+	  :hook prog-mode)
+
+
+### Line numbers
+
+	(defun acdw/enable-line-numbers ()
+	  "Enable line numbers, either through `display-line-numbers-mode'
+	or through `linum-mode'."
+	  (if (and (fboundp 'display-line-numbers-mode)
+    	   (display-graphic-p))
+		  (progn
+    	(display-line-numbers-mode 1)
+    	(cuss display-line-numbers-width 2))
+		(linum-mode 1)))
+
+	(add-hook 'prog-mode-hook #'acdw/enable-line-numbers)
+
+
+## Git
+
+	(use-package magit
+	  :bind
+	  ("C-x g" . magit-status)
+	  :custom-update
+	  (magit-no-confirm '(stage-all-changes)))
+
+
+### Hook into `prescient`
+
+	(define-advice magit-list-refs
+		(:around (orig &optional namespaces format sortby)
+    	     prescient-sort)
+	  "Apply prescient sorting when listing refs."
+	  (let ((res (funcall orig namespaces format sortby)))
+		(if (or sortby
+    	    magit-list-refs-sortby
+    	    (not selectrum-should-sort-p))
+    	res
+		  (prescient-sort res))))
+
+
+### Use `libgit` when I can build it (requires `cmake`)
+
+	(when (executable-find "cmake")
+	  (use-package libgit)
+	  (use-package magit-libgit))
+
+
+### Git "forge" capabilities
+
+	(use-package forge
+	  :after magit
+	  :unless (eq system-type 'windows-nt)
+	  :custom
+	  (forge-owned-accounts
+	   '(("duckwork"))))
+
+
+## Programming languages
+
+
+### Fish shell
+
+	(use-package fish-mode)
+
+
+### Lisps
+
+1.  Common Lisp (SLIME)
+
+		(use-package slime
+		  :when (executable-find "sbcl")
+		  :custom
+		  (inferior-lisp-program "sbcl")
+		  (slime-contribs '(slime-fancy)))
+
+2.  Fennel
+
+		(use-package fennel-mode
+		  :mode "\\.fnl\\'")
+
+
+### Lua
+
+	(use-package lua-mode
+	  :mode "\\.lua\\'"
+	  :interpreter "lua")
+
+
+### Web (HTML/CSS/JS)
+
+	(use-package web-mode
+	  :mode (("\\.ts\\'" . web-mode)
+    	 ("\\.html?\\'" . web-mode)
+    	 ("\\.css?\\'" . web-mode)
+    	 ("\\.js\\'" . web-mode)))
+
+
+### `~/.ssh/config`
+
+	(use-package ssh-config-mode)
+
+
+### Go
+
+	(use-package go-mode
+	  :mode "\\.go\\'")
 
 
 # Applications
 
 
-## Gemini & Gopher
+## Elpher
 
-    (use-package elpher
-      :straight (elpher
-                 :repo "git://thelambdalab.xyz/elpher.git")
-      :bind (:map elpher-mode-map
-                  ("n" . elpher-next-link)
-                  ("p" . elpher-prev-link)
-                  ("o" . elpher-follow-current-link)
-                  ("G" . elpher-go-current))
-      :hook
-      (elpher-mode . visual-fill-column-mode))
-    
-    (use-package gemini-mode
-      :straight (gemini-mode
-                 :repo "https://git.carcosa.net/jmcbray/gemini.el.git")
-      :mode "\\.\\(gemini|gmi\\)\\'")
-    
-    (use-package gemini-write
-      :straight (gemini-write
-                 :repo "https://alexschroeder.ch/cgit/gemini-write"))
-    
-    (use-package post-to-gemlog-blue
-      :straight (post-to-gemlog-blue
-                 :repo "https://git.sr.ht/~acdw/post-to-gemlog-blue.el"))
+	(use-package elpher
+	  :straight (elpher
+    	     :repo "git://thelambdalab.xyz/elpher.git")
+	  :custom
+	  (elpher-certificate-directory
+	   (no-littering-expand-var-file-name "elpher-certificates/"))
+	  (elpher-ipv4-always t)
+	  :custom-face
+	  (elpher-gemini-heading1
+	   ((t (:inherit (modus-theme-heading-1)))))
+	  (elpher-gemini-heading2
+	   ((t (:inherit (modus-theme-heading-2)))))
+	  (elpher-gemini-heading3
+	   ((t (:inherit (modus-theme-heading-3)))))
+	  :config
+	  (defun elpher:eww-browse-url (original url &optional new-window)
+		"Handle gemini/gopher links with eww."
+		(cond ((string-match-p "\\`\\(gemini\\|gopher\\)://" url)
+    	   (require 'elpher)
+    	   (elpher-go url))
+    	  (t (funcall original url new-window))))
+	  (advice-add 'eww-browse-url :around 'elpher:eww-browse-url)
+	  :bind (:map elpher-mode-map
+    	      ("n" . elpher-next-link)
+    	      ("p" . elpher-prev-link)
+    	      ("o" . elpher-follow-current-link)
+    	      ("G" . elpher-go-current))
+	  :hook
+	  (elpher-mode . visual-fill-column-mode))
+
+	(use-package gemini-mode
+	  :straight (gemini-mode
+    	     :repo "https://git.carcosa.net/jmcbray/gemini.el.git")
+	  :mode "\\.\\(gemini|gmi\\)\\'"
+	  :custom-face
+	  (gemini-heading-face-1
+	   ((t (:inherit (elpher-gemini-heading1)))))
+	  (gemini-heading-face2
+	   ((t (:inherit (elpher-gemini-heading2)))))
+	  (gemini-heading-face3
+	   ((t (:inherit (elpher-gemini-heading3)))))
+	  :hook
+	  (gemini-mode . visual-fill-column-mode))
+
+	(use-package gemini-write
+	  :straight (gemini-write
+    	     :repo "https://alexschroeder.ch/cgit/gemini-write")
+	  :config
+	  (add-to-list 'elpher-gemini-tokens
+    	       (acdw-secrets/elpher-gemini-tokens)))
+
+	(use-package post-to-gemlog-blue
+	  :straight (post-to-gemlog-blue
+    	     :repo "https://git.sr.ht/~acdw/post-to-gemlog-blue.el"))
 
 
-## Pastebin
+## Pastebin (0x0)
 
-    (use-package 0x0
+(use-package 0x0
       :custom
       (0x0-default-service 'ttm))
 
 
-## Gnus
+## EMMS
 
-    (cuss gnus-select-method
-          '(nnimap "imap.fastmail.com"
-                   (nnimap-inbox "INBOX")
-                   (nnimap-split-methods default)
-                   (nnimap-expunge t)
-                   (nnimap-stream ssl)))
-    
-    (cuss gnus-secondary-select-methods
-          '((nntp "news.gwene.org")))
-
-
-## Nov.el: read Ebooks
-
-    (use-package nov
-      :mode ("\\.epub\\'" . nov-mode)
-      :custom
-      (nov-text-width t)
-      :hook
-      (nov-mode . visual-line-mode)
-      (nov-mode . visual-fill-column-mode))
-
-
-# Machine-specific configurations
-
-    (cond
-     (*acdw/at-home*
-      (use-package su
-        :config
-        (su-mode 1))
-      (use-package trashed
-        :custom
-        (delete-by-moving-to-trash t))
-      (use-package exec-path-from-shell
-        :demand
-        :config
-        (exec-path-from-shell-initialize)))
-     )
-
+    (use-package bongo
+      :commands 'bongo)
