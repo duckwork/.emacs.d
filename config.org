@@ -1,6 +1,6 @@
 #+TITLE:Emacs configuration, literate style
 #+AUTHOR:Case Duckworth
-#+PROPERTY: header-args :tangle init.el
+#+PROPERTY: header-args :tangle init.el :comments both
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+OPTIONS: title:t
@@ -10,8 +10,7 @@ This is my Emacs configuration.  It's also a literate =org-mode= file.  Yeah, I'
 
 * About me
 
-#+begin_src emacs-lisp
-  ;; init.el -*- lexical-binding: t -*-
+#+begin_src emacs-lisp :shebang ";; init.el -*- lexical-binding: t -*-"
   (setq user-full-name "Case Duckworth"
         user-mail-address "acdw@acdw.net")
 #+end_src
@@ -22,7 +21,7 @@ Copyright © 2020 Case Duckworth <acdw@acdw.net>
 
 This work is free.  You can redistribute it and/or modify it under the terms of the Do What the Fuck You Want To Public License, Version 2, as published by Sam Hocevar.  See the =LICENSE= file, tangled from the following source block, for details.
 
-#+begin_src text :tangle LICENSE
+#+begin_src text :tangle LICENSE :comments no
   DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
 
   Version 2, December 2004
@@ -116,11 +115,8 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 
 * Early initiation
 
-#+begin_src emacs-lisp :tangle early-init.el
-  ;; early-init.el -*- lexical-binding: t; no-byte-compile: t -*-
-
+#+begin_src emacs-lisp :tangle early-init.el :shebang ";; early-init.el -*- lexical-binding: t; no-byte-compile: t -*-"
   (setq load-prefer-newer t)
-
 #+end_src
 
 ** Increase the garbage collector
