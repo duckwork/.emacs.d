@@ -1160,7 +1160,7 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
     (0x0-default-service 'ttm))
 #+END_SRC
 
-** EMMS
+** Bongo
 
 #+BEGIN_SRC emacs-lisp
   (use-package bongo
