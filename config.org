@@ -1045,7 +1045,9 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
 
 #+begin_src emacs-lisp
   (use-package go-mode
-    :mode "\\.go\\'")
+    :mode "\\.go\\'"
+    :hook
+    (before-save . gofmt-before-save))
 #+end_src
 
 * Applications
