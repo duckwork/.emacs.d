@@ -1096,11 +1096,12 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
 ** Dired
 
 #+begin_src emacs-lisp
-  (cuss dired-dwim-target t)
-  (cuss dired-listing-switches "-alDh")
+  (with-eval-after-load 'dired
+    (cuss dired-dwim-target t)
+    (cuss dired-listing-switches "-alDh")
 
-  (cuss wdired-allow-to-change-permissions t)
-  (bind-key "C-c w" #'wdired-change-to-wdired-mode dired-mode-map)
+    (cuss wdired-allow-to-change-permissions t)
+    (bind-key "C-c w" #'wdired-change-to-wdired-mode 'dired-mode-map))
 #+end_src
 
 ** Proced
