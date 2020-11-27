@@ -10,3 +10,5 @@ var/*
 
 !etc/
 etc/*
+!etc/eshell
+!etc/eshell/*
