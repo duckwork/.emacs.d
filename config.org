@@ -101,12 +101,14 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 
 ** Miscellaneous bootstrappy stuff
 
-*** Add =~/.emacs.d/lisp/= to =load-path=
+*** Add directories to =load-path=
 
 #+begin_src emacs-lisp
-  (add-to-list 'load-path
-               (concat user-emacs-directory
-                       (convert-standard-filename "lisp/")))
+  (dolist (dir `(,(concat user-emacs-directory
+                          (convert-standard-filename "lisp/"))
+                 ,(expand-file-name "~/Sync/elisp/")))
+    (add-to-list 'load-path dir))
+
 #+end_src
 
 *** Require my secrets
