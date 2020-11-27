@@ -297,6 +297,17 @@ I also want to switch themes between night and day.
     (rm/whitelist-add "^$"))
 #+end_src
 
+** Minibuffer
+
+*** Keep cursor from going into the prompt
+
+from [[http://ergoemacs.org/emacs/emacs_stop_cursor_enter_prompt.html][Ergo Emacs]].
+
+#+begin_src emacs-lisp
+  (cuss minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+#+end_src
+
 ** Show =^L= as a line
 
 #+begin_src emacs-lisp
