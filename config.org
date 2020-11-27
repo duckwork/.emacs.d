@@ -76,6 +76,7 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
     (when (equal (buffer-file-name)
                  (expand-file-name
                   (concat user-emacs-directory "config.org")))
+      ;; Tangle and load init.el and early-init.el
       (require 'async)
       (async-start
        (lambda ()
