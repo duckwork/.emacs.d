@@ -1184,11 +1184,11 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
     (0x0-default-service 'ttm))
 #+END_SRC
 
-* Appendix A: ~edit~ script
+* Appendix A: ~emacsdc~ script
 
-Here's a wrapper script that'll start =emacs --daemon= if there isn't one, and then launche =emacsclient= on the arguments.  I'd recommend installing with ~ln -s edit ~/.local/bin/~ or something.
+Here's a wrapper script that'll start =emacs --daemon= if there isn't one, and then launche =emacsclient= on the arguments.  I'd recommend installing with ~ln -s emacsdc ~/.local/bin/~ or something.  Then you can set it as your ~$EDITOR~!
 
-#+begin_src sh :shebang "#!/bin/sh" :tangle edit
+#+begin_src sh :shebang "#!/bin/sh" :tangle emacsdc
   if ! emacsclient -nc "$@" 2>/dev/null; then
       emacs --daemon
       emacsclient -nc "$@"
