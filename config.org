@@ -1184,13 +1184,6 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
     (0x0-default-service 'ttm))
 #+END_SRC
 
-** Bongo
-
-#+BEGIN_SRC emacs-lisp
-  (use-package bongo
-    :commands 'bongo)
-#+end_src
-
 * Appendix A: ~edit~ script
 
 Here's a wrapper script that'll start =emacs --daemon= if there isn't one, and then launche =emacsclient= on the arguments.  I'd recommend installing with ~ln -s edit ~/.local/bin/~ or something.
