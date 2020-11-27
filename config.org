@@ -1095,6 +1095,38 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
     (forge-owned-accounts
      '(("duckwork"))))
 #+end_src
+
+
+** Dired
+
+#+begin_src emacs-lisp
+  (cuss dired-dwim-target t)
+  (cuss dired-listing-switches "-alDh")
+
+  (cuss wdired-allow-to-change-permissions t)
+  (bind-key "C-c w" #'wdired-change-to-wdired-mode dired-mode-map)
+#+end_src
+
+** Proced
+
+#+begin_src emacs-lisp
+  (defun acdw/setup-proced ()
+    (variable-pitch-mode -1)
+    (toggle-truncate-lines 1)
+    (proced-toggle-auto-update 1))
+
+  (add-hook 'proced-mode-hook #'acdw/setup-proced)
+#+end_src
+
+** ... Ed
+
+#+begin_src emacs-lisp
+  (use-package ed
+    :straight (ed-mode
+               :host github
+               :repo "ryanprior/ed-mode"))
+#+end_src
+
 ** Elpher
 
 #+BEGIN_SRC emacs-lisp
