@@ -1115,15 +1115,6 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
   (add-hook 'proced-mode-hook #'acdw/setup-proced)
 #+end_src
 
-** ... Ed
-
-#+begin_src emacs-lisp
-  (use-package ed
-    :straight (ed-mode
-               :host github
-               :repo "ryanprior/ed-mode"))
-#+end_src
-
 ** Elpher
 
 #+BEGIN_SRC emacs-lisp
