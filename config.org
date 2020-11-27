@@ -990,50 +990,6 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
   (add-hook 'prog-mode-hook #'acdw/enable-line-numbers)
 #+end_src
 
-** Git
-
-#+begin_src emacs-lisp
-  (use-package magit
-    :bind
-    ("C-x g" . magit-status)
-    :custom-update
-    (magit-no-confirm '(stage-all-changes)))
-#+end_src
-
-*** Hook into =prescient=
-
-#+begin_src emacs-lisp
-  (define-advice magit-list-refs
-      (:around (orig &optional namespaces format sortby)
-               prescient-sort)
-    "Apply prescient sorting when listing refs."
-    (let ((res (funcall orig namespaces format sortby)))
-      (if (or sortby
-              magit-list-refs-sortby
-              (not selectrum-should-sort-p))
-          res
-        (prescient-sort res))))
-#+end_src
-
-*** Use =libgit= when I can build it (requires =cmake=)
-
-#+begin_src emacs-lisp
-  (when (executable-find "cmake")
-    (use-package libgit)
-    (use-package magit-libgit))
-#+end_src
-
-*** Git "forge" capabilities
-
-#+begin_src emacs-lisp
-  (use-package forge
-    :after magit
-    :unless (eq system-type 'windows-nt)
-    :custom
-    (forge-owned-accounts
-     '(("duckwork"))))
-#+end_src
-
 ** Programming languages
 
 *** Fish shell
@@ -1094,6 +1050,49 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
 
 * Applications
 
+** Git
+
+#+begin_src emacs-lisp
+  (use-package magit
+    :bind
+    ("C-x g" . magit-status)
+    :custom-update
+    (magit-no-confirm '(stage-all-changes)))
+#+end_src
+
+*** Hook into =prescient=
+
+#+begin_src emacs-lisp
+  (define-advice magit-list-refs
+      (:around (orig &optional namespaces format sortby)
+               prescient-sort)
+    "Apply prescient sorting when listing refs."
+    (let ((res (funcall orig namespaces format sortby)))
+      (if (or sortby
+              magit-list-refs-sortby
+              (not selectrum-should-sort-p))
+          res
+        (prescient-sort res))))
+#+end_src
+
+*** Use =libgit= when I can build it (requires =cmake=)
+
+#+begin_src emacs-lisp
+  (when (executable-find "cmake")
+    (use-package libgit)
+    (use-package magit-libgit))
+#+end_src
+
+*** Git "forge" capabilities
+
+#+begin_src emacs-lisp
+  (use-package forge
+    :after magit
+    :unless (eq system-type 'windows-nt)
+    :custom
+    (forge-owned-accounts
+     '(("duckwork"))))
+#+end_src
 ** Elpher
 
 #+BEGIN_SRC emacs-lisp
