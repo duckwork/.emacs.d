@@ -10,7 +10,8 @@ This is my Emacs configuration.  It's also a literate =org-mode= file.  Yeah, I'
 
 * About me
 
-#+begin_src emacs-lisp :shebang ";; init.el -*- lexical-binding: t -*-"
+#+begin_src emacs-lisp :comments no
+;; init.el -*- lexical-binding: t -*-
   (setq user-full-name "Case Duckworth"
         user-mail-address "acdw@acdw.net")
 #+end_src
@@ -116,7 +117,8 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 
 * Early initiation
 
-#+begin_src emacs-lisp :tangle early-init.el :shebang ";; early-init.el -*- lexical-binding: t; no-byte-compile: t -*-"
+#+begin_src emacs-lisp :tangle early-init.el :comments no
+;; early-init.el -*- lexical-binding: t; no-byte-compile: t -*-
   (setq load-prefer-newer t)
 #+end_src
 
