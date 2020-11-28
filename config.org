@@ -358,7 +358,7 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
     (set-face-attribute 'variable-pitch nil
                         :font
                         (font-candidate
-                         "Libertinus Serif-14"
+                         "Libertinus Serif-13"
                          "Linux Libertine O-12"
                          "Georgia-11"))
 
