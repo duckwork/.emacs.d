@@ -260,12 +260,36 @@ I also want to switch themes between night and day.
 
 * Simplify GUI
 
+** Frame defaults
+
+#+begin_src emacs-lisp
+  (cuss default-frame-alist
+        '((tool-bar-lines . 0)
+          (menu-bar-lines . 0)
+          (vertical-scroll-bars . 'right)
+          (horizontal-scroll-bars . nil)
+          (right-divider-width . 2)
+          (bottom-divider-width . 2)
+          (left-fringe-width . 2)
+          (right-fringe-width . 2)))
+#+end_src
+
+** Minibuffer window/frame defaults
+
+#+begin_src emacs-lisp
+  (cuss minibuffer-frame-alist
+        '((width . 80)
+          (height . 2)
+          (vertical-scrollbars . nil)))
+
+  (set-window-scroll-bars (minibuffer-window) nil nil)
+#+end_src
+
 ** Remove unneeded GUI elements
 
 #+begin_src emacs-lisp
   (menu-bar-mode -1)
   (tool-bar-mode -1)
-  (scroll-bar-mode -1)
   (horizontal-scroll-bar-mode -1)
 #+end_src
 
