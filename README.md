@@ -4,8 +4,8 @@ This is my Emacs configuration.  It's also a literate `org-mode` file.  Yeah, I'
 # About me
 
 	;; init.el -*- lexical-binding: t -*-
-	(setq user-full-name "Case Duckworth"
-		  user-mail-address "acdw@acdw.net")
+	  (setq user-full-name "Case Duckworth"
+    	user-mail-address "acdw@acdw.net")
 
 
 # License
@@ -67,6 +67,7 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 	  (when (equal (buffer-file-name)
     	       (expand-file-name
     		(concat user-emacs-directory "config.org")))
+		;; Tangle and load init.el and early-init.el
 		(require 'async)
 		(async-start
 		 (lambda ()
@@ -92,11 +93,12 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 ## Miscellaneous bootstrappy stuff
 
 
-### Add `~/.emacs.d/lisp/` to `load-path`
+### Add directories to `load-path`
 
-	(add-to-list 'load-path
-    	     (concat user-emacs-directory
-    		     (convert-standard-filename "lisp/")))
+	(dolist (dir `(,(concat user-emacs-directory
+    			(convert-standard-filename "lisp/"))
+    	       ,(expand-file-name "~/Sync/elisp/")))
+	  (add-to-list 'load-path dir))
 
 
 ### Require my secrets
@@ -107,8 +109,7 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 # Early initiation
 
 	;; early-init.el -*- lexical-binding: t; no-byte-compile: t -*-
-
-	(setq load-prefer-newer t)
+	  (setq load-prefer-newer t)
 
 
 ## Increase the garbage collector
@@ -239,11 +240,33 @@ I also want to switch themes between night and day.
 # Simplify GUI
 
 
+## Frame defaults
+
+	(cuss default-frame-alist
+		  '((tool-bar-lines . 0)
+    	(menu-bar-lines . 0)
+    	(vertical-scroll-bars . 'right)
+    	(horizontal-scroll-bars . nil)
+    	(right-divider-width . 2)
+    	(bottom-divider-width . 2)
+    	(left-fringe-width . 2)
+    	(right-fringe-width . 2)))
+
+
+## Minibuffer window/frame defaults
+
+	(cuss minibuffer-frame-alist
+		  '((width . 80)
+    	(height . 2)
+    	(vertical-scrollbars . nil)))
+
+	(set-window-scroll-bars (minibuffer-window) nil nil)
+
+
 ## Remove unneeded GUI elements
 
 	(menu-bar-mode -1)
 	(tool-bar-mode -1)
-	(scroll-bar-mode -1)
 	(horizontal-scroll-bar-mode -1)
 
 
@@ -271,6 +294,17 @@ I also want to switch themes between night and day.
 	(use-package rich-minority
 	  :config
 	  (rm/whitelist-add "^$"))
+
+
+## Minibuffer
+
+
+### Keep cursor from going into the prompt
+
+from [Ergo Emacs](http://ergoemacs.org/emacs/emacs_stop_cursor_enter_prompt.html).
+
+	(cuss minibuffer-prompt-properties
+		  '(read-only t cursor-intangible t face minibuffer-prompt))
 
 
 ## Show `^L` as a line
@@ -320,7 +354,7 @@ See [this StackExchange question and answer](https://emacs.stackexchange.com/que
 	  (set-face-attribute 'variable-pitch nil
     		      :font
     		      (font-candidate
-    		       "Libertinus Serif-14"
+    		       "Libertinus Serif-13"
     		       "Linux Libertine O-12"
     		       "Georgia-11"))
 
@@ -912,46 +946,6 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#org-return-dwim)
 	(add-hook 'prog-mode-hook #'acdw/enable-line-numbers)
 
 
-## Git
-
-	(use-package magit
-	  :bind
-	  ("C-x g" . magit-status)
-	  :custom-update
-	  (magit-no-confirm '(stage-all-changes)))
-
-
-### Hook into `prescient`
-
-	(define-advice magit-list-refs
-		(:around (orig &optional namespaces format sortby)
-    	     prescient-sort)
-	  "Apply prescient sorting when listing refs."
-	  (let ((res (funcall orig namespaces format sortby)))
-		(if (or sortby
-    	    magit-list-refs-sortby
-    	    (not selectrum-should-sort-p))
-    	res
-		  (prescient-sort res))))
-
-
-### Use `libgit` when I can build it (requires `cmake`)
-
-	(when (executable-find "cmake")
-	  (use-package libgit)
-	  (use-package magit-libgit))
-
-
-### Git "forge" capabilities
-
-	(use-package forge
-	  :after magit
-	  :unless (eq system-type 'windows-nt)
-	  :custom
-	  (forge-owned-accounts
-	   '(("duckwork"))))
-
-
 ## Programming languages
 
 
@@ -1000,10 +994,72 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#org-return-dwim)
 ### Go
 
 	(use-package go-mode
-	  :mode "\\.go\\'")
+	  :mode "\\.go\\'"
+	  :hook
+	  (before-save . gofmt-before-save))
 
 
 # Applications
+
+
+## Git
+
+	(use-package magit
+	  :bind
+	  ("C-x g" . magit-status)
+	  :custom-update
+	  (magit-no-confirm '(stage-all-changes)))
+
+
+### Hook into `prescient`
+
+	(define-advice magit-list-refs
+		(:around (orig &optional namespaces format sortby)
+    	     prescient-sort)
+	  "Apply prescient sorting when listing refs."
+	  (let ((res (funcall orig namespaces format sortby)))
+		(if (or sortby
+    	    magit-list-refs-sortby
+    	    (not selectrum-should-sort-p))
+    	res
+		  (prescient-sort res))))
+
+
+### Use `libgit` when I can build it (requires `cmake`)
+
+	(when (executable-find "cmake")
+	  (use-package libgit)
+	  (use-package magit-libgit))
+
+
+### Git "forge" capabilities
+
+	(use-package forge
+	  :after magit
+	  :unless (eq system-type 'windows-nt)
+	  :custom
+	  (forge-owned-accounts
+	   '(("duckwork"))))
+
+
+## Dired
+
+	(with-eval-after-load 'dired
+	  (cuss dired-dwim-target t)
+	  (cuss dired-listing-switches "-alDh")
+
+	  (cuss wdired-allow-to-change-permissions t)
+	  (bind-key "C-c w" #'wdired-change-to-wdired-mode 'dired-mode-map))
+
+
+## Proced
+
+	(defun acdw/setup-proced ()
+	  (variable-pitch-mode -1)
+	  (toggle-truncate-lines 1)
+	  (proced-toggle-auto-update 1))
+
+	(add-hook 'proced-mode-hook #'acdw/setup-proced)
 
 
 ## Elpher
@@ -1066,12 +1122,90 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#org-return-dwim)
 
 ## Pastebin (0x0)
 
-(use-package 0x0
-      :custom
-      (0x0-default-service 'ttm))
+	(use-package 0x0
+	  :custom
+	  (0x0-default-service 'ttm))
 
 
-## EMMS
+## Mu4e
 
-    (use-package bongo
-      :commands 'bongo)
+	(when (executable-find "mu")
+	  (add-to-list 'load-path
+    	       "/usr/share/emacs/site-lisp/mu4e")
+	  (require 'mu4e)
+
+	  (cuss mail-user-agent 'mu4e-user-agent)
+
+	  (cuss mu4e-headers-skip-duplicates t)
+	  (cuss mu4e-view-show-images t)
+	  (cuss mu4e-view-show-addresses t)
+	  (cuss mu4e-compose-format-flowed t)
+	  (cuss mu4e-change-filenames-when-moving t)
+	  (cuss mu4e-attachments-dir "~/Downloads")
+
+	  (cuss mu4e-maildir "~/.mail/fastmail")
+	  (cuss mu4e-refile-folder "/Archive")
+	  (cuss mu4e-sent-folder "/Sent")
+	  (cuss mu4e-drafts-folder "/Drafts")
+	  (cuss mu4e-trash-folder "/Trash")
+
+	  (fset 'my-move-to-trash "mTrash")
+	  (define-key mu4e-headers-mode-map (kbd "d") 'my-move-to-trash)
+	  (define-key mu4e-view-mode-map (kbd "d") 'my-move-to-trash)
+
+	  (cuss message-send-mail-function 'smtpmail-send-it)
+	  (cuss smtpmail-default-smtp-server "smtp.fastmail.com")
+	  (cuss smtpmail-smtp-server "smtp.fastmail.com")
+	  (cuss smtpmail-stream-type 'ssl)
+	  (cuss smtpmail-smtp-service 465)
+	  (cuss smtpmail-local-domain "acdw.net")
+	  (cuss mu4e-compose-signature
+    	"Best,\nCase\n")
+
+	  (cuss mu4e-get-mail-command "mbsync -a")
+	  (cuss mu4e-update-interval 300)
+
+	  (cuss mu4e-completing-read-function 'completing-read)
+	  (cuss message-kill-buffer-on-exit t)
+	  (cuss mu4e-confirm-quit nil)
+
+	  (cuss mu4e-bookmarks
+    	'((
+    	   :name "Unread"
+    	   :query
+    	   "flag:unread AND NOT flag:trashed AND NOT maildir:/Spam"
+    	   :key ?u)
+    	  (
+    	   :name "Today"
+    	   :query "date:today..now and not maildir:/Spam"
+    	   :key ?t)
+    	  (
+    	   :name "This week"
+    	   :query "date:7d..now and not maildir:/Spam"
+    	   :hide-unread t
+    	   :key ?w)))
+
+	  (cuss mu4e-headers-fields
+    	'((:human-date . 12)
+    	  (:flags . 6)
+    	  (:mailing-list . 10)
+    	  (:from-or-to . 22)
+    	  (:subject)))
+	  )
+
+	;; not sure about this...
+	(use-package mu4e-dashboard
+	  :straight (mu4e-dashboard
+    	     :host github
+    	     :repo "rougier/mu4e-dashboard"
+    	     :branch "main"))
+
+
+# Appendix A: `emacsdc` script
+
+Here's a wrapper script that'll start `emacs --daemon` if there isn't one, and then launche `emacsclient` on the arguments.  I'd recommend installing with `ln -s emacsdc ~/.local/bin/` or something.  Then you can set it as your `$EDITOR`!
+
+if ! emacsclient -nc "$@" 2>/dev/null; then
+        emacs --daemon
+        emacsclient -nc "$@"
+    fi
