@@ -1191,7 +1191,11 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#org-return-dwim)
     	  (:mailing-list . 10)
     	  (:from-or-to . 22)
     	  (:subject)))
-	  )
+
+	  (defun acdw/setup-mu4e-view-mode ()
+		(visual-fill-column-mode))
+
+	  (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode))
 
 	;; not sure about this...
 	(use-package mu4e-dashboard
