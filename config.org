@@ -49,16 +49,21 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 
 ** Original init.el
 
-#+begin_src emacs-lisp :tangle no
-  ;; This file replaces itself with the actual configuration when
-  ;; first run.  To keep only this version in git, run this command:
-  ;;
-  ;; git update-index --assume-unchanged init.el
-  ;;
-  ;; If it needs to be changed, start tracking it again thusly:
-  ;;
-  ;; git update-index --no-assume-unchanged init.el
+This file replaces itself with the actual configuration when it's first run.  For easy installation, /this/ is the =init.el= file in git -- and you probably want to keep it that way.  To keep git from trying to update =init.el= when it's re-tangled, type this in the repo:
 
+#+begin_src sh :tangle no
+git update-index --assume-unchanged init.el
+#+end_src
+
+If, for some reason, you want to change this original file to be re-tracked, run this command:
+
+#+begin_src sh :tangle no
+git update-index --no-assume-unchanged init.el
+#+end_src
+
+Otherwise, here's the actual, original =init.el= that tangles this Org file and gets us going.
+
+#+begin_src emacs-lisp :tangle no
   (require 'org)
   (find-file (concat user-emacs-directory "config.org"))
   (org-babel-tangle)
@@ -67,7 +72,13 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
   (byte-compile-file (concat user-emacs-directory "init.el"))
 #+end_src
 
+*** TODO What I should do instead
+
+Honestly, I should just change this "Original init.el" thing to a Makefile I can tangle in =config.org=, and track -- since it won't be overwritten or need any special =git= invocations to stop tracking it, I can edit it as I think about what would work best.  I could also maybe give it more of a "cross-platform" vibe by installing, say, =straight.el= in the Makefile on Windows.  One day ...
+
 ** Tangling
+
+After our first tangle, each time we edit =config.org= we want to go ahead and re-tangle our config.  To that end, I've written ~acdw/tangle-init~, which automatically tangles =config.org=.
 
 #+begin_src emacs-lisp
   (defun acdw/tangle-init ()
@@ -88,9 +99,17 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
        (lambda (response)
          (acdw/load-init)
          (message "Tangled and loaded: %s" response)))))
+#+end_src
 
+Since I want to tangle every time I save =config.org=, I've added ~acdw/tangle-init~ to a hook.
+
+#+begin_src emacs-lisp
   (add-hook 'after-save-hook #'acdw/tangle-init)
+#+end_src
 
+Finally, I want an easier way to load the generated init files than the old =M-x load-file RET ~/.config/emacs/init.el RET=.  So I've written ~acdw/load-init~ -- which also gets called at the end of the async part of ~acdw/tangle-init~.
+
+#+begin_src emacs-lisp
   (defun acdw/load-init ()
     (interactive)
     (load-file (expand-file-name
@@ -103,6 +122,8 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 
 *** Add directories to =load-path=
 
+I also put lispy stuff in the =lisp/= subdirectory of my Emacs config, and under my SyncThing directory (for easy syncing ;P).
+
 #+begin_src emacs-lisp
   (dolist (dir `(,(concat user-emacs-directory
                           (convert-standard-filename "lisp/"))
@@ -111,7 +132,9 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 
 #+end_src
 
-*** Require my secrets
+*** TODO Require my secrets
+
+While this is like, the /dumbest/ way to do this, it's what I'm doing right now.  I'm going to slap a TODO on here because I really should make it better -- like, =auth-sources= hooked into KeePassXC somehow... ?  Maybe follow [[https://www.billdietrich.me/Authentication.html?expandall=1#KeePassXCandSecretService][Bill Dietrich's setup]].
 
 #+begin_src emacs-lisp
   (require 'acdw-secrets)
@@ -119,12 +142,18 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 
 * Early initiation
 
+Starting with version 27.1, Emacs loads =early-init.el= /before/ =init.el=, setting up early stuff like package management, etc.  Since I use an alternative package manager, I have to bootstrap it here.
+
+Of course, I also want to set some really early-on settings here too, like =load-prefer-newer= -- why not?
+
 #+begin_src emacs-lisp :tangle early-init.el :comments no
 ;; early-init.el -*- lexical-binding: t; no-byte-compile: t -*-
   (setq load-prefer-newer t)
 #+end_src
 
 ** Increase the garbage collector
+
+Let's try to speed startup times by increasing the garbage collector's threshold while running init.  Note the hook afterwards that restores it to a reasonable default.
 
 #+begin_src emacs-lisp :tangle early-init.el
   (setq gc-cons-threshold (* 100 100 1000))
@@ -136,17 +165,31 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
                        gc-cons-threshold)))
 #+end_src
 
-** Add more paths to the =exec-path= when using Windows
+** Add more paths to the =exec-path=
+
+When using Windows (at work), I need to use the PortableGit installation I've downloaded, since I don't have Admin privileges.
 
 #+begin_src emacs-lisp :tangle early-init.el
   (when (eq system-type 'windows-nt)
-    (dolist (path '("~/bin"
-                    "C:/Users/aduckworth/Downloads/PortableGit/bin"
+    (dolist (path '("C:/Users/aduckworth/Downloads/PortableGit/bin"
                     "C:/Users/aduckworth/Downloads/PortableGit/usr/bin"))
       (add-to-list 'exec-path path)))
 #+end_src
 
-** Bootstrap =straight.el=
+Elsewhere, I want to add a few more paths to the =exec-path= as well, since I store scripts in a couple of places at ~.
+
+#+begin_src emacs-lisp :tangle early-init.el
+  (dolist (path '("~/bin"
+                  "~/.local/bin"
+                  "~/Scripts"))
+    (add-to-list 'exec-path path))
+#+end_src
+
+** Bootstrap [[https://github.com/raxod502/straight.el][straight.el]]
+
+So far, this is the best package manager I've used.  It allows for /truly/ declarative package management (if I don't specify a package here, it doesn't get loaded), easy installation from pretty much any source (as long as it's got a git repo), /and/ it hooks into =use-package=!
+
+The one annoying thing is that this bootstrap code doesn't work on Windows for some reason.  I'm too lazy to really try and figure out why, so when I need to bootstrap on Windows (pretty rare, TBH), I just [[https://github.com/raxod502/straight.el/archive/master.zip][download the master-branch zip file]] and extract it to =~/.emacs.d/straight/repos/=.
 
 #+begin_src emacs-lisp :tangle early-init.el
   (defvar bootstrap-version)
@@ -164,14 +207,18 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
     (load bootstrap-file nil 'nomessage))
 #+end_src
 
-** Use =use-package=
+** Use [[https://jwiegley.github.io/use-package/][use-package]]
+
+Like I said, =straight.el= hooks into =use-package= easily.  These two lines get the latter to use the former by default.
 
 #+begin_src emacs-lisp :tangle early-init.el
   (setq straight-use-package-by-default t)
   (straight-use-package 'use-package)
 #+end_src
 
-** Keep =~/.emacs.d= tidy
+** Keep =~/.emacs.d= tidy with [[https://github.com/emacscollective/no-littering][no-littering]]
+
+I'll be honest -- I don't really notice this package.  But I think that's the point.  It keeps Emacs (and packages) from throwing files all over the place, so I have a clean =ls -l=.  Since I want to run this code as early as possible, I use the =straight-use-package= form instead of =use-package=.
 
 #+begin_src emacs-lisp
   (straight-use-package 'no-littering)
@@ -180,7 +227,25 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 
 ** Additional =use-package= keywords
 
-*** =:custom-update=
+*** [[https://github.com/a13/use-package-custom-update][:custom-update]]
+
+The =:custom-update= keyword lets me do this:
+
+#+begin_src emacs-lisp :tangle no
+  (use-package package
+    :custom-update
+    (package-list '(1 2 3)))
+#+end_src
+
+instead of this:
+
+#+begin_src emacs-lisp :tangle no
+  (use-package package
+    :config
+    (add-to-list 'package-list '(1 2 3)))
+#+end_src
+
+It's not ... perfect, but it's kind of nice.
 
 #+begin_src emacs-lisp
   (use-package use-package-custom-update
@@ -189,7 +254,9 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
                :repo "a13/use-package-custom-update"))
 #+end_src
 
-** Setup async
+** Setup [[https://github.com/jwiegley/emacs-async][async]]
+
+I thought this was included in Emacs at first, but it's not -- so we need to install and require it.
 
 #+begin_src emacs-lisp :tangle early-init.el
   (straight-use-package 'async)
@@ -200,6 +267,10 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
 
 ** Customizing variables
 
+I like =use-package= a lot, but I don't like using those shims you see in a lot of other Emacs configs where they use ~(use-package emacs)~ forms and stuff like that -- it just feels dirty.  Plus, =straight= gets confused about those packages sometimes.  So, since I'm actually /configuring/ Emacs in this Org file, which is nicely organized anyway, I can just set settings the old-school way.
+
+Except.  Using =setq= is actually /not/ recommended any more, because =customize-set-variable= is more expressive and can include side-effects.  However, not all settings are customizable, /and/ =customize-set-variable= is like, way longer to type.  So I've decided to write a little macro (my first!) to copy =use-package='s =:custom= keyword, except ... /outside/ =use-package=.  I've called it =cuss=, because I have a terrible sense of humor.
+
 #+begin_src emacs-lisp
   (defmacro cuss (var val)
     "Basically `use-package''s `:custom', but without using either."
@@ -208,9 +279,11 @@ It's highly likely that the WTFPL is completely incompatible with the GPL, for w
                 ',var ,val)))
 #+end_src
 
-* Theme
+* Theme: [[https://protesilaos.com/modus-themes/][Modus]]
 
-I'm using the [[https://protesilaos.com/modus-themes/][Modus]] themes.
+Protesilaos Stavrou's /excellent/ theme pair.  At some point I'll probably write my own that's really minimal and does some funky stuff with faces, but until then, these really are the best I've used.
+
+The big ~dolist~ form is from [[https://protesilaos.com/modus-themes/#h:a897b302-8e10-4a26-beab-3caaee1e1193][his documentation]]; it basically allows me to configure both themes before loading them.  I've tweaked his code a little to use =use-package=.
 
 #+begin_src emacs-lisp
   (defmacro modus-themes-format-sexp (sexp &rest objects)
@@ -219,36 +292,38 @@ I'm using the [[https://protesilaos.com/modus-themes/][Modus]] themes.
   (dolist (theme '("operandi" "vivendi"))
     (modus-themes-format-sexp
      (use-package modus-%1$s-theme
-       :init
-       (setq modus-%1$s-theme-slanted-constructs t
-             modus-%1$s-theme-bold-constructs t
-             modus-%1$s-theme-fringes 'subtle
-             modus-%1$s-theme-mode-line '3d
-             modus-%1$s-theme-syntax 'yellow-comments
-             modus-%1$s-theme-intense-hl-line nil
-             modus-%1$s-theme-intense-paren-match t
-             modus-%1$s-theme-links nil
-             modus-%1$s-theme-no-mixed-fonts nil
-             modus-%1$s-theme-prompts nil
-             modus-%1$s-theme-completions nil
-             modus-%1$s-theme-diffs nil
-             modus-%1$s-theme-org-blocks 'grayscale
-             modus-%1$s-theme-headings
-             '((1 . section)
-               (2 . line)
-               (t . rainbow-line-no-bold))
-             modus-%1$s-theme-variable-pitch-headings nil
-             modus-%1$s-theme-scale-headings t
-             modus-%1$s-theme-scale-1 1.1
-             modus-%1$s-theme-scale-2 1.15
-             modus-%1$s-theme-scale-3 1.21
-             modus-%1$s-theme-scale-4 1.27
-             modus-%1$s-theme-scale-5 1.33))
+       :custom
+       (modus-%1$s-theme-slanted-constructs t)
+       (modus-%1$s-theme-bold-constructs t)
+       (modus-%1$s-theme-fringes 'subtle)
+       (modus-%1$s-theme-mode-line '3d)
+       (modus-%1$s-theme-syntax 'yellow-comments)
+       (modus-%1$s-theme-intense-hl-line nil)
+       (modus-%1$s-theme-intense-paren-match t)
+       (modus-%1$s-theme-links nil)
+       (modus-%1$s-theme-no-mixed-fonts nil)
+       (modus-%1$s-theme-prompts nil)
+       (modus-%1$s-theme-completions nil)
+       (modus-%1$s-theme-diffs nil)
+       (modus-%1$s-theme-org-blocks 'grayscale)
+       (modus-%1$s-theme-headings
+        '((1 . section)
+          (2 . line)
+          (t . rainbow-line-no-bold)))
+       (modus-%1$s-theme-variable-pitch-headings nil)
+       (modus-%1$s-theme-scale-headings t)
+       (modus-%1$s-theme-scale-1 1.1)
+       (modus-%1$s-theme-scale-2 1.15)
+       (modus-%1$s-theme-scale-3 1.21)
+       (modus-%1$s-theme-scale-4 1.27)
+       (modus-%1$s-theme-scale-5 1.33)
        :custom-face
        (font-lock-comment-face
         ((t (:inherit (custom-comment italic variable-pitch))))))
      theme))
 #+end_src
+
+** Theme changer
 
 I also want to switch themes between night and day.
 
@@ -265,6 +340,8 @@ I also want to switch themes between night and day.
 
 ** Frame defaults
 
+I want no toolbar, menubar, or scrollbars (ideally I'd have a vertical scrollbar if necessary, but apparently that's too much to ask the Emacs devs); and fringes and window dividers 2 pixels wide.
+
 #+begin_src emacs-lisp
   (cuss default-frame-alist
         '((tool-bar-lines . 0)
@@ -279,6 +356,8 @@ I also want to switch themes between night and day.
 
 ** Minibuffer window/frame defaults
 
+Of course, on the minibuffer, I want to make sure there's no scrollbar -- even if I change my mind on =vertical-scroll-bars=, above.
+
 #+begin_src emacs-lisp
   (cuss minibuffer-frame-alist
         '((width . 80)
@@ -290,6 +369,8 @@ I also want to switch themes between night and day.
 
 ** Remove unneeded GUI elements
 
+The [[*Frame defaults][Frame Defaults]] section sets up the frame to be free of visual clutter, but /this/ section allows us to toggle that clutter's visibility easily, with one call to each of these functions.
+
 #+begin_src emacs-lisp
   (menu-bar-mode -1)
   (tool-bar-mode -1)
@@ -299,11 +380,15 @@ I also want to switch themes between night and day.
 
 ** Word wrap and operate visually
 
+=global-visual-line-mode= is one of those which, in my opinion, should be a default.  There's only one place I don't want to wrap words, and that's in =dired=, which I can set individually in its config.
+
 #+begin_src emacs-lisp
   (global-visual-line-mode 1)
 #+end_src
 
 ** Modeline
+
+*** [[https://github.com/Malabarba/smart-mode-line][smart-mode-line]]
 
 #+begin_src emacs-lisp
   (use-package smart-mode-line
@@ -311,7 +396,15 @@ I also want to switch themes between night and day.
     (sml/no-confirm-load-theme t)
     :config
     (sml/setup))
+#+end_src
 
+*** [[https://github.com/Malabarba/rich-minority][rich-minority]]
+
+=smart-mode-line= comes with =rich-minority= for taking care of minor modes in the modeline, so I'm not going to /also/ use =diminish= or anything.  However, =rich-minority= has kind of a hinky way of adding modes to the whitelist, so I had to write my own function to do so.
+
+This confuration means that, by default, no minor modes are shown; if you want  a minor mode to be shown (like =word-count-mode= for me), call ~(rm/whitelist-add "REGEXP")~.
+
+#+begin_src emacs-lisp
   (defun rm/whitelist-add (regexp)
     "Add a REGEXP to the whitelist for `rich-minority'."
     (if (listp 'rm--whitelist-regexps)
@@ -338,6 +431,8 @@ from [[http://ergoemacs.org/emacs/emacs_stop_cursor_enter_prompt.html][Ergo Emac
 
 ** Show =^L= as a line
 
+I like using the form-feed character to separate pages, it turns out.  'Tis nice.  This package turns that character into a nice long line.
+
 #+begin_src emacs-lisp
   (use-package form-feed
     :hook
@@ -346,12 +441,16 @@ from [[http://ergoemacs.org/emacs/emacs_stop_cursor_enter_prompt.html][Ergo Emac
 
 ** Cursor
 
+I want my cursor to be a bar in focused windows, but a hollow box in non-focused windows.
+
 #+begin_src emacs-lisp
   (cuss cursor-type 'bar)
   (cuss cursor-in-non-selected-windows 'hollow)
 #+end_src
 
 * Fonts
+
+This is the best way I've come up with to specify a number of different fonts that apply depending on what's applied.  To be honest, I didn't really come up with the =font-candidate= function, though -- I got it from the [[https://www.emacswiki.org/emacs/SetFonts#toc11]["Testing if fonts are available?"]] section of the SetFonts page on EmacsWiki.
 
 See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-launching-emacs-in-daemon-mode][this StackExchange question and answer]] for more information on why I have these font settings applied in a hook.
 
@@ -395,7 +494,9 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
   (add-hook 'focus-in-hook #'acdw/setup-fonts)
 #+end_src
 
-** Unicode
+** [[https://github.com/rolandwalker/unicode-fonts][unicode-fonts]]
+
+This does something similar to the above code, but for the entirety of the Unicode field (I think).
 
 #+begin_src emacs-lisp
   (use-package unicode-fonts
@@ -405,19 +506,44 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
 
 ** Variable pitch faces
 
+One reason I like the Modus themes so much is that they have /excellent/ support for variable-pitch faces, and mixing them with fixed-pitch faces in, say, Org Mode.  That means I can enable =variable-pitch-mode= in all my =text-mode=-derived buffers.
+
 #+begin_src emacs-lisp
   (add-hook 'text-mode-hook #'variable-pitch-mode)
 #+end_src
 
 * Ease of use
 
-** Selectrum & Prescient
+** Startup
+
+I want a minimal screen when I start Emacs.  Based on the beauty of configs like [[https://github.com/rougier/elegant-emacs][Nicolas Rougier's]] [[https://github.com/rougier/emacs-splash][splash screen]] [[https://github.com/rougier/nano-emacs][experiments]], I might try my hand at some kind of splash screen or dashboard -- but until then, a simple "Hi there!" will suffice 😎
+
+#+begin_src emacs-lisp
+  (cuss inhibit-startup-buffer-menu t)
+  (cuss inhibit-startup-screen t)
+  (cuss initial-buffer-choice t)
+  (cuss initial-scratch-message ";; Hi there!\n")
+#+end_src
+
+** Completing-read niceties
+
+=completing-read= is Emacs's selection-narrowing-slash-completion framework thing.  There's a bunch of packages for it, including =ido=, =icomplete=, =ivy=, and =helm=.  I use raxod52's =selectrum= and others, which /extend/ without /clobbering/ existing Emacs functionality.  Plus they seem to run faster, at least on Windows.
+
+*** [[https://github.com/raxod502/selectrum][selectrum]]
+
+=selectrum= is the basic /sorting and selecting items from a list/ functionality.  It's a drop-in replacement for =ido= or the really basic tab-completion Emacs has for, say, =find-file=.
 
 #+begin_src emacs-lisp
   (use-package selectrum
     :config
     (selectrum-mode 1))
+#+end_src
 
+*** [[https://github.com/raxod502/prescient.el][prescient]]
+
+=prescient= helps =selectrum= be more intelligent about sorting the candidates in a list -- it's in charge of the /filtering and sorting/ bit of =completing-read= and friends.  It has an algorithm that works well enough for me, though I keep hearing about [[https://github.com/oantolin/orderless][orderless]], enough to maybe try it as well sometime.
+
+#+begin_src emacs-lisp
   (use-package prescient
     :config
     (prescient-persist-mode 1))
@@ -428,7 +554,6 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
     (selectrum-prescient-mode 1))
 #+end_src
 
-** CtrlF
 *** [[https://github.com/minad/cconsult][consult]]
 
 =consult= is the newest package I have with this setup, and it kind of brings the =selectrum= experience up to par with =ivy='s -- it provides functions that list, say, recently used files /alongside/ buffers, allow you to search lines and go to them, etc.  It seems pretty nice so far.
@@ -456,6 +581,19 @@ By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announc
           #'consult-annotate-command-full))
 #+end_src
 
+*** Ignore case
+
+I don't like holding the Shift key if I can help it.
+
+#+BEGIN_SRC emacs-lisp
+  (cuss completion-ignore-case t)
+  (cuss read-buffer-completion-ignore-case t)
+  (cuss read-file-name-completion-ignore-case t)
+#+END_SRC
+
+** [[https://github.com/raxod502/ctrlf][ctrlf]]
+
+The biggest reason I use this over the default functionality of =C-s= is that =ctrlf-forward-*= wraps the search around by default.
 
 #+begin_src emacs-lisp
   (use-package ctrlf
@@ -470,24 +608,9 @@ By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announc
     (ctrlf-mode 1))
 #+end_src
 
-** Startup
+** [[https://github.com/justbur/emacs-which-key][which-key]]
 
-#+begin_src emacs-lisp
-  (cuss inhibit-startup-buffer-menu t)
-  (cuss inhibit-startup-screen t)
-  (cuss initial-buffer-choice t)
-  (cuss initial-scratch-message ";; Hi there!\n")
-#+end_src
-
-** Ignore case
-
-#+BEGIN_SRC emacs-lisp
-  (cuss completion-ignore-case t)
-  (cuss read-buffer-completion-ignore-case t)
-  (cuss read-file-name-completion-ignore-case t)
-#+END_SRC
-
-** Which key
+This package is really helpful for discovering functionality.  When I get more adept in my Emacs-fu, I might remove this.
 
 #+begin_src emacs-lisp
   (use-package which-key
@@ -499,7 +622,11 @@ By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announc
 
 ** Miscellaneous settings
 
-*** Set view mode when in a read-only file
+Maybe a better title for this section is *Other settings* -- or maybe I should put them somewhere else entirely.
+
+*** Set =view-mode= when in a read-only file
+
+=view-mode= gives easy-to-use keybindings, like Space for page-down, etc., which are nice to have when you can't edit the file anyway.
 
 #+begin_src emacs-lisp
   (cuss view-read-only t)
@@ -513,11 +640,15 @@ By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announc
 
 *** Enable all functions
 
+By default, Emacs disables some commands, because NeWbIeS wOuLd GeT cOnFuSeD or some ish.  I just want to use the dang editor!
+
 #+begin_src emacs-lisp
   (cuss disabled-command-function nil)
 #+end_src
 
 *** Shorter confirmations
+
+Instead of making me type /yes/ or /no/, just let me hit the /y/ or /n/ key.
 
 #+begin_src emacs-lisp
   (fset 'yes-or-no-p #'y-or-n-p)
@@ -525,12 +656,16 @@ By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announc
 
 *** Uniquify buffer names
 
+This names buffers with the same basename (e.g., =~/.config/emacs/config.org= and =~/.emacs.d/config.org=) in a better way than the default (=config.org<1>=, etc).
+
 #+begin_src emacs-lisp
   (require 'uniquify)
   (cuss uniquify-buffer-name-style 'forward)
 #+end_src
 
 *** Show buffer boundaries
+
+These little L-shaped graphics at the top and bottom of buffers don't do anything, but I like 'em.
 
 #+begin_src emacs-lisp
   (cuss indicate-buffer-boundaries
@@ -541,26 +676,15 @@ By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announc
 
 *** Hippie expand
 
+At some point, will probably replace with [[https://company-mode.github.io/][company]].
+
 #+begin_src emacs-lisp
   (global-set-key (kbd "M-/") 'hippie-expand)
 #+end_src
 
-*** iBuffer
+*** "[[https://git.sr.ht/~technomancy/better-defaults/tree/master/better-defaults.el][better defaults]]"
 
-#+begin_src emacs-lisp
-  (global-set-key (kbd "C-x C-b") 'ibuffer)
-#+end_src
-
-*** Zap-up-to-char, not zap-to-char
-
-#+begin_src emacs-lisp
-  (autoload 'zap-up-to-char "misc"
-    "Kill up to, but not including, ARGth occurrence of CHAR." t)
-
-  (global-set-key (kbd "M-z") 'zap-up-to-char)
-#+end_src
-
-*** Other "[[https://git.sr.ht/~technomancy/better-defaults/tree/master/better-defaults.el][better defaults]]"
+Most of these come from technomancy's repo, linked above, just copy-pasted into here.
 
 #+begin_src emacs-lisp
   (cuss save-interprogram-paste-before-kill t)
@@ -571,7 +695,28 @@ By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announc
   (cuss ediff-window-setup-function #'ediff-setup-windows-plain)
 #+end_src
 
+**** Zap-up-to-char, not zap-to-char
+
+Similarly to =ibuffer=, this is a Better default™.
+
+#+begin_src emacs-lisp
+  (autoload 'zap-up-to-char "misc"
+    "Kill up to, but not including, ARGth occurrence of CHAR." t)
+
+  (global-set-key (kbd "M-z") 'zap-up-to-char)
+#+end_src
+
+**** iBuffer
+
+A Better Default™ for =C-x C-b=.  I don't really use this, but everyone says it's worth it, so it's there.
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
+#+end_src
+
 *** So-long-mode
+
+I figure, why not go ahead and make Emacs deal with really long lines better?  Can't hurt, right?
 
 #+begin_src emacs-lisp
   (if (boundp 'global-so-long-mode)
@@ -579,6 +724,8 @@ By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announc
 #+end_src
 
 *** Change =just-one-space= to =cycle-space=
+
+I keep forgetting to actually /use/ this keybind (I think it's =M-SPC=?), but cycling spacing seems /way/ more useful than the default =just-one-space= function.
 
 #+begin_src emacs-lisp
   (defun acdw/cycle-spacing-1 ()
@@ -590,7 +737,11 @@ By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announc
 
 * Persistence
 
-** Auto-saves
+Honestly, persistence across sessions was one of the best things about my well-tuned Vim setup.  Here's where I try to repeat that with Emacs.
+
+** Auto-saves with [[https://github.com/bbatsov/super-save][super-save]]
+
+The default =auto-save= functionality isn't ... /enough/ for me.  I want to /actually/ save the files, and I don't care about =#file#= stuff.  So ... I use this package.
 
 #+begin_src emacs-lisp
   (use-package super-save
@@ -602,6 +753,8 @@ By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announc
 #+end_src
 
 ** Backup files
+
+To be honest, I probably don't need backup files at all.  At some point, I will probably delete this.
 
 #+begin_src emacs-lisp
   (cuss backup-directory-alist
@@ -615,20 +768,26 @@ By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announc
 
 ** Recent files
 
+Since I apparently /only/ edit my =config.org=, this is also probably not necessary -- I'd be better off just adding a ~(find-file (concat (user-emacs-directory "config.org")))~ at the end 😎
+
+But until then, it's really nice to have a =recentf= list.
+
 #+begin_src emacs-lisp
-  (use-package recentf
-    :custom-update
-    (recentf-exclude
-     '(no-littering-var-directory
-       no-littering-etc-directory))
-    :custom
-    (recentf-max-menu-items 100)
-    (recentf-max-saved-items 100)
-    :config
-    (recentf-mode 1))
+  (require 'recentf)
+
+  (add-to-list 'recentf-exclude
+               '(no-littering-var-directory
+                 no-littering-etc-directory))
+
+  (cuss recentf-max-menu-items 100)
+  (cuss recentf-max-saved-items 100)
+
+  (recentf-mode 1)
 #+end_src
 
 *** Easily navigate recent files
+
+Now I'm going through this, I might not need this function any more.  I'll have to see how =consult= goes.
 
 #+begin_src emacs-lisp
   (defun recentf-find-file ()
@@ -644,32 +803,38 @@ By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announc
 ** Save places in visited files
 
 #+begin_src emacs-lisp
-  (use-package saveplace
-    :custom
-    (save-place-file (no-littering-expand-var-file-name "places"))
-    (save-place-forget-unreadable-files (not
-                                         (eq system-type 'windows-nt))
-    :config
-    (save-place-mode 1)))
+  (require 'saveplace)
+
+  (cuss save-place-file (no-littering-expand-var-file-name "places"))
+
+  (cuss save-place-forget-unreadable-files
+        (not (eq system-type 'windows-nt)))
+
+  (save-place-mode 1)
 #+end_src
 
 ** Save history
 
 #+begin_src emacs-lisp
-  (use-package savehist
-    :custom
-    (savehist-additional-variables
-     '(kill-ring
-       search-ring
-       regexp-search-ring))
-    (savehist-save-minibuffer-history t)
-    (history-length t)
-    (history-delete-duplicates t)
-    :config
-    (savehist-mode 1))
+  (require 'savehist)
+
+  (cuss savehist-additional-variables
+        '(kill-ring
+          search-ring
+          regexp-search-ring))
+
+  (cuss savehist-save-minibuffer-history t)
+
+  (cuss history-length t)
+
+  (cuss history-delete-duplicates t)
+
+  (savehist-mode 1)
 #+end_src
 
-** Undo
+** Undo: [[https://gitlab.com/ideasman42/emacs-undo-fu-session][undo-fu-session]]
+
+The other Killer Feature of Neovim when I used it was the perisistent undo.  I /think/ this works the same.  Honestly, undo is giving me a little grief recently; I need to look into it.
 
 #+begin_src emacs-lisp
   (use-package undo-fu-session
@@ -687,6 +852,8 @@ By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announc
 * General editing
 
 ** File encoding
+
+I just want to use UTF-8 everywhere, and end all files with UNIX line endings (=^J=, or =LF=).  Hell, even Windows Notepad correctly reads UNIX files nowadays (though of course you can't configure it to /save/ the files in UNIX-mode).  However, since Emacs is ~40 years old, it has a billion different ways to set encodings.  This is my best attempt at setting everything up how I want it.
 
 I'm going to be honest -- most of this is a stab in the dark.
 
@@ -709,7 +876,9 @@ I'm going to be honest -- most of this is a stab in the dark.
   (add-hook 'find-file-hooks #'acdw/no-junk-please-were-unixish)
 #+end_src
 
-** Undo
+** [[https://gitlab.com/ideasman42/emacs-undo-fu][undo-fu]]
+
+I've heard that Emacs' undo is weird, so here I am, trying to make it .... /less/ weird.  I keep forgetting I've installed this though, so I might uninstall it at some point.
 
 #+begin_src emacs-lisp
   (use-package undo-fu
@@ -718,7 +887,9 @@ I'm going to be honest -- most of this is a stab in the dark.
     ("C-?" . undo-fu-only-redo))
 #+end_src
 
-** Find/replace
+** Find/replace: [[https://github.com/benma/visual-regexp.el][visual-regexp]]
+
+Another replacement for a Killer Feature in Neovim -- the ease of regexp find/replace was so wonderful, because I could easily see /what/ I'd be changing with a =%s= command, as well as /how/ it'd change.  This works... pretty similarly.  It could be a little better.
 
 #+begin_src emacs-lisp
   (use-package visual-regexp
@@ -729,7 +900,9 @@ I'm going to be honest -- most of this is a stab in the dark.
 
 ** Visual editing
 
-*** Volatile highlights
+*** [[https://github.com/k-talo/volatile-highlights.el][volatile-highlights]]
+
+Highlights text changed by certain operations.
 
 #+begin_src emacs-lisp
   (use-package volatile-highlights
@@ -737,7 +910,11 @@ I'm going to be honest -- most of this is a stab in the dark.
     (volatile-highlights-mode 1))
 #+end_src
 
-*** Expand region
+*** [[https://github.com/magnars/expand-region.el][expand-region]]
+
+I don't use this a /ton/, but not because it's not useful -- I just forget it's there sometimes.
+
+Basically, it allows you to do like a Kakoune-style incremental widening of the selection by semantic units.
 
  #+begin_src emacs-lisp
    (use-package expand-region
@@ -748,6 +925,8 @@ I'm going to be honest -- most of this is a stab in the dark.
 
 ** Clean up white space on save
 
+I'm not sure if I'll /keep/ this forever, because in combination with =super-save= I lose the final "thinking spaces" when I shift contexts to another window.
+
 #+begin_src emacs-lisp
   (add-hook 'before-save-hook #'whitespace-cleanup)
   (add-hook 'before-save-hook #'delete-trailing-whitespace)
@@ -755,13 +934,17 @@ I'm going to be honest -- most of this is a stab in the dark.
 
 ** Automatically revert a file to what it is on disk
 
+Revert a buffer to reflect what's on disk if it's changed outside of Emacs.
+
 #+begin_src emacs-lisp
   (global-auto-revert-mode 1)
 #+end_src
 
 * Writing
 
-** Word count
+Configurations related to writing prose or verse.
+
+** Word count: [[https://github.com/bnbeckwith/wc-mode][wc-mode]]
 
 #+begin_src emacs-lisp
   (use-package wc-mode
@@ -770,7 +953,11 @@ I'm going to be honest -- most of this is a stab in the dark.
     :hook text-mode)
 #+end_src
 
-** Visual fill column mode
+** [[https://github.com/joostkremers/visual-fill-column][visual-fill-column-mode]]
+
+Center the text part of the frame within a =fill-column=-sized area in the frame as a whole.
+
+The one thing I need to fix: binding scrolling to =<left-margin> <mouse-4>= and friends.
 
 #+begin_src emacs-lisp
   (use-package visual-fill-column
@@ -786,7 +973,11 @@ I'm going to be honest -- most of this is a stab in the dark.
     (text-mode . visual-fill-column-mode))
 #+end_src
 
-** Org mode
+** [[https://orgmode.org/][org-mode]]
+
+Pretty self-explanatory, I think...
+
+I need to break this config up and like, comment it better.
 
 #+begin_src emacs-lisp
   (use-package org
@@ -961,17 +1152,25 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
 
 * Coding
 
+The Other Thing Emacs is Good For.
+
 ** Formatting
 
-*** Indenting
+*** Indenting: [[https://github.com/Malabarba/aggressive-indent-mode][aggressive-indent-mode]]
+
+This automagically indents code on every change, as opposed to =electric-indent-mode=, which only does when I like, hit =RET= or whatever.  As such, I can turn =electric-indent-mode= off.
 
 #+begin_src emacs-lisp
   (use-package aggressive-indent
+    :init
+    (electric-indent-mode -1)
     :config
     (global-aggressive-indent-mode 1))
 #+end_src
 
-*** Smart tabs
+*** [[https://github.com/jcsalomon/smarttabs][Smart tabs]]
+
+I really want to like, use tabs all the time.  But I thought the =smart-tabs= package author made some good points about using tabs for semantic indentation, and spaces for the rest.  So.
 
 #+begin_src emacs-lisp
   (use-package smart-tabs-mode
@@ -988,6 +1187,8 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
 
 *** Prettify symbols mode
 
+By default, I think =prettify-symbols-mode= only changes =lambda= to =λ=.  I should, at some point, add some prettified symbols.
+
 #+begin_src emacs-lisp
   (add-hook 'prog-mode-hook #'prettify-symbols-mode)
 #+end_src
@@ -996,12 +1197,16 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
 
 **** =show-paren-style=
 
+A =mixed= =show-paren-style= means that, when both parentheses are visible, it just highlights them.  If one is /not/, though, it highlights the entire block.
+
 #+begin_src emacs-lisp
   (cuss show-paren-style 'mixed)
   (show-paren-mode 1)
 #+end_src
 
-**** Smartparens
+**** [[https://github.com/Fuco1/smartparens][smartparens]]
+
+Automagically close pairs and stuff.  See also [[https://www.emacswiki.org/emacs/ParEdit][ParEdit]] -- maybe test that one?
 
 #+begin_src emacs-lisp
   (use-package smartparens
@@ -1013,14 +1218,18 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
     (prog-mode . acdw/setup-smartparens))
 #+end_src
 
-**** Rainbow delimiters
+**** [[https://github.com/Fanael/rainbow-delimiters][rainbow-delimiters]]
+
+Show different pairs of delimiters in diffferent colors.  Pretty!  Useful!
 
 #+begin_src emacs-lisp
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
 
-*** Rainbow mode
+*** [[https://elpa.gnu.org/packages/rainbow-mode.html][rainbow-mode]]
+
+Show different colors /in that color/.  Useful!  Pretty!
 
 #+begin_src emacs-lisp
   (use-package rainbow-mode
@@ -1030,6 +1239,8 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
 #+end_src
 
 *** Line numbers
+
+I only want line numbers in =prog-mode=-derived modes.  In addition, apparently =linum-mode= works better in TUI, but is slower that =display-line-numbers=.  So I want to do some logic to see what to use.
 
 #+begin_src emacs-lisp
   (defun acdw/enable-line-numbers ()
@@ -1046,6 +1257,8 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
 #+end_src
 
 ** Programming languages
+
+These are the programming languages I (don't really) use.
 
 *** Fish shell
 
@@ -1107,7 +1320,17 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
 
 * Applications
 
-** Git
+Of course, the real reason we love emacs is for the application layer.  What is it they say?
+
+#+begin_quote
+Emacs is a great operating system, lacking only a decent editor.
+#+end_quote
+
+Yeah, that's it 😎
+
+** Git: [[https://magit.vc/][magit]]
+
+The magical porcelain.
 
 #+begin_src emacs-lisp
   (use-package magit
@@ -1151,8 +1374,9 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
      '(("duckwork"))))
 #+end_src
 
-
 ** Dired
+
+I'm still figuring out what all I can do with =dired=.
 
 #+begin_src emacs-lisp
   (with-eval-after-load 'dired
@@ -1165,6 +1389,8 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
 
 ** Proced
 
+The process editor.
+
 #+begin_src emacs-lisp
   (defun acdw/setup-proced ()
     (variable-pitch-mode -1)
@@ -1174,7 +1400,13 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
   (add-hook 'proced-mode-hook #'acdw/setup-proced)
 #+end_src
 
-** Elpher
+** Gemini (and gopher)
+
+*** [[https://thelambdalab.xyz/elpher/][elpher]]
+
+Actually, =elpher= is the reason I started using Emacs.  So thanks, smol web denizens!
+
+Fun fact: these packages are /also/ why I use =straight.el=, since they're none of them on GitHub.
 
 #+BEGIN_SRC emacs-lisp
   (use-package elpher
@@ -1206,7 +1438,13 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
                 ("G" . elpher-go-current))
     :hook
     (elpher-mode . visual-fill-column-mode))
+#+end_src
 
+*** [[https://git.carcosa.net/jmcbray/gemini.el][gemini-mode]]
+
+A major mode for =text/gemini= files.  I've changed the headings to match Elpher's.
+
+#+BEGIN_SRC emacs-lisp
   (use-package gemini-mode
     :straight (gemini-mode
                :repo "https://git.carcosa.net/jmcbray/gemini.el.git")
@@ -1226,19 +1464,33 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
     (gemini-mode . acdw/setup-gemini-mode))
 #+end_src
 
+*** [[https://alexschroeder.ch/cgit/gemini-write/about/][gemini-write]]
+
+Alex Schroeder's Emacs implementation of the Titan protocol.  This is why I use his Gemini server, [[https://alexschroeder.ch/cgit/phoebe/][Phoebe]]!
+
+#+BEGIN_SRC emacs-lisp
   (use-package gemini-write
     :straight (gemini-write
                :repo "https://alexschroeder.ch/cgit/gemini-write")
     :config
-    (add-to-list 'elpher-gemini-tokens
-                 (acdw-secrets/elpher-gemini-tokens)))
+    (when (boundp 'acdw-secrets/elpher-gemini-tokens)
+      (add-to-list 'elpher-gemini-tokens
+                   (acdw-secrets/elpher-gemini-tokens))))
+#+end_src
 
+*** [[https://git.sr.ht/~acdw/post-to-gemlog-blue.el][post-to-gemlog-blue]]
+
+My first (!) Emacs package, to allow posting to [[https://gemlog.blue][gemlog.blue's web interface]].  I don't use gemlog.blue any more, but if I didn't have this package, no one would 😎
+
+#+BEGIN_SRC emacs-lisp
   (use-package post-to-gemlog-blue
     :straight (post-to-gemlog-blue
                :repo "https://git.sr.ht/~acdw/post-to-gemlog-blue.el"))
 #+END_SRC
 
-** Pastebin (0x0)
+** Pastebin: [[https://git.sr.ht/~zge/nullpointer-emacs][0x0]]
+
+Pastebins are so useful.  Now I can use them from Emacs.
 
 #+BEGIN_SRC emacs-lisp
   (use-package 0x0
@@ -1246,7 +1498,9 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
     (0x0-default-service 'ttm))
 #+END_SRC
 
-** Mu4e
+** [[https://www.djcbsoftware.nl/code/mu/mu4e.html][mu4e]]
+
+I've just recently started (again) using mu4e.  We'll see how it goes.
 
 #+begin_src emacs-lisp
   (when (executable-find "mu")
