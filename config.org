@@ -1218,8 +1218,13 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
      ((t (:inherit (elpher-gemini-heading2)))))
     (gemini-heading-face3
      ((t (:inherit (elpher-gemini-heading3)))))
+    :init
+    (defun acdw/setup-gemini-mode ()
+      (visual-fill-column-mode 1)
+      (variable-pitch-mode -1))
     :hook
-    (gemini-mode . visual-fill-column-mode))
+    (gemini-mode . acdw/setup-gemini-mode))
+#+end_src
 
   (use-package gemini-write
     :straight (gemini-write
