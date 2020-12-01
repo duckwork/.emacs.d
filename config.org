@@ -429,6 +429,33 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
 #+end_src
 
 ** CtrlF
+*** [[https://github.com/minad/cconsult][consult]]
+
+=consult= is the newest package I have with this setup, and it kind of brings the =selectrum= experience up to par with =ivy='s -- it provides functions that list, say, recently used files /alongside/ buffers, allow you to search lines and go to them, etc.  It seems pretty nice so far.
+
+By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announcement thread for consult]] has a great comment by the author detailing [[https://www.reddit.com/r/emacs/comments/k3c0u7/consult_counselswiper_alternative_for/ge460z3/][the differences between different completing-read implementations]] that actually is what convinced me to try =consult=.
+
+#+begin_src emacs-lisp
+  (use-package consult
+    :after (selectrum)
+    :straight (consult
+               :host github
+               :repo "minad/consult")
+    :bind (("C-x b" . consult-buffer)
+           ("C-x 4 b" . consult-buffer-other-window)
+           ("C-x 5 b" . consult-buffer-other-frame)
+           ("M-g o" . consult-outline)
+           ("M-g l" . consult-line)
+           ("M-y" . consult-yank-pop)
+           ("<help> a" . consult-apropos))
+    :init
+    (fset 'multi-occur #'consult-multi-occur)
+    (consult-annotate-mode)
+    :config
+    (setf (alist-get 'execute-extended-command consult-annotate-alist)
+          #'consult-annotate-command-full))
+#+end_src
+
 
 #+begin_src emacs-lisp
   (use-package ctrlf
