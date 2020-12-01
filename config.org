@@ -244,6 +244,9 @@ I'm using the [[https://protesilaos.com/modus-themes/][Modus]] themes.
              modus-%1$s-theme-scale-3 1.21
              modus-%1$s-theme-scale-4 1.27
              modus-%1$s-theme-scale-5 1.33))
+       :custom-face
+       (font-lock-comment-face
+        ((t (:inherit (custom-comment italic variable-pitch))))))
      theme))
 #+end_src
 
