@@ -836,6 +836,8 @@ Now I'm going through this, I might not need this function any more.  I'll have 
 
 The other Killer Feature of Neovim when I used it was the perisistent undo.  I /think/ this works the same.  Honestly, undo is giving me a little grief recently; I need to look into it.
 
+Note to self: if I /do/ switch away from =undo-fu=, look at [[https://github.com/emacsorphanage/undohist][undohist]].
+
 #+begin_src emacs-lisp
   (use-package undo-fu-session
     :after (no-littering undo-fu)
