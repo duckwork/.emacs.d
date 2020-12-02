@@ -512,6 +512,14 @@ One reason I like the Modus themes so much is that they have /excellent/ support
   (add-hook 'text-mode-hook #'variable-pitch-mode)
 #+end_src
 
+** Padding
+
+This has been taken from [[https://lepisma.xyz/2017/10/28/ricing-org-mode/]["Ricing Org Mode"]] -- of course, I want the typographic niceties everywhere.
+
+#+begin_src emacs-lisp
+  (cuss line-spacing 0.1)
+#+end_src
+
 * Ease of use
 
 ** Startup
