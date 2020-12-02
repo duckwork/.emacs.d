@@ -1360,7 +1360,10 @@ The magical porcelain.
     :bind
     ("C-x g" . magit-status)
     :custom-update
-    (magit-no-confirm '(stage-all-changes)))
+    (magit-no-confirm '(stage-all-changes))
+    :config
+    (add-hook 'magit-process-find-password-functions
+              #'magit-process-password-auth-source))
 #+end_src
 
 *** Hook into =prescient=
