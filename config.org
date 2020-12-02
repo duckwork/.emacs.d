@@ -1389,6 +1389,17 @@ I'm still figuring out what all I can do with =dired=.
     (bind-key "C-c w" #'wdired-change-to-wdired-mode 'dired-mode-map))
 #+end_src
 
+*** dired-subtree
+
+Part of the [[https://github.com/Fuco1/dired-hacks][dired-hacks]] package.
+
+#+begin_src emacs-lisp
+  (use-package dired-subtree
+    :bind (:map dired-mode-map
+                (("i" . dired-subtree-insert)
+                 (";" . dired-subtree-remove))))
+#+end_src
+
 ** Proced
 
 The process editor.
