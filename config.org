@@ -1016,6 +1016,20 @@ I need to break this config up and like, comment it better.
     (org-ellipsis " ⋯ "))
 #+end_src
 
+*** Make bullets look like centered dots
+
+from [[https://zzamboni.org/post/beautifying-org-mode-in-emacs/][zzamboni.org]]
+
+#+begin_src emacs-lisp
+  (font-lock-add-keywords
+   'org-mode
+   '(("^ *\\([-+]\\) "
+      (0 (prog1 ()
+           (compose-region (match-beginning 1)
+                           (match-end 1)
+                           "•"))))))
+#+end_src
+
 *** Enable markdown export
 
 #+begin_src emacs-lisp
