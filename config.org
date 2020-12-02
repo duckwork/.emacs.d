@@ -448,8 +448,9 @@ I want my cursor to be a bar in focused windows, but a hollow box in non-focused
   (cuss cursor-in-non-selected-windows 'hollow)
 #+end_src
 
-* Fonts
+* Typesetting
 
+** Fonts
 This is the best way I've come up with to specify a number of different fonts that apply depending on what's applied.  To be honest, I didn't really come up with the =font-candidate= function, though -- I got it from the [[https://www.emacswiki.org/emacs/SetFonts#toc11]["Testing if fonts are available?"]] section of the SetFonts page on EmacsWiki.
 
 See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-launching-emacs-in-daemon-mode][this StackExchange question and answer]] for more information on why I have these font settings applied in a hook.
