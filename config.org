@@ -1636,4 +1636,4 @@ Here's a wrapper script that'll start =emacs --daemon= if there isn't one, and t
 - [[https://github.com/rolandwalker/dynamic-fonts][Dynamic fonts]] -- take a look @ this and compare with my fonts section
 - [[https://github.com/rolandwalker/simpleclip][Simple clipboard integration]] -- test with Windows, maybe
 - [[https://git.sr.ht/~iank/visible-mark][visible mark]] -- show where the marks are ...
--
+- consider this Reddit thread: [[https://www.reddit.com/r/emacs/comments/k3xfa1/speeding_up_magit/][speeding up magit]]
