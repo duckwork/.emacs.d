@@ -1627,3 +1627,13 @@ Here's a wrapper script that'll start =emacs --daemon= if there isn't one, and t
       emacsclient -nc "$@"
   fi
 #+end_src
+
+* Appendix B: areas for further research
+
+- [[https://github.com/flexibeast/ebuku][ebuku]] (of course, I'd need [[https://github.com/jarun/buku][buku]] as well) -- bookmarks
+- [[https://www.billdietrich.me/Authentication.html?expandall=1#KeePassXCandSecretService][KeePassXC as Secret Service]]
+- [[https://github.com/rolandwalker/ignoramus][Ignoramus]] -- this might not e necessary
+- [[https://github.com/rolandwalker/dynamic-fonts][Dynamic fonts]] -- take a look @ this and compare with my fonts section
+- [[https://github.com/rolandwalker/simpleclip][Simple clipboard integration]] -- test with Windows, maybe
+- [[https://git.sr.ht/~iank/visible-mark][visible mark]] -- show where the marks are ...
+-
