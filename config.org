@@ -1008,10 +1008,12 @@ I need to break this config up and like, comment it better.
     (org-hide-emphasis-markers t)
     (org-fontify-done-headline t)
     (org-fontify-whole-heading-line t)
+    (org-fontify-quote-and-verse-blocks t)
     (org-hide-leading-stars t)
     (org-hidden-keywords '(author date title))
     (org-src-window-setup 'current-window)
-    (org-pretty-entities t))
+    (org-pretty-entities t)
+    (org-ellipsis " ⮟"))
 #+end_src
 
 *** Enable markdown export
