@@ -378,6 +378,18 @@ The [[*Frame defaults][Frame Defaults]] section sets up the frame to be free of 
   (horizontal-scroll-bar-mode -1)
 #+end_src
 
+** Tabs
+
+I'm kind of getting into Emacs tabs -- but I like not showing the =tab-bar= when there's only one.
+
+#+begin_src emacs-lisp
+  (cuss tab-bar-show 1)
+
+  (cuss tab-bar-tab-name-function 'tab-bar-tab-name-current-with-count)
+
+  (tab-bar-mode 1)
+#+end_src
+
 ** Word wrap and operate visually
 
 =global-visual-line-mode= is one of those which, in my opinion, should be a default.  There's only one place I don't want to wrap words, and that's in =dired=, which I can set individually in its config.
