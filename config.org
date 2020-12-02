@@ -295,7 +295,7 @@ The big ~dolist~ form is from [[https://protesilaos.com/modus-themes/#h:a897b302
        :custom
        (modus-%1$s-theme-slanted-constructs t)
        (modus-%1$s-theme-bold-constructs t)
-       (modus-%1$s-theme-fringes 'subtle)
+       (modus-%1$s-theme-fringes nil)
        (modus-%1$s-theme-mode-line '3d)
        (modus-%1$s-theme-syntax 'yellow-comments)
        (modus-%1$s-theme-intense-hl-line nil)
@@ -309,8 +309,8 @@ The big ~dolist~ form is from [[https://protesilaos.com/modus-themes/#h:a897b302
        (modus-%1$s-theme-headings
         '((1 . section)
           (2 . line)
-          (t . rainbow-line-no-bold)))
-       (modus-%1$s-theme-variable-pitch-headings nil)
+          (t . rainbow-line)))
+       (modus-%1$s-theme-variable-pitch-headings t)
        (modus-%1$s-theme-scale-headings t)
        (modus-%1$s-theme-scale-1 1.1)
        (modus-%1$s-theme-scale-2 1.15)
