@@ -959,8 +959,6 @@ Configurations related to writing prose or verse.
 
 Center the text part of the frame within a =fill-column=-sized area in the frame as a whole.
 
-The one thing I need to fix: binding scrolling to =<left-margin> <mouse-4>= and friends.
-
 #+begin_src emacs-lisp
   (use-package visual-fill-column
     :custom
@@ -973,6 +971,18 @@ The one thing I need to fix: binding scrolling to =<left-margin> <mouse-4>= and 
                 :after #'visual-fill-column-adjust)
     :hook
     (text-mode . visual-fill-column-mode))
+#+end_src
+
+*** Fix mouse bindings
+
+In =visual-fill-column-mode=, mouse bindings on the margins don't work.  In fact, they don't work when /not/ in =visual-fill-column-mode=.  Let's bind those bindings.
+
+#+begin_src emacs-lisp
+  (bind-key [left-margin wheel-down] 'scroll-down-command)
+  (bind-key [right-margin wheel-down] 'scroll-down-command)
+
+  (bind-key [left-margin wheel-up] 'scroll-up-command)
+  (bind-key [right-margin wheel-up] 'scroll-up-command)
 #+end_src
 
 ** [[https://orgmode.org/][org-mode]]
