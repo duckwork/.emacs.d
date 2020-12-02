@@ -1477,7 +1477,7 @@ Alex Schroeder's Emacs implementation of the Titan protocol.  This is why I use 
     :config
     (when (boundp 'acdw-secrets/elpher-gemini-tokens)
       (add-to-list 'elpher-gemini-tokens
-                   (acdw-secrets/elpher-gemini-tokens))))
+                   acdw-secrets/elpher-gemini-tokens)))
 #+end_src
 
 *** [[https://git.sr.ht/~acdw/post-to-gemlog-blue.el][post-to-gemlog-blue]]
