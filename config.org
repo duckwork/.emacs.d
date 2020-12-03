@@ -194,7 +194,8 @@ So far, this is the best package manager I've used.  It allows for /truly/ decla
 
 The one annoying thing is that this bootstrap code doesn't work on Windows for some reason.  I'm too lazy to really try and figure out why, so when I need to bootstrap on Windows (pretty rare, TBH), I just [[https://github.com/raxod502/straight.el/archive/master.zip][download the master-branch zip file]] and extract it to =~/.emacs.d/straight/repos/=.
 
-#+begin_src emacs-lisp :tangle early-init.el
+#+NAME: straight-bootstrap
+#+begin_src emacs-lisp :tangle no
   (defvar bootstrap-version)
   (let ((bootstrap-file
          (expand-file-name "straight/repos/straight.el/bootstrap.el"
@@ -208,6 +209,16 @@ The one annoying thing is that this bootstrap code doesn't work on Windows for s
         (goto-char (point-max))
         (eval-print-last-sexp)))
     (load bootstrap-file nil 'nomessage))
+#+end_src
+
+** ... but first: override the definition of straight.el to use the =develop= branch
+
+For the KeePassXC bits later, I need the =develop= branch of straight, so I can pass a =:build= keyword.  I can do this, but I have to override the recipe for =straight.el= itself.  I do that here.  For more information, see [[https://github.com/raxod502/straight.el#overriding-recipes][the README]].
+
+#+begin_src emacs-lisp :tangle early-init.el :noweb yes
+  (setq straight-repository-branch "develop")
+
+  <<straight-bootstrap>>
 #+end_src
 
 ** Use [[https://jwiegley.github.io/use-package/][use-package]]
