@@ -389,8 +389,6 @@ I'm kind of getting into Emacs tabs -- but I like not showing the =tab-bar= when
   (cuss tab-bar-show 1)
 
   (cuss tab-bar-tab-name-function 'tab-bar-tab-name-current-with-count)
-
-  (tab-bar-mode 1)
 #+end_src
 
 ** Word wrap and operate visually
