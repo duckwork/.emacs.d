@@ -1646,11 +1646,13 @@ I've just recently started (again) using mu4e.  We'll see how it goes.
 
 #+end_src
 
-* Appendix A: ~emacsdc~ script
+* Appendix A: Scripts
+
+** ~emacsdc~
 
 Here's a wrapper script that'll start =emacs --daemon= if there isn't one, and then launche =emacsclient= on the arguments.  I'd recommend installing with ~ln -s emacsdc ~/.local/bin/~ or something.  Then you can set it as your ~$EDITOR~!
 
-#+begin_src sh :shebang "#!/bin/sh" :tangle emacsdc
+#+begin_src sh :shebang "#!/bin/sh" :tangle bin/emacsdc
   if ! emacsclient -nc "$@" 2>/dev/null; then
       emacs --daemon
       emacsclient -nc "$@"
