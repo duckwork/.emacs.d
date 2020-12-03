@@ -1537,8 +1537,8 @@ Alex Schroeder's Emacs implementation of the Titan protocol.  This is why I use 
                :repo "https://alexschroeder.ch/cgit/gemini-write")
     :config
     (when (boundp 'acdw-secrets/elpher-gemini-tokens)
-      (add-to-list 'elpher-gemini-tokens
-                   acdw-secrets/elpher-gemini-tokens)))
+      (dolist (token acdw-secrets/elpher-gemini-tokens)
+        (add-to-list 'elpher-gemini-tokens token))))
 #+end_src
 
 *** [[https://git.sr.ht/~acdw/post-to-gemlog-blue.el][post-to-gemlog-blue]]
