@@ -150,15 +150,18 @@ Let's try to speed startup times by increasing the garbage collector's threshold
 When using Windows (at work), I need to use the PortableGit installation I've downloaded, since I don't have Admin privileges.
 
 	(when (eq system-type 'windows-nt)
-	  (dolist (path '("C:/Users/aduckworth/Downloads/PortableGit/bin"
+	  (dolist (path '("c:/Users/aduckworth/Downloads/emacs/bin"
+    		  "C:/Users/aduckworth/Downloads/PortableGit/bin"
     		  "C:/Users/aduckworth/Downloads/PortableGit/usr/bin"))
 		(add-to-list 'exec-path path)))
 
 Elsewhere, I want to add a few more paths to the `exec-path` as well, since I store scripts in a couple of places at ~.
 
-	(dolist (path '("~/bin"
-    		"~/.local/bin"
-    		"~/Scripts"))
+	(dolist (path `(,(expand-file-name "bin"
+    				   user-emacs-directory)
+    		,(expand-file-name "~/bin")
+    		,(expand-file-name "~/.local/bin")
+    		,(expand-file-name "~/Scripts")))
 	  (add-to-list 'exec-path path))
 
 
@@ -306,7 +309,7 @@ I also want to switch themes between night and day.
 # Simplify GUI
 
 
-<a id="orga685025"></a>
+<a id="org6553b8c"></a>
 
 ## Frame defaults
 
@@ -337,7 +340,7 @@ Of course, on the minibuffer, I want to make sure there's no scrollbar &#x2013; 
 
 ## Remove unneeded GUI elements
 
-The [Frame Defaults](#orga685025) section sets up the frame to be free of visual clutter, but *this* section allows us to toggle that clutter's visibility easily, with one call to each of these functions.
+The [Frame Defaults](#org6553b8c) section sets up the frame to be free of visual clutter, but *this* section allows us to toggle that clutter's visibility easily, with one call to each of these functions.
 
 	(menu-bar-mode -1)
 	(tool-bar-mode -1)
@@ -352,8 +355,6 @@ I'm kind of getting into Emacs tabs &#x2013; but I like not showing the `tab-bar
 	(cuss tab-bar-show 1)
 
 	(cuss tab-bar-tab-name-function 'tab-bar-tab-name-current-with-count)
-
-	(tab-bar-mode 1)
 
 
 ## Word wrap and operate visually
@@ -928,11 +929,17 @@ Center the text part of the frame within a `fill-column`-sized area in the frame
 
 In `visual-fill-column-mode`, mouse bindings on the margins don't work.  In fact, they don't work when *not* in `visual-fill-column-mode`.  Let's bind those bindings.
 
-	(bind-key [left-margin wheel-down] 'scroll-down-command)
-	(bind-key [right-margin wheel-down] 'scroll-down-command)
+	(dolist (vec '([left-margin wheel-down]
+    	       [left-margin mouse-5]
+    	       [right-margin wheel-down]
+    	       [right-margin mouse-5]))
+	  (bind-key vec 'scroll-down-command))
 
-	(bind-key [left-margin wheel-up] 'scroll-up-command)
-	(bind-key [right-margin wheel-up] 'scroll-up-command)
+	(dolist (vec '([left-margin wheel-up]
+    	       [left-margin mouse-4]
+    	       [right-margin wheel-up]
+    	       [right-margin mouse-4]))
+	  (bind-key vec 'scroll-up-command))
 
 
 ## [org-mode](https://orgmode.org/)
@@ -1437,8 +1444,8 @@ Alex Schroeder's Emacs implementation of the Titan protocol.  This is why I use 
     	     :repo "https://alexschroeder.ch/cgit/gemini-write")
 	  :config
 	  (when (boundp 'acdw-secrets/elpher-gemini-tokens)
-		(add-to-list 'elpher-gemini-tokens
-    		 acdw-secrets/elpher-gemini-tokens)))
+		(dolist (token acdw-secrets/elpher-gemini-tokens)
+		  (add-to-list 'elpher-gemini-tokens token))))
 
 
 ### [post-to-gemlog-blue](https://git.sr.ht/~acdw/post-to-gemlog-blue.el)
@@ -1539,7 +1546,10 @@ I've just recently started (again) using mu4e.  We'll see how it goes.
     	     :branch "main"))
 
 
-# Appendix A: `emacsdc` script
+# Appendix A: Scripts
+
+
+## `emacsdc`
 
 Here's a wrapper script that'll start `emacs --daemon` if there isn't one, and then launche `emacsclient` on the arguments.  I'd recommend installing with `ln -s emacsdc ~/.local/bin/` or something.  Then you can set it as your `$EDITOR`!
 
