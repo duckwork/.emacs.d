@@ -171,7 +171,8 @@ When using Windows (at work), I need to use the PortableGit installation I've do
 
 #+begin_src emacs-lisp :tangle early-init.el
   (when (eq system-type 'windows-nt)
-    (dolist (path '("C:/Users/aduckworth/Downloads/PortableGit/bin"
+    (dolist (path '("c:/Users/aduckworth/Downloads/emacs/bin"
+                    "C:/Users/aduckworth/Downloads/PortableGit/bin"
                     "C:/Users/aduckworth/Downloads/PortableGit/usr/bin"))
       (add-to-list 'exec-path path)))
 #+end_src
@@ -179,9 +180,11 @@ When using Windows (at work), I need to use the PortableGit installation I've do
 Elsewhere, I want to add a few more paths to the =exec-path= as well, since I store scripts in a couple of places at ~.
 
 #+begin_src emacs-lisp :tangle early-init.el
-  (dolist (path '("~/bin"
-                  "~/.local/bin"
-                  "~/Scripts"))
+  (dolist (path `(,(expand-file-name "bin"
+                                     user-emacs-directory)
+                  ,(expand-file-name "~/bin")
+                  ,(expand-file-name "~/.local/bin")
+                  ,(expand-file-name "~/Scripts")))
     (add-to-list 'exec-path path))
 #+end_src
 
