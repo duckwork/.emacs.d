@@ -1661,6 +1661,37 @@ I've just recently started (again) using mu4e.  We'll see how it goes.
 
 #+end_src
 
+** KeePassXC integration
+
+I use KeePassXC, and I'd /like/ to use KeePassXC to get passwords and stuff at home.  So I'm trying this library out, since the secret-tool integration isn't built into the KeePassXC on Void.  If this doesn't work, looks like I'll have to become a packager 😜
+
+#+begin_src emacs-lisp :noweb yes
+  (when (eq system-type 'gnu/linux)
+    <<use-package-sodium>>
+    (use-package keepassxc
+      :straight (keepassxc
+                 :host github
+                 :repo "dakra/keepassxc.el")
+      :after (sodium)))
+#+end_src
+
+*** libsodium integration
+
+I had to manually run ~make~ in the repo this time around, for some reason.  Should probably look into that ... when it's not 1:00 AM.
+
+#+NAME: use-package-sodium
+#+begin_src emacs-lisp :tangle no
+  (use-package sodium
+    :straight (sodium
+               :host github
+               :repo "dakra/sodium.el"
+               :build ("make"))
+    :init
+    (add-to-list 'load-path
+                 (expand-file-name "straight/repos/sodium.el"
+                                   user-emacs-directory)))
+#+end_src
+
 * Appendix A: Scripts
 
 ** ~emacsdc~
