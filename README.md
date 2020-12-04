@@ -186,6 +186,27 @@ The one annoying thing is that this bootstrap code doesn't work on Windows for s
 	  (load bootstrap-file nil 'nomessage))
 
 
+## &#x2026; but first: override the definition of straight.el to use the `develop` branch
+
+For the KeePassXC bits later, I need the `develop` branch of straight, so I can pass a `:build` keyword.  I can do this, but I have to override the recipe for `straight.el` itself.  I do that here.  For more information, see [the README](https://github.com/raxod502/straight.el#overriding-recipes).
+
+	(setq straight-repository-branch "develop")
+
+	(defvar bootstrap-version)
+	(let ((bootstrap-file
+		   (expand-file-name "straight/repos/straight.el/bootstrap.el"
+    			 user-emacs-directory))
+		  (bootstrap-version 5))
+	  (unless (file-exists-p bootstrap-file)
+		(with-current-buffer
+    	(url-retrieve-synchronously
+    	 "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
+    	 'silent 'inhibit-cookies)
+		  (goto-char (point-max))
+		  (eval-print-last-sexp)))
+	  (load bootstrap-file nil 'nomessage))
+
+
 ## Use [use-package](https://jwiegley.github.io/use-package/)
 
 Like I said, `straight.el` hooks into `use-package` easily.  These two lines get the latter to use the former by default.
@@ -309,7 +330,7 @@ I also want to switch themes between night and day.
 # Simplify GUI
 
 
-<a id="org6553b8c"></a>
+<a id="org1f12d35"></a>
 
 ## Frame defaults
 
@@ -340,7 +361,7 @@ Of course, on the minibuffer, I want to make sure there's no scrollbar &#x2013; 
 
 ## Remove unneeded GUI elements
 
-The [Frame Defaults](#org6553b8c) section sets up the frame to be free of visual clutter, but *this* section allows us to toggle that clutter's visibility easily, with one call to each of these functions.
+The [Frame Defaults](#org1f12d35) section sets up the frame to be free of visual clutter, but *this* section allows us to toggle that clutter's visibility easily, with one call to each of these functions.
 
 	(menu-bar-mode -1)
 	(tool-bar-mode -1)
@@ -976,6 +997,24 @@ from [zzamboni.org](https://zzamboni.org/post/beautifying-org-mode-in-emacs/)
     			 "•"))))))
 
 
+### [org-superstar](https://github.com/integral-dw/org-superstar-mode)
+
+	(use-package org-superstar
+	  :custom
+	  (org-superstar-headline-bullets-list
+	   '(?❧ ?✪ ?③ ?④ ?⑤ ?⑥ ?⑦ ?⑧ ?⑨ ?●))
+	  (org-superstar-cycle-headline-bullets nil)
+	  (org-superstar-item-bullet-alist
+	   '((?* . ?★)
+		 (?+ . ?‣)
+		 (?- . ?•)))
+	  :custom-face
+	  (org-superstar-header-bullet
+	   ((t (:weight normal))))
+	  :hook
+	  (org-mode . org-superstar-mode))
+
+
 ### Enable markdown export
 
 	(require 'ox-md)
@@ -1546,6 +1585,44 @@ I've just recently started (again) using mu4e.  We'll see how it goes.
     	     :branch "main"))
 
 
+<a id="orgb5347d4"></a>
+
+## KeePassXC integration
+
+I use KeePassXC, and I'd *like* to use KeePassXC to get passwords and stuff at home.  So I'm trying this library out, since the secret-tool integration isn't built into the KeePassXC on Void.  If this doesn't work, looks like I'll have to become a packager 😜
+
+	(when (eq system-type 'gnu/linux)
+	  (use-package sodium
+		:straight (sodium
+    	       :host github
+    	       :repo "dakra/sodium.el"
+    	       :build ("make"))
+		:init
+		(add-to-list 'load-path
+    		 (expand-file-name "straight/repos/sodium.el"
+    				   user-emacs-directory)))
+	  (use-package keepassxc
+		:straight (keepassxc
+    	       :host github
+    	       :repo "dakra/keepassxc.el")
+		:after (sodium)))
+
+
+### libsodium integration
+
+I had to manually run `make` in the repo this time around, for some reason.  Should probably look into that &#x2026; when it's not 1:00 AM.
+
+	(use-package sodium
+	  :straight (sodium
+    	     :host github
+    	     :repo "dakra/sodium.el"
+    	     :build ("make"))
+	  :init
+	  (add-to-list 'load-path
+    	       (expand-file-name "straight/repos/sodium.el"
+    				 user-emacs-directory)))
+
+
 # Appendix A: Scripts
 
 
@@ -1562,9 +1639,18 @@ if ! emacsclient -nc "$@" 2>/dev/null; then
 # Appendix B: areas for further research
 
 -   [ebuku](https://github.com/flexibeast/ebuku) (of course, I'd need [buku](https://github.com/jarun/buku) as well) &#x2013; bookmarks
--   [KeePassXC as Secret Service](https://www.billdietrich.me/Authentication.html?expandall=1#KeePassXCandSecretService)
+-   [KeePassXC as Secret Service](https://www.billdietrich.me/Authentication.html?expandall=1#KeePassXCandSecretService) &#x2013; see [14.7](#orgb5347d4)
 -   [Ignoramus](https://github.com/rolandwalker/ignoramus) &#x2013; this might not e necessary
 -   [Dynamic fonts](https://github.com/rolandwalker/dynamic-fonts) &#x2013; take a look @ this and compare with my fonts section
 -   [Simple clipboard integration](https://github.com/rolandwalker/simpleclip) &#x2013; test with Windows, maybe
 -   [visible mark](https://git.sr.ht/~iank/visible-mark) &#x2013; show where the marks are &#x2026;
 -   consider this Reddit thread: [speeding up magit](https://www.reddit.com/r/emacs/comments/k3xfa1/speeding_up_magit/)
+
+
+## export org to ODT on Windows
+
+Windows doesn't have `zip` natively (though it *does* have `curl` &#x2013; go figure!), so the ODT export for Org-mode won't work.  There *is* a [StackOverflow discussion](https://stackoverflow.com/questions/8625306/org-mode-zip-needed-how-to-over-come) that mentions `p7zip` and a possible batch file, but I couldn't get that to work with a little testing.  It might need more work.
+
+Something that *did* work was downloading `zip.exe` from [Info-ZIP](http://infozip.sourceforge.net/), and placing it somewhere in `exec-path` &#x2013; though of course, *then* you need `unzip.exe`, apparently in the same folder.  Git Portable ships with `unzip.exe`, for example, but even though it's in `exec-path`, org-export threw an error unless `zip` and `unzip` were in the *same* folder.
+
+So I might either (a) have to set up computers in this way when I use new ones, or (b) include both `zip.exe` and `unzip.exe` in *this* Git repo, or &#x2026; something else.  A true quandry.
