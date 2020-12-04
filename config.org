@@ -1407,16 +1407,6 @@ These are the programming languages I (don't really) use.
     :mode "\\.fnl\\'")
 #+end_src
 
-**** Elisp
-
-***** [[https://www.emacswiki.org/emacs/ElispFormat][elisp-format]]
-
-#+begin_src emacs-lisp
-  (use-package elisp-format
-    :hook
-    (before-save . elisp-format-buffer))
-#+end_src
-
 *** Lua
 
 #+begin_src emacs-lisp
