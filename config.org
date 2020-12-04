@@ -1737,6 +1737,22 @@ This way, I can configure my feeds in an [[file:elfeed.org][org file]]!
     (elfeed-org))
 #+end_src
 
+** Emacs Web WOWser
+
+I can /not/ get over how hilarious this name is 😜
+
+#+begin_src emacs-lisp
+  (use-package eww
+    :custom
+    (shr-animate-image nil)
+    :bind (:map eww-mode-map
+                ("b" . #'eww-back-url)
+                ("f" . #'eww-forward-url))
+    :config
+    (require 'url-cookie)
+    (cuss url-cookie-confirmation t))
+#+end_src
+
 * Appendix A: Scripts
 
 ** ~emacsdc~
