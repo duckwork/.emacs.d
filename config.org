@@ -1050,7 +1050,7 @@ I need to break this config up and like, comment it better.
 
 from [[https://zzamboni.org/post/beautifying-org-mode-in-emacs/][zzamboni.org]]
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (font-lock-add-keywords
    'org-mode
    '(("^ *\\([-+]\\) "
@@ -1058,6 +1058,25 @@ from [[https://zzamboni.org/post/beautifying-org-mode-in-emacs/][zzamboni.org]]
            (compose-region (match-beginning 1)
                            (match-end 1)
                            "•"))))))
+#+end_src
+
+*** [[https://github.com/integral-dw/org-superstar-mode][org-superstar]]
+
+#+begin_src emacs-lisp
+  (use-package org-superstar
+    :custom
+    (org-superstar-headline-bullets-list
+     '(?❧ ?✪ ?③ ?④ ?⑤ ?⑥ ?⑦ ?⑧ ?⑨ ?●))
+    (org-superstar-cycle-headline-bullets nil)
+    (org-superstar-item-bullet-alist
+     '((?* . ?★)
+       (?+ . ?‣)
+       (?- . ?•)))
+    :custom-face
+    (org-superstar-header-bullet
+     ((t (:weight normal))))
+    :hook
+    (org-mode . org-superstar-mode))
 #+end_src
 
 *** Enable markdown export
