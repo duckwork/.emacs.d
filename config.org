@@ -1768,19 +1768,23 @@ Here's a wrapper script that'll start =emacs --daemon= if there isn't one, and t
 
 * Appendix B: areas for further research
 
-- [[https://github.com/flexibeast/ebuku][ebuku]] (of course, I'd need [[https://github.com/jarun/buku][buku]] as well) -- bookmarks
-- [[https://www.billdietrich.me/Authentication.html?expandall=1#KeePassXCandSecretService][KeePassXC as Secret Service]] -- see [[*KeePassXC integration]]
-- [[https://github.com/rolandwalker/ignoramus][Ignoramus]] -- this might not e necessary
-- [[https://github.com/rolandwalker/dynamic-fonts][Dynamic fonts]] -- take a look @ this and compare with my fonts section
-- [[https://github.com/rolandwalker/simpleclip][Simple clipboard integration]] -- test with Windows, maybe
-- [[https://git.sr.ht/~iank/visible-mark][visible mark]] -- show where the marks are ...
-- consider this Reddit thread: [[https://www.reddit.com/r/emacs/comments/k3xfa1/speeding_up_magit/][speeding up magit]]
-- [[https://github.com/legalnonsense/org-visual-outline][org-visual-outline]] -- interesting org organization tool
-
-** export org to ODT on Windows
+** TODO [[https://github.com/flexibeast/ebuku][ebuku]] (of course, I'd need [[https://github.com/jarun/buku][buku]] as well) -- bookmarks
+** TODO [[https://github.com/rolandwalker/ignoramus][Ignoramus]] -- this might not e necessary
+** TODO [[https://git.sr.ht/~iank/visible-mark][visible mark]] -- show where the marks are ...
+** TODO consider this Reddit thread: [[https://www.reddit.com/r/emacs/comments/k3xfa1/speeding_up_magit/][speeding up magit]]
+** TODO [[https://github.com/legalnonsense/org-visual-outline][org-visual-outline]] -- interesting org organization tool
+** TODO export org to ODT on Windows
 
 Windows doesn't have =zip= natively (though it /does/ have =curl= -- go figure!), so the ODT export for Org-mode won't work.  There /is/ a [[https://stackoverflow.com/questions/8625306/org-mode-zip-needed-how-to-over-come][StackOverflow discussion]] that mentions =p7zip= and a possible batch file, but I couldn't get that to work with a little testing.  It might need more work.
 
 Something that /did/ work was downloading =zip.exe= from [[http://infozip.sourceforge.net/][Info-ZIP]], and placing it somewhere in =exec-path= -- though of course, /then/ you need =unzip.exe=, apparently in the same folder.  Git Portable ships with =unzip.exe=, for example, but even though it's in =exec-path=, org-export threw an error unless =zip= and =unzip= were in the /same/ folder.
 
 So I might either (a) have to set up computers in this way when I use new ones, or (b) include both =zip.exe= and =unzip.exe= in /this/ Git repo, or ... something else.  A true quandry.
+
+** TODO Fix slowdown on =C-x 8 RET=
+
+I think it has something to do with the package =consult=, because it was /slow/, but not *this slow* before installing it.  Since it's slow anyway, I'm thinking I should figure out how to turn off =selectrum= when selecting a Unicode character anyway.  Maybe advice?
+
+** TODO Figure out Org-mode TODOs
+
+I need some standard once, and also some specific ones for this section.
