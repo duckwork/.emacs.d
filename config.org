@@ -1749,7 +1749,7 @@ I had to manually run ~make~ in the repo this time around, for some reason.  Sho
 
 ** [[https://github.com/skeeto/elfeed][elfeed]]
 
-Let's use Emacs as a feed reader!
+Let's use Emacs as a feed reader!  A number of these tweaks are from [[https://karthinks.com/software/lazy-elfeed/]["Lazy Elfeed"]].
 
 #+begin_src emacs-lisp
   (use-package elfeed
