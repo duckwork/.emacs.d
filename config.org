@@ -1733,6 +1733,7 @@ Here's a wrapper script that'll start =emacs --daemon= if there isn't one, and t
 - [[https://github.com/rolandwalker/simpleclip][Simple clipboard integration]] -- test with Windows, maybe
 - [[https://git.sr.ht/~iank/visible-mark][visible mark]] -- show where the marks are ...
 - consider this Reddit thread: [[https://www.reddit.com/r/emacs/comments/k3xfa1/speeding_up_magit/][speeding up magit]]
+- [[https://github.com/legalnonsense/org-visual-outline][org-visual-outline]] -- interesting org organization tool
 
 ** export org to ODT on Windows
 
