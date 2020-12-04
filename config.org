@@ -1719,7 +1719,8 @@ Let's use Emacs as a feed reader!
   (use-package elfeed
     :when (executable-find "curl")
     :hook
-    (elfeed-show-mode . visual-fill-column-mode))
+    (elfeed-show-mode . visual-fill-column-mode)
+    (kill-emacs . elfeed-db-compact))
 #+end_src
 
 *** [[elfeed-org][elfeed-org]]
