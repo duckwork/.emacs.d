@@ -1371,6 +1371,13 @@ I only want line numbers in =prog-mode=-derived modes.  In addition, apparently 
   (add-hook 'prog-mode-hook #'acdw/enable-line-numbers)
 #+end_src
 
+*** [[https://github.com/tarsius/hl-todo][hl-todo]]
+
+#+begin_src emacs-lisp
+  (use-package hl-todo
+    :hook (prog-mode . hl-todo-mode))
+#+end_src
+
 ** Programming languages
 
 These are the programming languages I (don't really) use.
