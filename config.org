@@ -660,6 +660,8 @@ This package is really helpful for discovering functionality.  When I get more a
   (use-package which-key
     :custom
     (which-key-popup-type 'minibuffer)
+    (which-key-separator " ")
+    (which-key-prefix-prefix "+")
     :config
     (which-key-mode))
 #+end_src
