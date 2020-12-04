@@ -1,0 +1,22 @@
+#+TITLE:Elfeed ... feeds
+#+AUTHOR:Case Duckworth
+
+* Feeds :elfeed:
+
+** Fwends :friends:
+
+*** [[http://lambdacreate.com/static/feed.rss][wsinatra]]
+
+*** [[https://eli.li/feed.rss][elioat]]
+
+** Programming :prog:
+
+*** [[https://planet.emacslife.com/atom.xml][Planet Emacs]] :emacs:
+
+*** [[https://stallman.org/rss/rss.xml][R M Stallman]]
+
+** Comix :comics:
+
+** Fun :fun:
+
+*** [[https://icanhas.cheezburger.com/rss][I Can Haz Cheezburger?]]

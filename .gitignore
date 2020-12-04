@@ -1,9 +1,13 @@
+# ignore everything
 *
+
+# except ...
 !config.org
 !init.el
 !.gitignore
 !README.md
-# other files
+
+# and ...
 !var/
 var/*
 !var/elpher-bookmarks.el
@@ -12,3 +16,5 @@ var/*
 etc/*
 !etc/eshell
 !etc/eshell/*
+
+!elfeed.org

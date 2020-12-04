@@ -1711,6 +1711,31 @@ I had to manually run ~make~ in the repo this time around, for some reason.  Sho
                                    user-emacs-directory)))
 #+end_src
 
+** [[https://github.com/skeeto/elfeed][elfeed]]
+
+Let's use Emacs as a feed reader!
+
+#+begin_src emacs-lisp
+  (use-package elfeed
+    :when (executable-find "curl")
+    :hook
+    (elfeed-show-mode . visual-fill-column-mode))
+#+end_src
+
+*** [[elfeed-org][elfeed-org]]
+
+This way, I can configure my feeds in an [[file:elfeed.org][org file]]!
+
+#+begin_src emacs-lisp
+  (use-package elfeed-org
+    :custom
+    (rmh-elfeed-org-files
+     (list (expand-file-name "elfeed.org"
+                             user-emacs-directory)))
+    :init
+    (elfeed-org))
+#+end_src
+
 * Appendix A: Scripts
 
 ** ~emacsdc~
