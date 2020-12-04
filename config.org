@@ -392,6 +392,17 @@ The [[*Frame defaults][Frame Defaults]] section sets up the frame to be free of 
   (horizontal-scroll-bar-mode -1)
 #+end_src
 
+** Silky scrolling
+
+from [[https://pizza.eli.li/wiki/emacs-config/][elioat]]
+
+#+begin_src emacs-lisp
+  (cuss scroll-margin 0)
+  (cuss scroll-conservatively 10000)
+  (cuss scroll-preserve-screen-position t)
+  (cuss auto-window-vscroll nil)
+#+end_src
+
 ** Tabs
 
 I'm kind of getting into Emacs tabs -- but I like not showing the =tab-bar= when there's only one.
@@ -1012,16 +1023,28 @@ In =visual-fill-column-mode=, mouse bindings on the margins don't work.  In fact
 
 #+begin_src emacs-lisp
   (dolist (vec '([left-margin wheel-down]
-                 [left-margin mouse-5]
-                 [right-margin wheel-down]
-                 [right-margin mouse-5]))
+                 [right-margin wheel-down]))
     (bind-key vec 'scroll-down-command))
 
   (dolist (vec '([left-margin wheel-up]
-                 [left-margin mouse-4]
-                 [right-margin wheel-up]
-                 [right-margin mouse-4]))
+                 [right-margin wheel-up]))
     (bind-key vec 'scroll-up-command))
+#+end_src
+
+=mouse-4= and =mouse-5= are also =wheel-up= and =wheel-down=, but they're reversed on *larry*, which uses "natural scrolling."  I don't know, I like it.
+
+#+begin_src emacs-lisp
+  (dolist (vec '([left-margin mouse-4]
+                 [right-margin mouse-4]))
+    (if (string= system-name "larry")
+        (bind-key vec 'scroll-down-command)
+      (bind-key vec 'scroll-up-command)))
+
+  (dolist (vec '([left-margin mouse-5]
+                 [right-margin mouse-5]))
+    (if (string= system-name "larry")
+        (bind-key vec 'scroll-up-command)
+      (bind-key vec 'scroll-down-command)))
 #+end_src
 
 ** [[https://orgmode.org/][org-mode]]
