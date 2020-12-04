@@ -1314,6 +1314,8 @@ A =mixed= =show-paren-style= means that, when both parentheses are visible, it j
 
 #+begin_src emacs-lisp
   (cuss show-paren-style 'mixed)
+  (cuss show-paren-delay 0)
+
   (show-paren-mode 1)
 #+end_src
 
