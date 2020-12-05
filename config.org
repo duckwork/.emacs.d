@@ -111,6 +111,7 @@ Finally, I want an easier way to load the generated init files than the old =M-x
 
 #+begin_src emacs-lisp
   (defun acdw/load-init ()
+    "Load my init files."
     (interactive)
     (load-file (expand-file-name
                 (concat user-emacs-directory "early-init.el")))
