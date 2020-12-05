@@ -9,16 +9,26 @@
 
 *** [[https://eli.li/feed.rss][elioat]]
 
+*** [[https://www.acdw.net/atom.xml][ACDW]]
+
+*** [[https://text.causal.agency/feed.atom][june]]
+
+*** kylie
+
+**** [[https://www.somas.is/notes.atom][notes]]
+
+**** [[https://www.somas.is/rhizome.atom][rhizome]]
+
+*** [[https://p1k3.com/all.xml][brennan]]
+
 ** Programming :prog:
 
 *** [[https://planet.emacslife.com/atom.xml][Planet Emacs]] :emacs:
 
-*** [[https://stallman.org/rss/rss.xml][R M Stallman]]
-
 *** [[https://nullprogram.com/feed/][nullprogram, Chris Wellons]]
+
+*** [[https://malleable.systems/blog/index.xml][Malleable Systems]]
 
 ** Comix :comics:
 
 ** Fun :fun:
-
-*** [[https://icanhas.cheezburger.com/rss][I Can Haz Cheezburger?]]
