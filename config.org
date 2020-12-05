@@ -142,12 +142,15 @@ While this is like, the /dumbest/ way to do this, it's what I'm doing right now.
 #+end_src
 
 * Early initiation
+:PROPERTIES:
+:header-args: :tangle early-init.el
+:END:
 
 Starting with version 27.1, Emacs loads =early-init.el= /before/ =init.el=, setting up early stuff like package management, etc.  Since I use an alternative package manager, I have to bootstrap it here.
 
 Of course, I also want to set some really early-on settings here too, like =load-prefer-newer= -- why not?
 
-#+begin_src emacs-lisp :tangle early-init.el :comments no
+#+begin_src emacs-lisp :comments no
 ;; early-init.el -*- lexical-binding: t; no-byte-compile: t -*-
   (setq load-prefer-newer t)
 #+end_src
@@ -156,7 +159,7 @@ Of course, I also want to set some really early-on settings here too, like =load
 
 Let's try to speed startup times by increasing the garbage collector's threshold while running init.  Note the hook afterwards that restores it to a reasonable default.
 
-#+begin_src emacs-lisp :tangle early-init.el
+#+begin_src emacs-lisp
   (setq gc-cons-threshold (* 100 100 1000))
 
   (add-hook 'after-init-hook
@@ -170,7 +173,7 @@ Let's try to speed startup times by increasing the garbage collector's threshold
 
 When using Windows (at work), I need to use the PortableGit installation I've downloaded, since I don't have Admin privileges.
 
-#+begin_src emacs-lisp :tangle early-init.el
+#+begin_src emacs-lisp
   (when (eq system-type 'windows-nt)
     (dolist (path '("c:/Users/aduckworth/Downloads/emacs/bin"
                     "C:/Users/aduckworth/Downloads/PortableGit/bin"
@@ -180,7 +183,7 @@ When using Windows (at work), I need to use the PortableGit installation I've do
 
 Elsewhere, I want to add a few more paths to the =exec-path= as well, since I store scripts in a couple of places at ~.
 
-#+begin_src emacs-lisp :tangle early-init.el
+#+begin_src emacs-lisp
   (dolist (path `(,(expand-file-name "bin"
                                      user-emacs-directory)
                   ,(expand-file-name "~/bin")
@@ -196,7 +199,7 @@ So far, this is the best package manager I've used.  It allows for /truly/ decla
 The one annoying thing is that this bootstrap code doesn't work on Windows for some reason.  I'm too lazy to really try and figure out why, so when I need to bootstrap on Windows (pretty rare, TBH), I just [[https://github.com/raxod502/straight.el/archive/master.zip][download the master-branch zip file]] and extract it to =~/.emacs.d/straight/repos/=.
 
 #+NAME: straight-bootstrap
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
   (defvar bootstrap-version)
   (let ((bootstrap-file
          (expand-file-name "straight/repos/straight.el/bootstrap.el"
@@ -216,7 +219,7 @@ The one annoying thing is that this bootstrap code doesn't work on Windows for s
 
 For the KeePassXC bits later, I need the =develop= branch of straight, so I can pass a =:build= keyword.  I can do this, but I have to override the recipe for =straight.el= itself.  I do that here.  For more information, see [[https://github.com/raxod502/straight.el#overriding-recipes][the README]].
 
-#+begin_src emacs-lisp :tangle early-init.el :noweb yes
+#+begin_src emacs-lisp :noweb yes :tangle no
   (setq straight-repository-branch "develop")
 
   <<straight-bootstrap>>
@@ -226,7 +229,7 @@ For the KeePassXC bits later, I need the =develop= branch of straight, so I can 
 
 Like I said, =straight.el= hooks into =use-package= easily.  These two lines get the latter to use the former by default.
 
-#+begin_src emacs-lisp :tangle early-init.el
+#+begin_src emacs-lisp
   (setq straight-use-package-by-default t)
   (straight-use-package 'use-package)
 #+end_src
@@ -273,7 +276,7 @@ It's not ... perfect, but it's kind of nice.
 
 I thought this was included in Emacs at first, but it's not -- so we need to install and require it.
 
-#+begin_src emacs-lisp :tangle early-init.el
+#+begin_src emacs-lisp
   (straight-use-package 'async)
   (require 'async)
 #+end_src
@@ -619,11 +622,28 @@ By the way, the [[https://www.reddit.com/r/emacs/comments/k3c0u7][Reddit announc
            ("M-y" . consult-yank-pop)
            ("<help> a" . consult-apropos))
     :init
-    (fset 'multi-occur #'consult-multi-occur)
-    (consult-annotate-mode)
-    :config
-    (setf (alist-get 'execute-extended-command consult-annotate-alist)
-          #'consult-annotate-command-full))
+    (fset 'multi-occur #'consult-multi-occur))
+#+end_src
+
+*** [[https://github.com/minad/marginalia/][Marginalia]]
+
+These provide /marginalia/ in the minibuffer.  Until like, December 4, 2020, they were part of =consult=.  So let's try them out.
+
+#+begin_src emacs-lisp
+  (use-package marginalia
+    :straight (marginalia
+               :host github
+               :repo "minad/marginalia"
+               :branch "main")
+    :init
+    (marginalia-mode)
+    ;; Enable richer annotations for M-x.
+    ;; Only keybindings are shown by default, in order to reduce noise for this very common command.
+    ;; * marginalia-annotate-symbol: Annotate with the documentation string
+    ;; * marginalia-annotate-command-binding (default): Annotate only with the keybinding
+    ;; * marginalia-annotate-command-full: Annotate with the keybinding and the documentation string
+    (setf (alist-get 'command marginalia-annotator-alist)
+          #'marginalia-annotate-command-full))
 #+end_src
 
 *** Ignore case
@@ -1721,7 +1741,7 @@ I've just recently started (again) using mu4e.  We'll see how it goes.
 
 I use KeePassXC, and I'd /like/ to use KeePassXC to get passwords and stuff at home.  So I'm trying this library out, since the secret-tool integration isn't built into the KeePassXC on Void.  If this doesn't work, looks like I'll have to become a packager 😜
 
-#+begin_src emacs-lisp :noweb yes
+#+begin_src emacs-lisp :noweb yes :tangle no
   (when (eq system-type 'gnu/linux)
     <<use-package-sodium>>
     (use-package keepassxc
