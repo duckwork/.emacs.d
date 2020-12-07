@@ -1879,6 +1879,16 @@ I can /not/ get over how hilarious this name is 😜
 look at [[https://github.com/dieggsy/esh-autosuggest/][esh-autosuggest]] and [[https://www.masteringemacs.org/article/complete-guide-mastering-eshell][mastering eshell]] and stuff.  idk.
 oh and [[https://github.com/kyagi/shell-pop-el][shell pop]] too.
 
+** [[https://github.com/politza/pdf-tools][PDF Tools]]
+
+There's a few things that have to be installed to use PDF Tools, but I've got them installed on =larry=.  Once I write them down, I'll expand this out to both my linux machines.
+
+#+begin_src emacs-lisp
+  (use-package pdf-tools
+    :init
+    (pdf-loader-install))
+#+end_src
+
 * Appendix A: Scripts
 
 ** ~emacsdc~
