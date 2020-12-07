@@ -5,6 +5,7 @@
 #+OPTIONS: toc:nil
 #+OPTIONS: title:t
 #+BANKRUPTCY_COUNT: 2
+#+Time-stamp: <2020-12-06 13:21:56 acdw>
 
 This is my Emacs configuration.  It's also a literate =org-mode= file.  Yeah, I'm a cool guy.
 
