@@ -5,7 +5,7 @@
 #+OPTIONS: toc:nil
 #+OPTIONS: title:t
 #+BANKRUPTCY_COUNT: 2
-#+Time-stamp: <2020-12-06 13:21:56 acdw>
+#+Time-stamp: <2020-12-07 08:25:11 acdw>
 
 This is my Emacs configuration.  It's also a literate =org-mode= file.  Yeah, I'm a cool guy.
 
@@ -1885,9 +1885,10 @@ oh and [[https://github.com/kyagi/shell-pop-el][shell pop]] too.
 There's a few things that have to be installed to use PDF Tools, but I've got them installed on =larry=.  Once I write them down, I'll expand this out to both my linux machines.
 
 #+begin_src emacs-lisp
-  (use-package pdf-tools
-    :init
-    (pdf-loader-install))
+  (when (string= (system-name) "larry")
+    (use-package pdf-tools
+      :init
+      (pdf-loader-install)))
 #+end_src
 
 * Appendix A: Scripts
