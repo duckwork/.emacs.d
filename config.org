@@ -389,9 +389,9 @@ The [[*Frame defaults][Frame Defaults]] section sets up the frame to be free of 
 
 ** Silky scrolling
 
-from [[https://pizza.eli.li/wiki/emacs-config/][elioat]]
+from [[https://pizza.eli.li/wiki/emacs-config/][elioat]].  I think it's causing a slowdown in scrolling for me, so I'm disabling it until I figure that out.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
   (cuss scroll-margin 0)
   (cuss scroll-conservatively 10000)
   (cuss scroll-preserve-screen-position t)
