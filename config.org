@@ -1139,7 +1139,7 @@ I need to break this config up and like, comment it better.
     (org-fontify-done-headline t)
     (org-fontify-whole-heading-line t)
     (org-fontify-quote-and-verse-blocks t)
-    (org-hide-leading-stars t)
+    (org-hide-leading-stars nil)
     (org-hidden-keywords '(author date title))
     (org-src-window-setup 'current-window)
     (org-pretty-entities t)
@@ -1166,12 +1166,14 @@ from [[https://zzamboni.org/post/beautifying-org-mode-in-emacs/][zzamboni.org]]
   (use-package org-superstar
     :custom
     (org-superstar-headline-bullets-list
-     '(?❧ ?✪ ?③ ?④ ?⑤ ?⑥ ?⑦ ?⑧ ?⑨ ?●))
+     '(?—))
     (org-superstar-cycle-headline-bullets nil)
     (org-superstar-item-bullet-alist
      '((?* . ?★)
        (?+ . ?‣)
        (?- . ?•)))
+    (org-superstar-special-todo-items t)
+    (org-superstar-leading-bullet '(" ."))
     :custom-face
     (org-superstar-header-bullet
      ((t (:weight normal))))
