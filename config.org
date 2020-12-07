@@ -589,6 +589,15 @@ I want a minimal screen when I start Emacs.  Based on the beauty of configs like
   (cuss initial-scratch-message ";; Hi there!\n")
 #+end_src
 
+** Don't use =customize=
+
+I use customize to discover different things Emacs can do, but I (a) don't want to write the customizations to my =init.el= and (b) I don't want to load them on startup.  One source of truth for me thanks!
+
+#+begin_src emacs-lisp
+  (cuss custom-file
+        (no-littering-expand-etc-file-name "custom.el"))
+#+end_src
+
 ** Completing-read niceties
 
 =completing-read= is Emacs's selection-narrowing-slash-completion framework thing.  There's a bunch of packages for it, including =ido=, =icomplete=, =ivy=, and =helm=.  I use raxod52's =selectrum= and others, which /extend/ without /clobbering/ existing Emacs functionality.  Plus they seem to run faster, at least on Windows.
