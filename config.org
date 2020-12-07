@@ -1035,8 +1035,13 @@ Also of interest: [[https://github.com/hrehfeld/emacs-smart-hungry-delete][smart
   (use-package hungry-delete
     :custom
     (hungry-delete-join-reluctantly t)
-    :config
+    :custom-update
+    (hungry-delete-except-modes
+     '(emacs-lisp-mode
+       lisp-mode
+       fennel-mode))
     (global-hungry-delete-mode))
+    :config
 #+end_src
 
 ** Automatically revert a file to what it is on disk
