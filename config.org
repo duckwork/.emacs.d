@@ -301,60 +301,51 @@ Except.  Using =setq= is actually /not/ recommended any more, because =customize
 
 Protesilaos Stavrou's /excellent/ theme pair.  At some point I'll probably write my own that's really minimal and does some funky stuff with faces, but until then, these really are the best I've used.
 
-The big ~dolist~ form is from [[https://protesilaos.com/modus-themes/#h:a897b302-8e10-4a26-beab-3caaee1e1193][his documentation]]; it basically allows me to configure both themes before loading them.  I've tweaked his code a little to use =use-package=.
+He's recently updated the themes to 1.0.0, with a refactor and betterment; my config here reflects that change.
 
 #+begin_src emacs-lisp
-  (defmacro modus-themes-format-sexp (sexp &rest objects)
-    `(eval (read (format ,(format "%S" sexp) ,@objects))))
-
-  (dolist (theme '("operandi" "vivendi"))
-    (modus-themes-format-sexp
-     (use-package modus-%1$s-theme
-       :custom
-       (modus-%1$s-theme-slanted-constructs t)
-       (modus-%1$s-theme-bold-constructs t)
-       (modus-%1$s-theme-fringes nil)
-       (modus-%1$s-theme-mode-line '3d)
-       (modus-%1$s-theme-syntax 'yellow-comments)
-       (modus-%1$s-theme-intense-hl-line nil)
-       (modus-%1$s-theme-intense-paren-match t)
-       (modus-%1$s-theme-links nil)
-       (modus-%1$s-theme-no-mixed-fonts nil)
-       (modus-%1$s-theme-prompts nil)
-       (modus-%1$s-theme-completions nil)
-       (modus-%1$s-theme-diffs nil)
-       (modus-%1$s-theme-org-blocks 'grayscale)
-       (modus-%1$s-theme-headings
-        '((1 . section)
-          (2 . line)
-          (t . rainbow-line)))
-       (modus-%1$s-theme-variable-pitch-headings t)
-       (modus-%1$s-theme-scale-headings t)
-       (modus-%1$s-theme-scale-1 1.1)
-       (modus-%1$s-theme-scale-2 1.15)
-       (modus-%1$s-theme-scale-3 1.21)
-       (modus-%1$s-theme-scale-4 1.27)
-       (modus-%1$s-theme-scale-5 1.33)
-       :custom-face
-       (font-lock-comment-face
-        ((t (:inherit (custom-comment italic variable-pitch))))))
-     theme))
-#+end_src
-
-** Theme changer
-
-I also want to switch themes between night and day.
-
-#+begin_src emacs-lisp
-  (use-package theme-changer
+  (use-package modus-themes
+    :straight (modus-themes
+               :host gitlab
+               :repo "protesilaos/modus-themes"
+               :branch "main")
     :custom
-    (calendar-latitude 30.39)
-    (calendar-longitude -91.83)
-    :config
-    (change-theme 'modus-operandi 'modus-vivendi))
+    (modus-themes-slanted-constructs t)
+    (modus-themes-bold-constructs t)
+    (modus-themes-fringes nil)
+    (modus-themes-mode-line '3d)
+    (modus-themes-syntax 'yellow-comments)
+    (modus-themes-intense-hl-line nil)
+    (modus-themes-paren-match 'intense-bold)
+    (modus-themes-links nil)
+    (modus-themes-no-mixed-fonts nil)
+    (modus-themes-prompts nil)
+    (modus-themes-completions nil)
+    (modus-themes-diffs nil)
+    (modus-themes-org-blocks 'grayscale)
+    (modus-themes-headings
+     '())
+    (modus-themes-variable-pitch-headings t)
+    (modus-themes-scale-headings t)
+    (modus-themes-scale-1 1.1)
+    (modus-themes-scale-2 1.15)
+    (modus-themes-scale-3 1.21)
+    (modus-themes-scale-4 1.27)
+    (modus-themes-scale-5 1.33)
+    :custom-face
+    (font-lock-comment-face
+     ((t (:inherit (custom-comment italic variable-pitch)))))
+    :init
+    (load-theme 'modus-operandi t))
 #+end_src
 
-* Simplify GUI
+Due to the new =modus-themes-load-operandi= and =modus-themes-load-vivendi= funcitons, I don't need =theme-changer= any more -- but I still need to set up the themes to change at sunrise and sunset.  Well, I'll do that later -- for now I'll use a key to toggle them.
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "<f10>") #'modus-themes-toggle)
+#+end_src
+
+* GUI
 
 ** Frame defaults
 
@@ -457,6 +448,14 @@ This confuration means that, by default, no minor modes are shown; if you want  
     (rm/whitelist-add "^$"))
 #+end_src
 
+*** Which-function-mode
+
+Show the name of the current function in the modeline.  Also works in Org mode to display the current header.  Very cool!
+
+#+begin_src emacs-lisp
+  (which-function-mode 1)
+#+end_src
+
 ** Minibuffer
 
 *** Keep cursor from going into the prompt
@@ -487,6 +486,23 @@ I want my cursor to be a bar in focused windows, but a hollow box in non-focused
   (cuss cursor-in-non-selected-windows 'hollow)
 #+end_src
 
+** Buffer decorations
+*** Show buffer boundaries
+
+These little L-shaped graphics at the top and bottom of buffers don't do anything, but I like 'em.
+
+#+begin_src emacs-lisp
+  (cuss indicate-buffer-boundaries
+        '((top . right)
+          (bottom . right)
+          (t . nil)))
+#+end_src
+
+*** Indicate empty lines at the end of the buffer
+#+begin_src emacs-lisp
+  (cuss indicate-empty-lines t)
+#+end_src
+
 * Typesetting
 
 ** Fonts
@@ -511,16 +527,16 @@ See [[https://emacs.stackexchange.com/questions/12351/when-to-call-find-font-if-
                         (font-candidate
                          "Libertinus Mono-11"
                          "Linux Libertine Mono O-11"
-                         "Go Mono-11"
-                         "Consolas-11"))
+                         "Go Mono-10"
+                         "Consolas-10"))
 
     (set-face-attribute 'fixed-pitch nil
                         :font
                         (font-candidate
                          "Libertinus Mono-11"
                          "Linux Libertine Mono O-11"
-                         "Go Mono-11"
-                         "Consolas-11"))
+                         "Go Mono-10"
+                         "Consolas-10"))
 
     (set-face-attribute 'variable-pitch nil
                         :font
@@ -730,23 +746,20 @@ This names buffers with the same basename (e.g., =~/.config/emacs/config.org= an
   (cuss uniquify-buffer-name-style 'forward)
 #+end_src
 
-*** Show buffer boundaries
-
-These little L-shaped graphics at the top and bottom of buffers don't do anything, but I like 'em.
-
-#+begin_src emacs-lisp
-  (cuss indicate-buffer-boundaries
-        '((top . right)
-          (bottom . right)
-          (t . nil)))
-#+end_src
-
 *** Hippie expand
 
 At some point, will probably replace with [[https://company-mode.github.io/][company]].
 
 #+begin_src emacs-lisp
   (global-set-key (kbd "M-/") 'hippie-expand)
+#+end_src
+
+*** Delete the selection
+
+Like modern editors, if I have text selected and start typing – just /delete the selection/.
+
+#+BEGIN_SRC emacs-lisp
+  (delete-selection-mode 1)
 #+end_src
 
 *** "[[https://git.sr.ht/~technomancy/better-defaults/tree/master/better-defaults.el][better defaults]]"
@@ -765,6 +778,8 @@ Most of these come from technomancy's repo, linked above, just copy-pasted into 
 **** Zap-up-to-char, not zap-to-char
 
 Similarly to =ibuffer=, this is a Better default™.
+
+Of course, could be even betterered with [[https://github.com/mrkkrp/zzz-to-char][zzz-to-char]].
 
 #+begin_src emacs-lisp
   (autoload 'zap-up-to-char "misc"
@@ -1001,12 +1016,27 @@ I'm not sure if I'll /keep/ this forever, because in combination with =super-sav
   (add-hook 'before-save-hook #'delete-trailing-whitespace)
 #+end_src
 
+** [[https://github.com/nflath/hungry-delete][hungry-delete]]
+
+I find myself typing delete /way/ too much.  I really like Emacs's =TAB= functionality -- it tabs to where I need and that's it -- but backspace leaves much to be desired.  Enter =hungry-delete=.
+
+Also of interest: [[https://github.com/hrehfeld/emacs-smart-hungry-delete][smart-hungry-delete]].
+
+#+begin_src emacs-lisp
+  (use-package hungry-delete
+    :custom
+    (hungry-delete-join-reluctantly t)
+    :config
+    (global-hungry-delete-mode))
+#+end_src
+
 ** Automatically revert a file to what it is on disk
 
 Revert a buffer to reflect what's on disk if it's changed outside of Emacs.
 
 #+begin_src emacs-lisp
   (global-auto-revert-mode 1)
+  (cuss auto-revert-verbose nil)
 #+end_src
 
 * Writing
@@ -1282,6 +1312,18 @@ from [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][unpackaged.el
         (org-return)))))
 
   (bind-key "RET" #'unpackaged/org-return-dwim 'org-mode-map)
+#+end_src
+
+** “Typographical editing” with [[https://github.com/jorgenschaefer/typoel][Typo]]
+
+When I'm writing, I've been annoyed at the straight quotes.
+
+#+begin_src emacs-lisp
+  (use-package typo
+    :custom
+    (typo-language "English")
+    :hook
+    (text-mode))
 #+end_src
 
 * Coding
@@ -1810,6 +1852,11 @@ I can /not/ get over how hilarious this name is 😜
     (cuss url-cookie-confirmation t))
 #+end_src
 
+** TODO eshell
+
+look at [[https://github.com/dieggsy/esh-autosuggest/][esh-autosuggest]] and [[https://www.masteringemacs.org/article/complete-guide-mastering-eshell][mastering eshell]] and stuff.  idk.
+oh and [[https://github.com/kyagi/shell-pop-el][shell pop]] too.
+
 * Appendix A: Scripts
 
 ** ~emacsdc~
@@ -1824,6 +1871,8 @@ Here's a wrapper script that'll start =emacs --daemon= if there isn't one, and t
 #+end_src
 
 * Appendix B: areas for further research
+
+- [[https://github.com/caisah/emacs.dz][big list of popular emacs configs]]
 
 ** TODO [[https://github.com/flexibeast/ebuku][ebuku]] (of course, I'd need [[https://github.com/jarun/buku][buku]] as well) -- bookmarks
 ** TODO [[https://github.com/rolandwalker/ignoramus][Ignoramus]] -- this might not e necessary
@@ -1845,3 +1894,15 @@ I think it has something to do with the package =consult=, because it was /slow/
 ** TODO Figure out Org-mode TODOs
 
 I need some standard once, and also some specific ones for this section.
+
+** TODO Add =C-z= as a me-mode map
+
+I saw someone do this, and honestly it's a great idea.  I could use it for my applications.  Just have to find it ......
+
+** TODO Really think about [[https://github.com/abo-abo/avy][avy]] again
+
+It could actually be pretty useful, and it could be hooked into things like [[https://github.com/abo-abo/ace-link][ace-link]].
+
+** TODO Test out [[https://github.com/magnars/multiple-cursors.el][multiple cursors]]
+
+Allegedly it's really cool.
