@@ -1053,6 +1053,14 @@ Revert a buffer to reflect what's on disk if it's changed outside of Emacs.
   (cuss auto-revert-verbose nil)
 #+end_src
 
+** Add a timestamp
+
+This'll add a timestamp to a file when I save it, if the first 8 lines includes the string =Time-stamp: <>=.
+
+#+begin_src emacs-lisp
+  (add-hook 'before-save-hook #'time-stamp)
+#+end_src
+
 * Writing
 
 Configurations related to writing prose or verse.
