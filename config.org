@@ -113,6 +113,13 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
     (make-directory (no-littering-expand-var-file-name dir) t))
 #+end_src
 
+** About me
+
+#+begin_src emacs-lisp
+  (setq user-full-name "Case Duckworth"
+	user-mail-address "acdw@acdw.net")
+#+end_src
+
 * Look and Feel
 
 ** Simplify the UI
