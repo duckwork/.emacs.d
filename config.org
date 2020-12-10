@@ -2,8 +2,11 @@
 #+AUTHOR: Case Duckworth
 #+PROPERTY: header-args :tangle config.el :comments both :mkdirp yes
 #+EXPORT_FILE_NAME: README.md
+#+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3
-#+Time-stamp: <2020-12-09 18:28:04 acdw>
+#+Time-stamp: <2020-12-09 20:27:25 acdw>
+
+Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 
 * Pave the way
 ** Correct =exec-path=

@@ -1,97 +1,8 @@
+Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 
-# Table of Contents
-
-1.  [Pave the way](#org8865364)
-    1.  [Correct `exec-path`](#orga7e2c6f)
-    2.  [Package management](#org3148c95)
-        1.  [Straight.el](#orgfaed4fc)
-        2.  [Use-package](#org41bc53b)
-        3.  [Extra use-package keywords](#org1849e90)
-    3.  [Customize variables](#orgc528316)
-        1.  [Put customizations in a separate file](#orgf585c3e)
-        2.  [A macro for ease of customization](#orgad4e3a9)
-    4.  [Keep a tidy `~/.emacs`](#orgf4003c0)
-2.  [Look and Feel](#org11edc2b)
-    1.  [Simplify the UI](#orgb076fea)
-        1.  [Tool bars and menu bars](#org586efe9)
-        2.  [Scroll bars](#org298e07a)
-        3.  [Dialog boxen](#org439037b)
-        4.  [Shorten confirmations](#orgbb289dc)
-        5.  [Remove the bell](#org2d64864)
-        6.  [Tell Ediff to setup windows better](#org0b4a638)
-    2.  [Tweak the remaining UI](#org2ca3449)
-        1.  [Fringes](#orgae020e2)
-        2.  [Minibuffer](#orgc8f4148)
-        3.  [Tabs](#org83e5b37)
-        4.  [Cursor](#org818f06f)
-        5.  [Buffer names](#org403cbfb)
-        6.  [Buffer boundaries](#org86d72cc)
-    3.  [Startup](#org06a8610)
-    4.  [Theme](#org3cecd0a)
-        1.  [Modeline](#org1cecd04)
-        2.  [Fonts](#org52f810d)
-3.  [Interactivity](#orgb1b190a)
-    1.  [Selectrum](#orge91bc0a)
-    2.  [Prescient](#org2dec02d)
-    3.  [Consult](#org793390e)
-    4.  [Ignore case](#orgf0e1425)
-    5.  [Search](#orgcb1ee5e)
-    6.  [Mouse](#orgf588a26)
-4.  [Persistence](#orgb6ade5d)
-    1.  [Save history](#org9a6f451)
-    2.  [Save places in files](#org3041895)
-    3.  [Recent files](#orgfddf139)
-        1.  [Easily navigate recent files](#org5211a84)
-    4.  [Undo](#org203b48b)
-5.  [Editing](#org697ec47)
-    1.  [Operate visually on lines](#org958bd79)
-    2.  [Require a final newline](#orgc5ef3b6)
-    3.  [Killing & Yanking](#orgba62063)
-        1.  [Replace selection when typing](#orgcb04f02)
-        2.  [Save existing clipboard text into kill ring before replacing it](#orgdf80771)
-    4.  [So long mode](#org2252a8b)
-    5.  [Multiple cursors](#org6fe3b6b)
-    6.  [Expand region](#orgfe5b963)
-6.  [Files](#org0b92a32)
-    1.  [Encoding](#orgf1babbf)
-        1.  [UTF-8](#org8dd350d)
-        2.  [Convert all files to UNIX-style line endings](#org34854a5)
-    2.  [Backups](#org184d029)
-    3.  [Auto-saves](#org72595b4)
-    4.  [Revert files](#orgd374486)
-    5.  [Add a timestamp to files](#org8ac0e64)
-7.  [Programming](#org97bb90c)
-    1.  [Which function are we in?](#orgbcce753)
-    2.  [Parentheses](#org7d7c4d6)
-        1.  [Show parentheses](#orgbe3915d)
-        2.  [Smart parentheses](#org9415ceb)
-    3.  [Line numbers](#org2ebc45e)
-8.  [Writing](#orge8c66c9)
-    1.  [Visual Fill Column](#org5278827)
-    2.  [Type nice-looking quote-type marks](#org63bd7b9)
-9.  [Applications](#org50abb5d)
-    1.  [Magit](#orgf68bfba)
-    2.  [Org mode](#org66c3b6b)
-        1.  [Export to markdown](#org34de14b)
-        2.  [Make bullets look like bullets](#orge32cf6b)
-        3.  [A better return in Org mode](#org5d13ece)
-10. [Appendices](#org1c0423c)
-    1.  [Emacs' files](#orgea74573)
-        1.  [init.el](#org1ed6b18)
-        2.  [early-init.el](#org1e22a5e)
-    2.  [Ease tangling and loading of Emacs' init](#org50bd83d)
-    3.  [License](#org551e420)
-        1.  [Note on the license](#org15f94a8)
-    4.  [Keymaps for *this* file](#org3bda9ee)
-
-
-
-<a id="org8865364"></a>
 
 # Pave the way
 
-
-<a id="orga7e2c6f"></a>
 
 ## Correct `exec-path`
 
@@ -113,12 +24,8 @@
           (add-to-list 'exec-path path))))
 
 
-<a id="org3148c95"></a>
-
 ## Package management
 
-
-<a id="orgfaed4fc"></a>
 
 ### Straight.el
 
@@ -136,16 +43,12 @@
       (load bootstrap-file nil 'nomessage))
 
 
-<a id="org41bc53b"></a>
-
 ### Use-package
 
     (setq straight-use-package-by-default t)
     (setq use-package-hook-name-suffix nil)
     (straight-use-package 'use-package)
 
-
-<a id="org1849e90"></a>
 
 ### Extra use-package keywords
 
@@ -159,20 +62,14 @@
         (require 'use-package-custom-update)
 
 
-<a id="orgc528316"></a>
-
 ## Customize variables
 
-
-<a id="orgf585c3e"></a>
 
 ### Put customizations in a separate file
 
     (setq custom-file
           (expand-file-name "custom.el" user-emacs-directory))
 
-
-<a id="orgad4e3a9"></a>
 
 ### A macro for ease of customization
 
@@ -181,8 +78,6 @@
       `(funcall (or (get ',var 'custom-set) #'set-default)
     	    ',var ,val))
 
-
-<a id="orgf4003c0"></a>
 
 ## Keep a tidy `~/.emacs`
 
@@ -208,17 +103,11 @@
       (make-directory (no-littering-expand-var-file-name dir) t))
 
 
-<a id="org11edc2b"></a>
-
 # Look and Feel
 
 
-<a id="orgb076fea"></a>
-
 ## Simplify the UI
 
-
-<a id="org586efe9"></a>
 
 ### Tool bars and menu bars
 
@@ -230,8 +119,6 @@
     (tool-bar-mode -1)
 
 
-<a id="org298e07a"></a>
-
 ### Scroll bars
 
     (add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
@@ -241,28 +128,20 @@
     (horizontal-scroll-bar-mode -1)
 
 
-<a id="org439037b"></a>
-
 ### Dialog boxen
 
     (cuss use-dialog-box nil)
 
-
-<a id="orgbb289dc"></a>
 
 ### Shorten confirmations
 
     (fset 'yes-or-no-p #'y-or-n-p)
 
 
-<a id="org2d64864"></a>
-
 ### Remove the bell
 
     (cuss visible-bell (not (string= (system-name) "larry")))
 
-
-<a id="org0b4a638"></a>
 
 ### Tell Ediff to setup windows better
 
@@ -270,20 +149,14 @@
     (cuss ediff-window-setup-function #'ediff-setup-windows-plain)
 
 
-<a id="org2ca3449"></a>
-
 ## Tweak the remaining UI
 
-
-<a id="orgae020e2"></a>
 
 ### Fringes
 
     (add-to-list 'default-frame-alist '(left-fringe-width . 2))
     (add-to-list 'default-frame-alist '(right-fringe-width . 2))
 
-
-<a id="orgc8f4148"></a>
 
 ### Minibuffer
 
@@ -302,8 +175,6 @@
               '(read-only t cursor-intangible t face minibuffer-prompt))
 
 
-<a id="org83e5b37"></a>
-
 ### Tabs
 
 1.  Show the tabs as current buffer, plus window count
@@ -316,8 +187,6 @@
               "Show the tab bar only when there's more than 1 tab.")
 
 
-<a id="org818f06f"></a>
-
 ### Cursor
 
     (cuss cursor-type 'bar
@@ -327,15 +196,11 @@
     (blink-cursor-mode 0)
 
 
-<a id="org403cbfb"></a>
-
 ### Buffer names
 
     (require 'uniquify)
     (cuss uniquify-buffer-name-style 'forward)
 
-
-<a id="org86d72cc"></a>
 
 ### Buffer boundaries
 
@@ -347,16 +212,12 @@
     (cuss indicate-empty-lines t)
 
 
-<a id="org06a8610"></a>
-
 ## Startup
 
     (cuss inhibit-startup-screen t "Don't show Emacs' startup buffer.")
     (cuss initial-buffer-choice t "Start at *scratch*.")
     (cuss initial-scratch-message "" "Empty *scratch*.")
 
-
-<a id="org3cecd0a"></a>
 
 ## Theme
 
@@ -395,26 +256,20 @@
       (load-theme 'modus-operandi t))
 
 
-<a id="org1cecd04"></a>
-
 ### Modeline
 
     (custom-set-faces
-     '(mode-line ((t (:family "fixed"
-    			  :height 100
+     '(mode-line ((t (:height 0.8
     			  :overline t
     			  :box nil
     			  :foreground "black"
     			  :background "white"))))
-     '(mode-line-inactive ((t (:family "fixed"
-    				   :height 80
+     '(mode-line-inactive ((t (:height 0.8
     				   :overline t
     				   :box nil
     				   :foreground "#808080"
     				   :background "white")))))
 
-
-<a id="org52f810d"></a>
 
 ### Fonts
 
@@ -474,12 +329,8 @@
           (unicode-fonts-setup))
 
 
-<a id="orgb1b190a"></a>
-
 # Interactivity
 
-
-<a id="orge91bc0a"></a>
 
 ## Selectrum
 
@@ -487,8 +338,6 @@
       :config
       (selectrum-mode +1))
 
-
-<a id="org2dec02d"></a>
 
 ## Prescient
 
@@ -501,8 +350,6 @@
       :config
       (selectrum-prescient-mode +1))
 
-
-<a id="org793390e"></a>
 
 ## Consult
 
@@ -523,16 +370,12 @@
       (fset 'multi-occur #'consult-multi-occur))
 
 
-<a id="orgf0e1425"></a>
-
 ## Ignore case
 
     (cuss completion-ignore-case t)
     (cuss read-buffer-completion-ignore-case t)
     (cuss read-file-name-completion-ignore-case t)
 
-
-<a id="orgcb1ee5e"></a>
 
 ## Search
 
@@ -548,8 +391,6 @@
       (ctrlf-mode +1))
 
 
-<a id="orgf588a26"></a>
-
 ## Mouse
 
     (dolist (vec '([left-margin wheel-down]
@@ -559,12 +400,8 @@
       (bind-key vec #'mwheel-scroll))
 
 
-<a id="orgb6ade5d"></a>
-
 # Persistence
 
-
-<a id="org9a6f451"></a>
 
 ## Save history
 
@@ -584,8 +421,6 @@
     (savehist-mode +1)
 
 
-<a id="org3041895"></a>
-
 ## Save places in files
 
     (require 'saveplace)
@@ -595,8 +430,6 @@
     
     (save-place-mode 1)
 
-
-<a id="orgfddf139"></a>
 
 ## Recent files
 
@@ -612,8 +445,6 @@
     (recentf-mode 1)
 
 
-<a id="org5211a84"></a>
-
 ### Easily navigate recent files
 
     (defun recentf-find-file ()
@@ -626,8 +457,6 @@
     (global-set-key (kbd "C-x C-r") #'recentf-find-file)
 
 
-<a id="org203b48b"></a>
-
 ## Undo
 
     (use-package undohist
@@ -635,53 +464,37 @@
       (undohist-initialize))
 
 
-<a id="org697ec47"></a>
-
 # Editing
 
-
-<a id="org958bd79"></a>
 
 ## Operate visually on lines
 
     (global-visual-line-mode +1)
 
 
-<a id="orgc5ef3b6"></a>
-
 ## Require a final newline
 
     (cuss require-final-newline t)
 
 
-<a id="orgba62063"></a>
-
 ## Killing & Yanking
 
-
-<a id="orgcb04f02"></a>
 
 ### Replace selection when typing
 
     (delete-selection-mode +1)
 
 
-<a id="orgdf80771"></a>
-
 ### Save existing clipboard text into kill ring before replacing it
 
     (cuss save-interprogram-paste-before-kill t)
 
-
-<a id="org2252a8b"></a>
 
 ## So long mode
 
     (when (fboundp 'global-so-long-mode)
       (global-so-long-mode))
 
-
-<a id="org6fe3b6b"></a>
 
 ## Multiple cursors
 
@@ -692,8 +505,6 @@
       ("C-c C-<" . mc/mark-all-like-this))
 
 
-<a id="orgfe5b963"></a>
-
 ## Expand region
 
     (use-package expand-region
@@ -702,17 +513,11 @@
        ("C-+" . er/contract-region)))
 
 
-<a id="org0b92a32"></a>
-
 # Files
 
 
-<a id="orgf1babbf"></a>
-
 ## Encoding
 
-
-<a id="org8dd350d"></a>
 
 ### UTF-8
 
@@ -723,8 +528,6 @@
     (set-selection-coding-system 'utf-8)
     (prefer-coding-system 'utf-8)
 
-
-<a id="org34854a5"></a>
 
 ### Convert all files to UNIX-style line endings
 
@@ -742,8 +545,6 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
     (add-hook 'before-save-hook #'ewiki/no-junk-please-were-unixish)
 
 
-<a id="org184d029"></a>
-
 ## Backups
 
     (cuss backup-by-copying 1)
@@ -752,14 +553,10 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
     (cuss vc-make-backup-files t)
 
 
-<a id="org72595b4"></a>
-
 ## Auto-saves
 
     (auto-save-visited-mode 1)
 
-
-<a id="orgd374486"></a>
 
 ## Revert files
 
@@ -767,31 +564,21 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
     (global-auto-revert-mode +1)
 
 
-<a id="org8ac0e64"></a>
-
 ## Add a timestamp to files
 
     (add-hook 'before-save-hook #'time-stamp)
 
 
-<a id="org97bb90c"></a>
-
 # Programming
 
-
-<a id="orgbcce753"></a>
 
 ## Which function are we in?
 
     (which-function-mode +1)
 
 
-<a id="org7d7c4d6"></a>
-
 ## Parentheses
 
-
-<a id="orgbe3915d"></a>
 
 ### Show parentheses
 
@@ -806,8 +593,6 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
     (add-hook 'prog-mode-hook #'show-paren-mode)
 
 
-<a id="org9415ceb"></a>
-
 ### Smart parentheses
 
     (use-package smartparens
@@ -818,8 +603,6 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
       :hook
       (prog-mode-hook . smart-parens-strict-mode))
 
-
-<a id="org2ebc45e"></a>
 
 ## Line numbers
 
@@ -837,12 +620,10 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
     (add-hook 'prog-mode-hook #'acdw/enable-line-numbers)
 
 
-<a id="orge8c66c9"></a>
+<a id="org92fae61"></a>
 
 # Writing
 
-
-<a id="org5278827"></a>
 
 ## Visual Fill Column
 
@@ -859,8 +640,6 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
       (text-mode-hook . visual-fill-column-mode))
 
 
-<a id="org63bd7b9"></a>
-
 ## Type nice-looking quote-type marks
 
     (use-package typo
@@ -868,12 +647,8 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
       (text-mode-hook . typo-mode))
 
 
-<a id="org50abb5d"></a>
-
 # Applications
 
-
-<a id="orgf68bfba"></a>
 
 ## Magit
 
@@ -882,11 +657,9 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
       ("C-x g" . magit-status))
 
 
-<a id="org66c3b6b"></a>
-
 ## Org mode
 
-I’ve put org mode under Applications, as opposed to [8](#orge8c66c9), because it’s  more generally-applicable than that.
+I’ve put org mode under Applications, as opposed to [8](#org92fae61), because it’s  more generally-applicable than that.
 
     (use-package org
       :custom
@@ -902,14 +675,10 @@ I’ve put org mode under Applications, as opposed to [8](#orge8c66c9), because 
       (org-confirm-babel-evaluate nil))
 
 
-<a id="org34de14b"></a>
-
 ### Export to markdown
 
     (require 'ox-md)
 
-
-<a id="orge32cf6b"></a>
 
 ### Make bullets look like bullets
 
@@ -921,8 +690,6 @@ I’ve put org mode under Applications, as opposed to [8](#orge8c66c9), because 
     			 (match-end 1)
     			 "•"))))))
 
-
-<a id="org5d13ece"></a>
 
 ### [A better return in Org mode](http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/)
 
@@ -998,17 +765,11 @@ I’ve put org mode under Applications, as opposed to [8](#orge8c66c9), because 
       'scimax/org-return)
 
 
-<a id="org1c0423c"></a>
-
 # Appendices
 
 
-<a id="orgea74573"></a>
-
 ## Emacs' files
 
-
-<a id="org1ed6b18"></a>
 
 ### init.el
 
@@ -1029,8 +790,6 @@ I’ve put org mode under Applications, as opposed to [8](#orge8c66c9), because 
         	   (org-babel-load-file org))))
 
 
-<a id="org1e22a5e"></a>
-
 ### early-init.el
 
     ;; early-init.el -*- lexical-binding: t; no-byte-compile: t; -*-
@@ -1038,8 +797,6 @@ I’ve put org mode under Applications, as opposed to [8](#orge8c66c9), because 
     (setq load-prefer-newer t)
     (setq frame-inhibit-implied-resize t)
 
-
-<a id="org50bd83d"></a>
 
 ## Ease tangling and loading of Emacs' init
 
@@ -1062,8 +819,6 @@ I’ve put org mode under Applications, as opposed to [8](#orge8c66c9), because 
     	     (when (string-match "\\.el\\'" f)
     	       (byte-compile-file f (not disable-load))))))))))
 
-
-<a id="org551e420"></a>
 
 ## License
 
@@ -1090,8 +845,6 @@ following source block, for details.
        0. You just DO WHAT THE FUCK YOU WANT TO.
 
 
-<a id="org15f94a8"></a>
-
 ### Note on the license
 
 It's highly likely that the WTFPL is completely incompatible with the
@@ -1099,8 +852,6 @@ GPL, for what should be fairly obvious reasons.  To that, I say:
 
 **SUE ME, RMS!**
 
-
-<a id="org3bda9ee"></a>
 
 ## Keymaps for *this* file
 
