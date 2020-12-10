@@ -289,7 +289,7 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
     (load-theme 'modus-operandi t))
 #+end_src
 
-*** Modeline
+*** COMMENT Modeline
 
 #+begin_src emacs-lisp
   (custom-set-faces
