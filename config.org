@@ -760,6 +760,7 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     (org-fontify-whole-heading-line t)
     (org-fontify-quote-and-verse-blocks t)
     (org-pretty-entities t)
+    (org-num-mode +1)
 
     (org-src-tab-acts-natively t)
     (org-src-fontify-natively t)
