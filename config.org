@@ -4,11 +4,12 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3
-#+Time-stamp: <2020-12-09 20:27:25 acdw>
+#+Time-stamp: <2020-12-10 00:15:33 acdw>
 
 Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 
 * Pave the way
+
 ** Correct =exec-path=
 
  #+begin_src emacs-lisp
@@ -591,8 +592,11 @@ Until the =marginalia-annotators= settles, I’m disabling this section.
 #+end_src
 
 * Files
+
   
+
 ** Encoding
+
 *** UTF-8
 
  #+begin_src emacs-lisp
@@ -861,8 +865,61 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     'scimax/org-return)
 #+end_src
 
+*** Insert blank lines
+
+from [[https://github.com/alphapapa/unpackaged.el#ensure-blank-lines-between-headings-and-before-contents][unpackaged.el]].
+
+#+begin_src emacs-lisp
+  ;;;###autoload
+  (defun unpackaged/org-fix-blank-lines (&optional prefix)
+    "Ensure that blank lines exist between headings and between headings and their contents.
+  With prefix, operate on whole buffer. Ensures that blank lines
+  exist after each headings's drawers."
+    (interactive "P")
+    (org-map-entries (lambda ()
+		       (org-with-wide-buffer
+			;; `org-map-entries' narrows the buffer, which prevents us from seeing
+			;; newlines before the current heading, so we do this part widened.
+			(while (not (looking-back "\n\n" nil))
+			  ;; Insert blank lines before heading.
+			  (insert "\n")))
+		       (let ((end (org-entry-end-position)))
+			 ;; Insert blank lines before entry content
+			 (forward-line)
+			 (while (and (org-at-planning-p)
+				     (< (point) (point-max)))
+			   ;; Skip planning lines
+			   (forward-line))
+			 (while (re-search-forward org-drawer-regexp end t)
+			   ;; Skip drawers. You might think that `org-at-drawer-p' would suffice, but
+			   ;; for some reason it doesn't work correctly when operating on hidden text.
+			   ;; This works, taken from `org-agenda-get-some-entry-text'.
+			   (re-search-forward "^[ \t]*:END:.*\n?" end t)
+			   (goto-char (match-end 0)))
+			 (unless (or (= (point) (point-max))
+				     (org-at-heading-p)
+				     (looking-at-p "\n"))
+			   (insert "\n"))))
+		     t (if prefix
+			   nil
+			 'tree)))
+#+end_src
+
+**** Add a before-save-hook
+
+#+begin_src emacs-lisp
+  (defun cribbed/org-mode-fix-blank-lines ()
+    (when (eq major-mode 'org-mode)
+      (let ((current-prefix-arg 4)) ; Emulate C-u
+	(call-interactively 'unpackaged/org-fix-blank-lines))))
+
+  (add-hook 'before-save-hook #'cribbed/org-mode-fix-blank-lines)
+#+end_src
+
 * Appendices
+
 ** Emacs' files
+
 *** init.el
     :PROPERTIES:
     :header-args: :tangle init.el
@@ -871,6 +928,7 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
   #+begin_src emacs-lisp :comments no
   ;; init.el -*- lexical-binding: t -*-
   #+end_src
+
 **** Load config
 
   from [[https://protesilaos.com/dotemacs/#h:584c3604-55a1-49d0-9c31-abe46cb1f028][Protesilaos Stavrou]].

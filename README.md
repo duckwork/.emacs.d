@@ -601,7 +601,7 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
       :config
       (show-smartparens-global-mode +1)
       :hook
-      (prog-mode-hook . smart-parens-strict-mode))
+      (prog-mode-hook . smartparens-strict-mode))
 
 
 ## Line numbers
@@ -619,8 +619,6 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
     
     (add-hook 'prog-mode-hook #'acdw/enable-line-numbers)
 
-
-<a id="org92fae61"></a>
 
 # Writing
 
@@ -659,7 +657,7 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
 
 ## Org mode
 
-I’ve put org mode under Applications, as opposed to [8](#org92fae61), because it’s  more generally-applicable than that.
+I’ve put org mode under Applications, as opposed to Writing, because it’s  more generally-applicable than that.
 
     (use-package org
       :custom
@@ -668,6 +666,7 @@ I’ve put org mode under Applications, as opposed to [8](#org92fae61), because 
       (org-fontify-whole-heading-line t)
       (org-fontify-quote-and-verse-blocks t)
       (org-pretty-entities t)
+      (org-num-mode +1)
     
       (org-src-tab-acts-natively t)
       (org-src-fontify-natively t)
@@ -820,6 +819,14 @@ I’ve put org mode under Applications, as opposed to [8](#org92fae61), because 
     	       (byte-compile-file f (not disable-load))))))))))
 
 
+### Add a hook to tangle when quitting
+
+    (defun acdw/refresh-emacs-no-load ()
+      (refresh-emacs t))
+    
+    (add-hook 'kill-emacs-hook #'acdw/refresh-emacs-no-load)
+
+
 ## License
 
 Copyright © 2020 Case Duckworth <acdw@acdw.net>
@@ -851,9 +858,4 @@ It's highly likely that the WTFPL is completely incompatible with the
 GPL, for what should be fairly obvious reasons.  To that, I say:
 
 **SUE ME, RMS!**
-
-
-## Keymaps for *this* file
-
-This isn’t working … yet.
 
