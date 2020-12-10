@@ -103,6 +103,12 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
       (make-directory (no-littering-expand-var-file-name dir) t))
 
 
+## About me
+
+    (setq user-full-name "Case Duckworth"
+          user-mail-address "acdw@acdw.net")
+
+
 # Look and Feel
 
 
@@ -256,21 +262,6 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
       (load-theme 'modus-operandi t))
 
 
-### Modeline
-
-    (custom-set-faces
-     '(mode-line ((t (:height 0.8
-    			  :overline t
-    			  :box nil
-    			  :foreground "black"
-    			  :background "white"))))
-     '(mode-line-inactive ((t (:height 0.8
-    				   :overline t
-    				   :box nil
-    				   :foreground "#808080"
-    				   :background "white")))))
-
-
 ### Fonts
 
 1.  Define fonts
@@ -310,9 +301,9 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
         			 "Linux Libertine O-12"
         			 "Georgia-11"))
         
-            (remove-hook 'window-setup-hook #'acdw/setup-fonts)))
+            (remove-hook 'after-init-hook #'acdw/setup-fonts)))
         
-        (add-hook 'window-setup-hook #'acdw/setup-fonts)
+        (add-hook 'after-init-hook #'acdw/setup-fonts)
 
 2.  Variable-pitch in text modes
 
@@ -620,6 +611,13 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
     (add-hook 'prog-mode-hook #'acdw/enable-line-numbers)
 
 
+## Indenting
+
+    (use-package aggressive-indent
+      :config
+      (global-aggressive-indent-mode +1))
+
+
 # Writing
 
 
@@ -762,6 +760,54 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     
     (define-key org-mode-map (kbd "RET")
       'scimax/org-return)
+
+
+### Insert blank lines
+
+from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lines-between-headings-and-before-contents).
+
+    ;;;###autoload
+    (defun unpackaged/org-fix-blank-lines (&optional prefix)
+      "Ensure that blank lines exist between headings and between headings and their contents.
+    With prefix, operate on whole buffer. Ensures that blank lines
+    exist after each headings's drawers."
+      (interactive "P")
+      (org-map-entries (lambda ()
+    		     (org-with-wide-buffer
+    		      ;; `org-map-entries' narrows the buffer, which prevents us from seeing
+    		      ;; newlines before the current heading, so we do this part widened.
+    		      (while (not (looking-back "\n\n" nil))
+    			;; Insert blank lines before heading.
+    			(insert "\n")))
+    		     (let ((end (org-entry-end-position)))
+    		       ;; Insert blank lines before entry content
+    		       (forward-line)
+    		       (while (and (org-at-planning-p)
+    				   (< (point) (point-max)))
+    			 ;; Skip planning lines
+    			 (forward-line))
+    		       (while (re-search-forward org-drawer-regexp end t)
+    			 ;; Skip drawers. You might think that `org-at-drawer-p' would suffice, but
+    			 ;; for some reason it doesn't work correctly when operating on hidden text.
+    			 ;; This works, taken from `org-agenda-get-some-entry-text'.
+    			 (re-search-forward "^[ \t]*:END:.*\n?" end t)
+    			 (goto-char (match-end 0)))
+    		       (unless (or (= (point) (point-max))
+    				   (org-at-heading-p)
+    				   (looking-at-p "\n"))
+    			 (insert "\n"))))
+    		   t (if prefix
+    			 nil
+    		       'tree)))
+
+1.  Add a before-save-hook
+
+        (defun cribbed/org-mode-fix-blank-lines ()
+          (when (eq major-mode 'org-mode)
+            (let ((current-prefix-arg 4)) ; Emulate C-u
+              (call-interactively 'unpackaged/org-fix-blank-lines))))
+        
+        (add-hook 'before-save-hook #'cribbed/org-mode-fix-blank-lines)
 
 
 # Appendices

@@ -4,7 +4,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3
-#+Time-stamp: <2020-12-10 00:15:33 acdw>
+#+Time-stamp: <2020-12-10 00:40:50 acdw>
 
 Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 
@@ -329,7 +329,7 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 			   "Linux Libertine Mono O-11"
 			   "Go Mono-10"
 			   "Consolas-10"))
-    
+
       (set-face-attribute 'fixed-pitch nil
 			  :font
 			  (font-candidate
@@ -369,6 +369,7 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
     :config
     (unicode-fonts-setup))
 #+end_src
+
 
 * Interactivity
 
