@@ -1,86 +1,97 @@
 
 # Table of Contents
 
-1.  [Pave the way](#org24d31f9)
-    1.  [Correct `exec-path`](#org82dd805)
-    2.  [Package management](#org947e1de)
-        1.  [Straight.el](#orgd711f6b)
-        2.  [Use-package](#org9392b5d)
-        3.  [Extra use-package keywords](#orgc93ae09)
-    3.  [Customize variables](#org7cae7fe)
-        1.  [Put customizations in a separate file](#org126d855)
-        2.  [A macro for ease of customization](#org2cf1d1a)
-    4.  [Keep a tidy `~/.emacs`](#orga6c0096)
-2.  [Look and Feel](#org1ecbcc5)
-    1.  [Simplify the UI](#org23fb19e)
-        1.  [Tool bars and menu bars](#orgad64258)
-        2.  [Scroll bars](#org9b2f49e)
-        3.  [Dialog boxen](#orgf1c5f65)
-        4.  [Shorten confirmations](#orgedf9e78)
-        5.  [Remove the bell](#org1643ce2)
-        6.  [Tell Ediff to setup windows better](#org3996a6f)
-    2.  [Tweak the remaining UI](#orgcdf874b)
-        1.  [Window dividers](#org187505c)
-        2.  [Fringes](#org3fd2bc6)
-        3.  [Minibuffer](#org8ff32ea)
-        4.  [Tabs](#orgef2a000)
-        5.  [Cursor](#orge57d1b2)
-        6.  [Buffer names](#orgb3f29a9)
-        7.  [Buffer boundaries](#org2627b1e)
-    3.  [Startup](#org1fc3c6d)
-    4.  [Theme](#org207a1bd)
-        1.  [Fonts](#org52f6c8c)
-3.  [Interactivity](#org6cbcfe5)
-    1.  [Selectrum](#org7f26398)
-    2.  [Prescient](#orgea8df9e)
-    3.  [Consult](#org8818eb9)
-    4.  [Marginalia](#orgd31a964)
-    5.  [Ignore case](#org6e4913f)
-    6.  [Search](#org416dd18)
-4.  [Persistence](#orgb20768d)
-    1.  [Save history](#org7dfee32)
-    2.  [Save places in files](#org0f20005)
-    3.  [Recent files](#org6d1a477)
-        1.  [Easily navigate recent files](#org9368a6b)
-    4.  [Undo](#orgbb4f91a)
-5.  [Editing](#org52b008a)
-    1.  [Operate visually on lines](#orgce838ba)
-    2.  [Require a final newline](#org6f67996)
-    3.  [Killing & Yanking](#orga2bdb3e)
-        1.  [Replace selection when typing](#org16c1a6b)
-        2.  [Save existing clipboard text into kill ring before replacing it](#orgea7fd73)
-    4.  [So long mode](#org27f430f)
-6.  [Files](#org8cc8ee8)
-    1.  [Encoding](#org8ca2e9b)
-        1.  [UTF-8](#org54363a7)
-        2.  [Convert all files to UNIX-style line endings](#orgeaed3bd)
-    2.  [Backups](#org7239c47)
-    3.  [Auto-saves](#org32fc658)
-    4.  [Revert files](#org94456e2)
-    5.  [Add a timestamp to files](#orgb586b3b)
-7.  [Programming](#org738fbd9)
-    1.  [Which function are we in?](#org080eb2f)
-8.  [Writing](#org6bf5097)
-    1.  [Visual Fill Column](#org6f01971)
-    2.  [Type nice-looking quote-type marks](#org03e747d)
-9.  [Applications](#org9528516)
-    1.  [Magit](#orgd2a60aa)
-10. [Appendices](#org7339cf2)
-    1.  [Emacs' files](#org6070b2c)
-        1.  [init.el](#org0d720f6)
-        2.  [early-init.el](#orgd6bffd2)
-    2.  [Ease tangling and loading of Emacs' init](#org9c5b437)
-    3.  [License](#org1a4bb4d)
-        1.  [Note on the license](#orga6047ee)
+1.  [Pave the way](#org8865364)
+    1.  [Correct `exec-path`](#orga7e2c6f)
+    2.  [Package management](#org3148c95)
+        1.  [Straight.el](#orgfaed4fc)
+        2.  [Use-package](#org41bc53b)
+        3.  [Extra use-package keywords](#org1849e90)
+    3.  [Customize variables](#orgc528316)
+        1.  [Put customizations in a separate file](#orgf585c3e)
+        2.  [A macro for ease of customization](#orgad4e3a9)
+    4.  [Keep a tidy `~/.emacs`](#orgf4003c0)
+2.  [Look and Feel](#org11edc2b)
+    1.  [Simplify the UI](#orgb076fea)
+        1.  [Tool bars and menu bars](#org586efe9)
+        2.  [Scroll bars](#org298e07a)
+        3.  [Dialog boxen](#org439037b)
+        4.  [Shorten confirmations](#orgbb289dc)
+        5.  [Remove the bell](#org2d64864)
+        6.  [Tell Ediff to setup windows better](#org0b4a638)
+    2.  [Tweak the remaining UI](#org2ca3449)
+        1.  [Fringes](#orgae020e2)
+        2.  [Minibuffer](#orgc8f4148)
+        3.  [Tabs](#org83e5b37)
+        4.  [Cursor](#org818f06f)
+        5.  [Buffer names](#org403cbfb)
+        6.  [Buffer boundaries](#org86d72cc)
+    3.  [Startup](#org06a8610)
+    4.  [Theme](#org3cecd0a)
+        1.  [Modeline](#org1cecd04)
+        2.  [Fonts](#org52f810d)
+3.  [Interactivity](#orgb1b190a)
+    1.  [Selectrum](#orge91bc0a)
+    2.  [Prescient](#org2dec02d)
+    3.  [Consult](#org793390e)
+    4.  [Ignore case](#orgf0e1425)
+    5.  [Search](#orgcb1ee5e)
+    6.  [Mouse](#orgf588a26)
+4.  [Persistence](#orgb6ade5d)
+    1.  [Save history](#org9a6f451)
+    2.  [Save places in files](#org3041895)
+    3.  [Recent files](#orgfddf139)
+        1.  [Easily navigate recent files](#org5211a84)
+    4.  [Undo](#org203b48b)
+5.  [Editing](#org697ec47)
+    1.  [Operate visually on lines](#org958bd79)
+    2.  [Require a final newline](#orgc5ef3b6)
+    3.  [Killing & Yanking](#orgba62063)
+        1.  [Replace selection when typing](#orgcb04f02)
+        2.  [Save existing clipboard text into kill ring before replacing it](#orgdf80771)
+    4.  [So long mode](#org2252a8b)
+    5.  [Multiple cursors](#org6fe3b6b)
+    6.  [Expand region](#orgfe5b963)
+6.  [Files](#org0b92a32)
+    1.  [Encoding](#orgf1babbf)
+        1.  [UTF-8](#org8dd350d)
+        2.  [Convert all files to UNIX-style line endings](#org34854a5)
+    2.  [Backups](#org184d029)
+    3.  [Auto-saves](#org72595b4)
+    4.  [Revert files](#orgd374486)
+    5.  [Add a timestamp to files](#org8ac0e64)
+7.  [Programming](#org97bb90c)
+    1.  [Which function are we in?](#orgbcce753)
+    2.  [Parentheses](#org7d7c4d6)
+        1.  [Show parentheses](#orgbe3915d)
+        2.  [Smart parentheses](#org9415ceb)
+    3.  [Line numbers](#org2ebc45e)
+8.  [Writing](#orge8c66c9)
+    1.  [Visual Fill Column](#org5278827)
+    2.  [Type nice-looking quote-type marks](#org63bd7b9)
+9.  [Applications](#org50abb5d)
+    1.  [Magit](#orgf68bfba)
+    2.  [Org mode](#org66c3b6b)
+        1.  [Export to markdown](#org34de14b)
+        2.  [Make bullets look like bullets](#orge32cf6b)
+        3.  [A better return in Org mode](#org5d13ece)
+10. [Appendices](#org1c0423c)
+    1.  [Emacs' files](#orgea74573)
+        1.  [init.el](#org1ed6b18)
+        2.  [early-init.el](#org1e22a5e)
+    2.  [Ease tangling and loading of Emacs' init](#org50bd83d)
+    3.  [License](#org551e420)
+        1.  [Note on the license](#org15f94a8)
+    4.  [Keymaps for *this* file](#org3bda9ee)
 
 
 
-<a id="org24d31f9"></a>
+<a id="org8865364"></a>
 
 # Pave the way
 
 
-<a id="org82dd805"></a>
+<a id="orga7e2c6f"></a>
 
 ## Correct `exec-path`
 
@@ -102,12 +113,12 @@
           (add-to-list 'exec-path path))))
 
 
-<a id="org947e1de"></a>
+<a id="org3148c95"></a>
 
 ## Package management
 
 
-<a id="orgd711f6b"></a>
+<a id="orgfaed4fc"></a>
 
 ### Straight.el
 
@@ -125,15 +136,16 @@
       (load bootstrap-file nil 'nomessage))
 
 
-<a id="org9392b5d"></a>
+<a id="org41bc53b"></a>
 
 ### Use-package
 
     (setq straight-use-package-by-default t)
+    (setq use-package-hook-name-suffix nil)
     (straight-use-package 'use-package)
 
 
-<a id="orgc93ae09"></a>
+<a id="org1849e90"></a>
 
 ### Extra use-package keywords
 
@@ -141,18 +153,18 @@
 
         (straight-use-package
          '(use-package-custom-update
-           :host "github"
+           :host github
            :repo "a13/use-package-custom-update"))
         
         (require 'use-package-custom-update)
 
 
-<a id="org7cae7fe"></a>
+<a id="orgc528316"></a>
 
 ## Customize variables
 
 
-<a id="org126d855"></a>
+<a id="orgf585c3e"></a>
 
 ### Put customizations in a separate file
 
@@ -160,7 +172,7 @@
           (expand-file-name "custom.el" user-emacs-directory))
 
 
-<a id="org2cf1d1a"></a>
+<a id="orgad4e3a9"></a>
 
 ### A macro for ease of customization
 
@@ -170,7 +182,7 @@
     	    ',var ,val))
 
 
-<a id="orga6c0096"></a>
+<a id="orgf4003c0"></a>
 
 ## Keep a tidy `~/.emacs`
 
@@ -196,17 +208,17 @@
       (make-directory (no-littering-expand-var-file-name dir) t))
 
 
-<a id="org1ecbcc5"></a>
+<a id="org11edc2b"></a>
 
 # Look and Feel
 
 
-<a id="org23fb19e"></a>
+<a id="orgb076fea"></a>
 
 ## Simplify the UI
 
 
-<a id="orgad64258"></a>
+<a id="org586efe9"></a>
 
 ### Tool bars and menu bars
 
@@ -218,7 +230,7 @@
     (tool-bar-mode -1)
 
 
-<a id="org9b2f49e"></a>
+<a id="org298e07a"></a>
 
 ### Scroll bars
 
@@ -229,28 +241,28 @@
     (horizontal-scroll-bar-mode -1)
 
 
-<a id="orgf1c5f65"></a>
+<a id="org439037b"></a>
 
 ### Dialog boxen
 
     (cuss use-dialog-box nil)
 
 
-<a id="orgedf9e78"></a>
+<a id="orgbb289dc"></a>
 
 ### Shorten confirmations
 
     (fset 'yes-or-no-p #'y-or-n-p)
 
 
-<a id="org1643ce2"></a>
+<a id="org2d64864"></a>
 
 ### Remove the bell
 
     (cuss visible-bell (not (string= (system-name) "larry")))
 
 
-<a id="org3996a6f"></a>
+<a id="org0b4a638"></a>
 
 ### Tell Ediff to setup windows better
 
@@ -258,20 +270,12 @@
     (cuss ediff-window-setup-function #'ediff-setup-windows-plain)
 
 
-<a id="orgcdf874b"></a>
+<a id="org2ca3449"></a>
 
 ## Tweak the remaining UI
 
 
-<a id="org187505c"></a>
-
-### Window dividers
-
-    (add-to-list 'default-frame-alist '(right-divider-width . 2))
-    (add-to-list 'default-frame-alist '(bottom-divider-width . 2))
-
-
-<a id="org3fd2bc6"></a>
+<a id="orgae020e2"></a>
 
 ### Fringes
 
@@ -279,7 +283,7 @@
     (add-to-list 'default-frame-alist '(right-fringe-width . 2))
 
 
-<a id="org8ff32ea"></a>
+<a id="orgc8f4148"></a>
 
 ### Minibuffer
 
@@ -298,7 +302,7 @@
               '(read-only t cursor-intangible t face minibuffer-prompt))
 
 
-<a id="orgef2a000"></a>
+<a id="org83e5b37"></a>
 
 ### Tabs
 
@@ -308,18 +312,22 @@
 
 2.  Only show the tab bar when there's more than one tab
 
-        (cuss tab-bar-show 1)
+        (cuss tab-bar-show 1
+              "Show the tab bar only when there's more than 1 tab.")
 
 
-<a id="orge57d1b2"></a>
+<a id="org818f06f"></a>
 
 ### Cursor
 
-    (cuss cursor-type 'bar)
-    (cuss cursor-in-non-selected-windows 'hollow)
+    (cuss cursor-type 'bar
+          "Show a vertical bar for the cursor.")
+    (cuss cursor-in-non-selected-windows 'hollow
+          "In inactive windows, make the cursor an empty box.")
+    (blink-cursor-mode 0)
 
 
-<a id="orgb3f29a9"></a>
+<a id="org403cbfb"></a>
 
 ### Buffer names
 
@@ -327,7 +335,7 @@
     (cuss uniquify-buffer-name-style 'forward)
 
 
-<a id="org2627b1e"></a>
+<a id="org86d72cc"></a>
 
 ### Buffer boundaries
 
@@ -339,17 +347,16 @@
     (cuss indicate-empty-lines t)
 
 
-<a id="org1fc3c6d"></a>
+<a id="org06a8610"></a>
 
 ## Startup
 
-    (cuss inhibit-startup-buffer-menu t)
-    (cuss inhibit-start-screen t)
-    (cuss initial-buffer-choice t)
-    (cuss initial-scratch-message ";; Hi there!\n")
+    (cuss inhibit-startup-screen t "Don't show Emacs' startup buffer.")
+    (cuss initial-buffer-choice t "Start at *scratch*.")
+    (cuss initial-scratch-message "" "Empty *scratch*.")
 
 
-<a id="org207a1bd"></a>
+<a id="org3cecd0a"></a>
 
 ## Theme
 
@@ -388,7 +395,26 @@
       (load-theme 'modus-operandi t))
 
 
-<a id="org52f6c8c"></a>
+<a id="org1cecd04"></a>
+
+### Modeline
+
+    (custom-set-faces
+     '(mode-line ((t (:family "fixed"
+    			  :height 100
+    			  :overline t
+    			  :box nil
+    			  :foreground "black"
+    			  :background "white"))))
+     '(mode-line-inactive ((t (:family "fixed"
+    				   :height 80
+    				   :overline t
+    				   :box nil
+    				   :foreground "#808080"
+    				   :background "white")))))
+
+
+<a id="org52f810d"></a>
 
 ### Fonts
 
@@ -405,30 +431,31 @@
         the first time, so it should be added to `window-setup-hook'.  It
         removes itself from that hook."
           (interactive)
-          (set-face-attribute 'default nil
-        		      :font
-        		      (font-candidate
-        		       "Libertinus Mono-11"
-        		       "Linux Libertine Mono O-11"
-        		       "Go Mono-10"
-        		       "Consolas-10"))
+          (when (display-graphic-p)
+            (set-face-attribute 'default nil
+        			:font
+        			(font-candidate
+        			 "Libertinus Mono-11"
+        			 "Linux Libertine Mono O-11"
+        			 "Go Mono-10"
+        			 "Consolas-10"))
         
-          (set-face-attribute 'fixed-pitch nil
-        		      :font
-        		      (font-candidate
-        		       "Libertinus Mono-11"
-        		       "Linux Libertine Mono O-11"
-        		       "Go Mono-10"
-        		       "Consolas-10"))
+            (set-face-attribute 'fixed-pitch nil
+        			:font
+        			(font-candidate
+        			 "Libertinus Mono-11"
+        			 "Linux Libertine Mono O-11"
+        			 "Go Mono-10"
+        			 "Consolas-10"))
         
-          (set-face-attribute 'variable-pitch nil
-        		      :font
-        		      (font-candidate
-        		       "Libertinus Serif-13"
-        		       "Linux Libertine O-12"
-        		       "Georgia-11"))
+            (set-face-attribute 'variable-pitch nil
+        			:font
+        			(font-candidate
+        			 "Libertinus Serif-13"
+        			 "Linux Libertine O-12"
+        			 "Georgia-11"))
         
-          (remove-hook 'window-setup-hook #'acdw/setup-fonts))
+            (remove-hook 'window-setup-hook #'acdw/setup-fonts)))
         
         (add-hook 'window-setup-hook #'acdw/setup-fonts)
 
@@ -447,12 +474,12 @@
           (unicode-fonts-setup))
 
 
-<a id="org6cbcfe5"></a>
+<a id="orgb1b190a"></a>
 
 # Interactivity
 
 
-<a id="org7f26398"></a>
+<a id="orge91bc0a"></a>
 
 ## Selectrum
 
@@ -461,7 +488,7 @@
       (selectrum-mode +1))
 
 
-<a id="orgea8df9e"></a>
+<a id="org2dec02d"></a>
 
 ## Prescient
 
@@ -475,7 +502,7 @@
       (selectrum-prescient-mode +1))
 
 
-<a id="org8818eb9"></a>
+<a id="org793390e"></a>
 
 ## Consult
 
@@ -496,29 +523,7 @@
       (fset 'multi-occur #'consult-multi-occur))
 
 
-<a id="orgd31a964"></a>
-
-## Marginalia
-
-    (use-package marginalia
-      :straight (marginalia
-    	     :host github
-    	     :repo "minad/marginalia"
-    	     :branch "main")
-      :custom
-      (marginalia-annotators
-       '((command . marginalia-annotate-command-full)
-         (customize-group . marginalia-annotate-customize-group)
-         (variable . marginalia-annotate-variable)
-         (face . marginalia-annotate-face)
-         (symbol . marginalia-annotate-symbol)
-         (variable . marginalia-annotate-variable)
-         (package . marginalia-annotate-package)))
-      :init
-      (marginalia-mode +1))
-
-
-<a id="org6e4913f"></a>
+<a id="orgf0e1425"></a>
 
 ## Ignore case
 
@@ -527,7 +532,7 @@
     (cuss read-file-name-completion-ignore-case t)
 
 
-<a id="org416dd18"></a>
+<a id="orgcb1ee5e"></a>
 
 ## Search
 
@@ -543,12 +548,23 @@
       (ctrlf-mode +1))
 
 
-<a id="orgb20768d"></a>
+<a id="orgf588a26"></a>
+
+## Mouse
+
+    (dolist (vec '([left-margin wheel-down]
+    	       [right-margin wheel-down]
+    	       [left-margin wheel-up]
+    	       [right-margin wheel-up]))
+      (bind-key vec #'mwheel-scroll))
+
+
+<a id="orgb6ade5d"></a>
 
 # Persistence
 
 
-<a id="org7dfee32"></a>
+<a id="org9a6f451"></a>
 
 ## Save history
 
@@ -568,7 +584,7 @@
     (savehist-mode +1)
 
 
-<a id="org0f20005"></a>
+<a id="org3041895"></a>
 
 ## Save places in files
 
@@ -580,7 +596,7 @@
     (save-place-mode 1)
 
 
-<a id="org6d1a477"></a>
+<a id="orgfddf139"></a>
 
 ## Recent files
 
@@ -596,7 +612,7 @@
     (recentf-mode 1)
 
 
-<a id="org9368a6b"></a>
+<a id="org5211a84"></a>
 
 ### Easily navigate recent files
 
@@ -610,7 +626,7 @@
     (global-set-key (kbd "C-x C-r") #'recentf-find-file)
 
 
-<a id="orgbb4f91a"></a>
+<a id="org203b48b"></a>
 
 ## Undo
 
@@ -619,45 +635,45 @@
       (undohist-initialize))
 
 
-<a id="org52b008a"></a>
+<a id="org697ec47"></a>
 
 # Editing
 
 
-<a id="orgce838ba"></a>
+<a id="org958bd79"></a>
 
 ## Operate visually on lines
 
     (global-visual-line-mode +1)
 
 
-<a id="org6f67996"></a>
+<a id="orgc5ef3b6"></a>
 
 ## Require a final newline
 
     (cuss require-final-newline t)
 
 
-<a id="orga2bdb3e"></a>
+<a id="orgba62063"></a>
 
 ## Killing & Yanking
 
 
-<a id="org16c1a6b"></a>
+<a id="orgcb04f02"></a>
 
 ### Replace selection when typing
 
     (delete-selection-mode +1)
 
 
-<a id="orgea7fd73"></a>
+<a id="orgdf80771"></a>
 
 ### Save existing clipboard text into kill ring before replacing it
 
     (cuss save-interprogram-paste-before-kill t)
 
 
-<a id="org27f430f"></a>
+<a id="org2252a8b"></a>
 
 ## So long mode
 
@@ -665,17 +681,38 @@
       (global-so-long-mode))
 
 
-<a id="org8cc8ee8"></a>
+<a id="org6fe3b6b"></a>
+
+## Multiple cursors
+
+    (use-package multiple-cursors
+      :bind
+      ("C->" . mc/mark-next-like-this)
+      ("C-<" . mc/mark-previous-like-this)
+      ("C-c C-<" . mc/mark-all-like-this))
+
+
+<a id="orgfe5b963"></a>
+
+## Expand region
+
+    (use-package expand-region
+      :bind
+      (("C-=" . er/expand-region)
+       ("C-+" . er/contract-region)))
+
+
+<a id="org0b92a32"></a>
 
 # Files
 
 
-<a id="org8ca2e9b"></a>
+<a id="orgf1babbf"></a>
 
 ## Encoding
 
 
-<a id="org54363a7"></a>
+<a id="org8dd350d"></a>
 
 ### UTF-8
 
@@ -687,7 +724,7 @@
     (prefer-coding-system 'utf-8)
 
 
-<a id="orgeaed3bd"></a>
+<a id="org34854a5"></a>
 
 ### Convert all files to UNIX-style line endings
 
@@ -705,7 +742,7 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
     (add-hook 'before-save-hook #'ewiki/no-junk-please-were-unixish)
 
 
-<a id="org7239c47"></a>
+<a id="org184d029"></a>
 
 ## Backups
 
@@ -715,14 +752,14 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
     (cuss vc-make-backup-files t)
 
 
-<a id="org32fc658"></a>
+<a id="org72595b4"></a>
 
 ## Auto-saves
 
     (auto-save-visited-mode 1)
 
 
-<a id="org94456e2"></a>
+<a id="orgd374486"></a>
 
 ## Revert files
 
@@ -730,31 +767,82 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
     (global-auto-revert-mode +1)
 
 
-<a id="orgb586b3b"></a>
+<a id="org8ac0e64"></a>
 
 ## Add a timestamp to files
 
     (add-hook 'before-save-hook #'time-stamp)
 
 
-<a id="org738fbd9"></a>
+<a id="org97bb90c"></a>
 
 # Programming
 
 
-<a id="org080eb2f"></a>
+<a id="orgbcce753"></a>
 
 ## Which function are we in?
 
     (which-function-mode +1)
 
 
-<a id="org6bf5097"></a>
+<a id="org7d7c4d6"></a>
+
+## Parentheses
+
+
+<a id="orgbe3915d"></a>
+
+### Show parentheses
+
+    (cuss show-paren-delay 0 "Show matching parens immediately.")
+    (cuss show-paren-style 'mixed
+          "Show parenthesis, or whole expression, depending on visibility.")
+    (cuss show-paren-when-point-in-periphery t
+          "Show paren when point is near-to paren.")
+    (cuss show-paren-when-point-inside-paren t
+          "Show surrounding parens.")
+    
+    (add-hook 'prog-mode-hook #'show-paren-mode)
+
+
+<a id="org9415ceb"></a>
+
+### Smart parentheses
+
+    (use-package smartparens
+      :init
+      (require 'smartparens-config)
+      :config
+      (show-smartparens-global-mode +1)
+      :hook
+      (prog-mode-hook . smart-parens-strict-mode))
+
+
+<a id="org2ebc45e"></a>
+
+## Line numbers
+
+    (defun acdw/enable-line-numbers ()
+      "Enable line numbers, through either
+      `display-line-numbers-mode' or through `linum-mode'."
+      (if (and (fboundp 'display-line-numbers-mode)
+    	   (display-graphic-p))
+          (display-line-numbers-mode +1)
+        (linum-mode +1)))
+    
+    (cuss display-line-numbers-width 2
+          "Always have at least 2 digits for line numbers.")
+    
+    (add-hook 'prog-mode-hook #'acdw/enable-line-numbers)
+
+
+<a id="orge8c66c9"></a>
 
 # Writing
 
 
-<a id="org6f01971"></a>
+<a id="org5278827"></a>
 
 ## Visual Fill Column
 
@@ -768,24 +856,24 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
       (advice-add 'text-scale-adjust
     	      :after #'visual-fill-column-adjust)
       :hook
-      (text-mode . visual-fill-column-mode))
+      (text-mode-hook . visual-fill-column-mode))
 
 
-<a id="org03e747d"></a>
+<a id="org63bd7b9"></a>
 
 ## Type nice-looking quote-type marks
 
     (use-package typo
       :hook
-      (text-mode . typo-mode))
+      (text-mode-hook . typo-mode))
 
 
-<a id="org9528516"></a>
+<a id="org50abb5d"></a>
 
 # Applications
 
 
-<a id="orgd2a60aa"></a>
+<a id="orgf68bfba"></a>
 
 ## Magit
 
@@ -794,17 +882,133 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
       ("C-x g" . magit-status))
 
 
-<a id="org7339cf2"></a>
+<a id="org66c3b6b"></a>
+
+## Org mode
+
+I’ve put org mode under Applications, as opposed to [8](#orge8c66c9), because it’s  more generally-applicable than that.
+
+    (use-package org
+      :custom
+      (org-hide-emphasis-markers t)
+      (org-fontify-done-headline t)
+      (org-fontify-whole-heading-line t)
+      (org-fontify-quote-and-verse-blocks t)
+      (org-pretty-entities t)
+    
+      (org-src-tab-acts-natively t)
+      (org-src-fontify-natively t)
+      (org-src-window-setup 'current-window)
+      (org-confirm-babel-evaluate nil))
+
+
+<a id="org34de14b"></a>
+
+### Export to markdown
+
+    (require 'ox-md)
+
+
+<a id="orge32cf6b"></a>
+
+### Make bullets look like bullets
+
+    (font-lock-add-keywords
+     'org-mode
+     '(("^ *\\([-+]\\) "
+        (0 (prog1 ()
+    	 (compose-region (match-beginning 1)
+    			 (match-end 1)
+    			 "•"))))))
+
+
+<a id="org5d13ece"></a>
+
+### [A better return in Org mode](http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/)
+
+    (require 'org-inlinetask)
+    
+    (defun scimax/org-return (&optional ignore)
+      "Add new list item, heading or table row with RET.
+    A double return on an empty element deletes it.
+    Use a prefix arg to get regular RET."
+      (interactive "P")
+      (if ignore
+          (org-return)
+        (cond
+    
+         ((eq 'line-break (car (org-element-context)))
+          (org-return t))
+    
+         ;; Open links like usual, unless point is at the end of a line.
+         ;; and if at beginning of line, just press enter.
+         ((or (and (eq 'link (car (org-element-context))) (not (eolp)))
+    	  (bolp))
+          (org-return))
+    
+         ;; It doesn't make sense to add headings in inline tasks. Thanks Anders
+         ;; Johansson!
+         ((org-inlinetask-in-task-p)
+          (org-return))
+    
+         ;; checkboxes too
+         ((org-at-item-checkbox-p)
+          (org-insert-todo-heading nil))
+    
+         ;; lists end with two blank lines, so we need to make sure we are also not
+         ;; at the beginning of a line to avoid a loop where a new entry gets
+         ;; created with only one blank line.
+         ((org-in-item-p)
+          (if (save-excursion (beginning-of-line) (org-element-property :contents-begin (org-element-context)))
+    	  (org-insert-heading)
+    	(beginning-of-line)
+    	(delete-region (line-beginning-position) (line-end-position))
+    	(org-return)))
+    
+         ;; org-heading
+         ((org-at-heading-p)
+          (if (not (string= "" (org-element-property :title (org-element-context))))
+    	  (progn (org-end-of-meta-data)
+    		 (org-insert-heading-respect-content)
+    		 (outline-show-entry))
+    	(beginning-of-line)
+    	(setf (buffer-substring
+    	       (line-beginning-position) (line-end-position)) "")))
+    
+         ;; tables
+         ((org-at-table-p)
+          (if (-any?
+    	   (lambda (x) (not (string= "" x)))
+    	   (nth
+    	    (- (org-table-current-dline) 1)
+    	    (org-table-to-lisp)))
+    	  (org-return)
+    	;; empty row
+    	(beginning-of-line)
+    	(setf (buffer-substring
+    	       (line-beginning-position) (line-end-position)) "")
+    	(org-return)))
+    
+         ;; fall-through case
+         (t
+          (org-return)))))
+    
+    
+    (define-key org-mode-map (kbd "RET")
+      'scimax/org-return)
+
+
+<a id="org1c0423c"></a>
 
 # Appendices
 
 
-<a id="org6070b2c"></a>
+<a id="orgea74573"></a>
 
 ## Emacs' files
 
 
-<a id="org0d720f6"></a>
+<a id="org1ed6b18"></a>
 
 ### init.el
 
@@ -825,7 +1029,7 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
         	   (org-babel-load-file org))))
 
 
-<a id="orgd6bffd2"></a>
+<a id="org1e22a5e"></a>
 
 ### early-init.el
 
@@ -835,34 +1039,35 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
     (setq frame-inhibit-implied-resize t)
 
 
-<a id="org9c5b437"></a>
+<a id="org50bd83d"></a>
 
 ## Ease tangling and loading of Emacs' init
 
-    (defun acdw/tangle-and-load-init ()
-      (interactive)
-      "If the current buffer is `config.org', tangle it, then byte-compile."
+    (defun refresh-emacs (&optional disable-load)
+      (interactive "P")
+      "Tangle `config.org', then byte-compile the resulting files.
+    Then, load the byte-compilations unless passed with a prefix argument."
       (let ((config (expand-file-name "config.org" user-emacs-directory)))
-        (when (string= (buffer-file-name) config)
-          (let ((prog-mode-hook nil))
-    	(require 'org)
-    	(org-babel-tangle-file config)
-    	(org-md-export-to-markdown)
-    
-          (dolist (file `(,(expand-file-name "init.el" 
-    					 user-emacs-directory)
-    		      ,(expand-file-name "config.el"
-    					 user-emacs-directory)))
-    	(byte-compile-file file t))))))
-    
-    (add-hook 'after-save-hook #'acdw/tangle-and-load-init)
+        (save-mark-and-excursion
+          (with-current-buffer (find-file config)
+           (let ((prog-mode-hook nil))
+    	 ;; generate the readme
+    	 (require 'ox-md)
+    	 (org-md-export-to-markdown)
+    	 ;; tangle config.org
+    	 (require 'org)
+    	 (let ((inits (org-babel-tangle)))
+    	   ;; byte-compile resulting files
+    	   (dolist (f inits)
+    	     (when (string-match "\\.el\\'" f)
+    	       (byte-compile-file f (not disable-load))))))))))
 
 
-<a id="org1a4bb4d"></a>
+<a id="org551e420"></a>
 
 ## License
 
-Copyright � 2020 Case Duckworth <acdw@acdw.net>
+Copyright © 2020 Case Duckworth <acdw@acdw.net>
 
 This work is free.  You can redistribute it and/or modify it under the
 terms of the Do What the Fuck You Want To Public License, Version 2,
@@ -885,7 +1090,7 @@ following source block, for details.
        0. You just DO WHAT THE FUCK YOU WANT TO.
 
 
-<a id="orga6047ee"></a>
+<a id="org15f94a8"></a>
 
 ### Note on the license
 
@@ -893,4 +1098,11 @@ It's highly likely that the WTFPL is completely incompatible with the
 GPL, for what should be fairly obvious reasons.  To that, I say:
 
 **SUE ME, RMS!**
+
+
+<a id="org3bda9ee"></a>
+
+## Keymaps for *this* file
+
+This isn’t working … yet.
 
