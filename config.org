@@ -704,6 +704,14 @@ Until the =marginalia-annotators= settles, I’m disabling this section.
   (add-hook 'prog-mode-hook #'acdw/enable-line-numbers)
 #+end_src
 
+** Indenting
+
+#+begin_src emacs-lisp
+  (use-package aggressive-indent
+    :config
+    (global-aggressive-indent-mode +1))
+#+end_src
+
 * Writing
 
 ** Visual Fill Column
