@@ -750,7 +750,7 @@ Until the =marginalia-annotators= settles, I’m disabling this section.
 
 ** Org mode
 
-I’ve put org mode under Applications, as opposed to [[*Writing]], because it’s  more generally-applicable than that.
+I’ve put org mode under Applications, as opposed to Writing, because it’s  more generally-applicable than that.
 
 #+begin_src emacs-lisp
   (use-package org
