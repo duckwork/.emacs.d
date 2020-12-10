@@ -684,7 +684,7 @@ Until the =marginalia-annotators= settles, I’m disabling this section.
     :config
     (show-smartparens-global-mode +1)
     :hook
-    (prog-mode-hook . smart-parens-strict-mode))
+    (prog-mode-hook . smartparens-strict-mode))
 #+end_src
 
 ** Line numbers
