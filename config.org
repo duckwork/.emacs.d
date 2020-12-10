@@ -924,6 +924,15 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 		  (byte-compile-file f (not disable-load))))))))))
 	   #+end_src
 
+*** Add a hook to tangle when quitting
+
+#+begin_src emacs-lisp
+  (defun acdw/refresh-emacs-no-load ()
+    (refresh-emacs t))
+
+  (add-hook 'kill-emacs-hook #'acdw/refresh-emacs-no-load)
+#+end_src
+
 ** License
    :PROPERTIES:
    :header-args: :tangle LICENSE :comments no
@@ -959,9 +968,3 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
  GPL, for what should be fairly obvious reasons.  To that, I say:
 
  *SUE ME, RMS!*
-
-** Keymaps for /this/ file
-
-This isn’t working … yet.
-
-#+KEYMAP: C-c C-v t | refresh-emacs
