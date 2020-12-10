@@ -337,17 +337,17 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 			   "Linux Libertine Mono O-11"
 			   "Go Mono-10"
 			   "Consolas-10"))
-    
+
       (set-face-attribute 'variable-pitch nil
 			  :font
 			  (font-candidate
 			   "Libertinus Serif-13"
 			   "Linux Libertine O-12"
 			   "Georgia-11"))
-    
-      (remove-hook 'window-setup-hook #'acdw/setup-fonts)))
 
-  (add-hook 'window-setup-hook #'acdw/setup-fonts)
+      (remove-function after-focus-change-function #'acdw/setup-fonts)))
+
+  (add-function :before after-focus-change-function #'acdw/setup-fonts)
 #+end_src
 
 **** Variable-pitch in text modes
