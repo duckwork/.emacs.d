@@ -759,6 +759,23 @@ Until the =marginalia-annotators= settles, I’m disabling this section.
     (company-posframe-mode +1))
 #+end_src
 
+** Languages
+
+*** Lua
+
+#+begin_src emacs-lisp
+  (use-package lua-mode
+    :mode "\\.lua\\'"
+    :interpreter "lua")
+#+end_src
+
+*** Fennel
+
+#+begin_src emacs-lisp
+  (use-package fennel-mode
+    :mode "\\.fnl\\'")
+#+end_src
+
 * Writing
 
 ** Visual Fill Column
