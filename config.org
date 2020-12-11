@@ -1058,6 +1058,25 @@ from [[https://github.com/alphapapa/unpackaged.el#ensure-blank-lines-between-hea
     (0x0-default-service 'ttm))
 #+end_src
 
+** Elfeed
+
+inspired by [[https://karthinks.com/software/lazy-elfeed/]["Lazy Elfeed"]].
+
+#+begin_src emacs-lisp
+  (use-package elfeed
+    :when (executable-find "curl")
+    :hook
+    (elfeed-show-mode-hook . visual-fill-column-mode))
+
+  (use-package elfeed-org
+    :custom
+    (rmh-elfeed-org-files
+     (list (expand-file-name "elfeed.org"
+			     user-emacs-directory)))
+    :init
+    (elfeed-org))
+#+end_src
+
 * Appendices
 
 ** Emacs' files
