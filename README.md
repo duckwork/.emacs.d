@@ -1012,6 +1012,19 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     (add-hook 'kill-emacs-hook #'acdw/refresh-emacs-no-load)
 
 
+## Ancillary scripts
+
+
+### emacsdc
+
+A wrapper script around emacs-client that starts the daemon if it hasn’t been yet.
+
+    if ! emacsclient -nc "$@" 2>/dev/null; then
+        emacs --daemon
+        emacsclient -nc "$@"
+    fi
+
+
 ## License
 
 Copyright © 2020 Case Duckworth <acdw@acdw.net>

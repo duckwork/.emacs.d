@@ -4,7 +4,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3
-#+Time-stamp: <2020-12-10 17:46:10 aduckworth>
+#+Time-stamp: <2020-12-10 19:54:27 acdw>
 
 Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 
@@ -1117,6 +1117,19 @@ from [[https://github.com/alphapapa/unpackaged.el#ensure-blank-lines-between-hea
     (refresh-emacs 'disable-load))
 
   (add-hook 'kill-emacs-hook #'acdw/refresh-emacs-no-load)
+#+end_src
+
+** Ancillary scripts
+
+*** emacsdc
+
+A wrapper script around emacs-client that starts the daemon if it hasn’t been yet.
+
+#+begin_src sh :tangle emacsdc :shebang "#!/bin/sh"
+  if ! emacsclient -nc "$@" 2>/dev/null; then
+      emacs --daemon
+      emacsclient -nc "$@"
+  fi
 #+end_src
 
 ** License
