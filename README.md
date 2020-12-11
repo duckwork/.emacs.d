@@ -7,19 +7,19 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 ## Correct `exec-path`
 
     (let ((win-downloads "c:/Users/aduckworth/Downloads"))
-      (dolist (path `(;; Linux
-    		  ,(expand-file-name "bin"
-    				     user-emacs-directory)
-    		  ,(expand-file-name "~/bin")
-    		  ,(expand-file-name "~/.local/bin")
-    		  ,(expand-file-name "~/Scripts")
-    		  ;; Windows
-    		  ,(expand-file-name "emacs/bin"
-    				    win-downloads)
-    		  ,(expand-file-name "PortableGit/bin"
-    				    win-downloads)
-    		  ,(expand-file-name "PortableGit/usr/bin"
-    				    win-downloads)))
+      (dolist (path (list ;; Linux
+    		 (expand-file-name "bin"
+    				   user-emacs-directory)
+    		 (expand-file-name "~/bin")
+    		 (expand-file-name "~/.local/bin")
+    		 (expand-file-name "~/Scripts")
+    		 ;; Windows
+    		 (expand-file-name "emacs/bin"
+    				   win-downloads)
+    		 (expand-file-name "PortableGit/bin"
+    				   win-downloads)
+    		 (expand-file-name "PortableGit/usr/bin"
+    				   win-downloads)))
         (when (file-exists-p path)
           (add-to-list 'exec-path path))))
 
@@ -677,6 +677,22 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
       (company-posframe-mode +1))
 
 
+## Languages
+
+
+### Lua
+
+    (use-package lua-mode
+      :mode "\\.lua\\'"
+      :interpreter "lua")
+
+
+### Fennel
+
+    (use-package fennel-mode
+      :mode "\\.fnl\\'")
+
+
 # Writing
 
 
@@ -945,6 +961,24 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     (use-package 0x0
       :custom
       (0x0-default-service 'ttm))
+
+
+## Elfeed
+
+inspired by ["Lazy Elfeed"](https://karthinks.com/software/lazy-elfeed/).
+
+    (use-package elfeed
+      :when (executable-find "curl")
+      :hook
+      (elfeed-show-mode . visual-fill-column-mode))
+    
+    (use-package elfeed-org
+      :custom
+      (rmh-elfeed-org-files
+       (list (expand-file-name "elfeed.org"
+    			   user-emacs-directory)))
+      :init
+      (elfeed-org))
 
 
 # Appendices
