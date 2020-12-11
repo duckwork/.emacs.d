@@ -29,6 +29,8 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 
 ### Straight.el
 
+This still doesn’t work under Windows – I have to manually download the [repo archive](https://github.com/raxod502/straight.el/archive/master.zip) and unzip it.  Not the biggest burden, I suppose.
+
     (defvar bootstrap-version)
     (let ((bootstrap-file
            (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -100,7 +102,7 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
     	       "autosaves"
     	       "undos"
     	       "elpher-certificates"))
-      (make-directory (no-littering-expand-var-file-name dir) t))
+      (make-directory (no-littering-expand-var-file-name dir) 'parents))
 
 
 ## About me
@@ -247,7 +249,8 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
       (modus-themes-diffs nil)
       (modus-themes-org-blocks 'grayscale)
       (modus-themes-headings
-       '())
+       '((1 . line)
+         (t . t)))
       (modus-themes-variable-pitch-headings t)
       (modus-themes-scale-headings t)
       (modus-themes-scale-1 1.1)
@@ -260,6 +263,27 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
        ((t (:inherit (custom-comment italic variable-pitch)))))
       :init
       (load-theme 'modus-operandi t))
+
+
+### Change theme based on time of day
+
+    (cuss calendar-latitude 30.4515)
+    (cuss calendar-longitude -91.1871)
+    
+    (use-package circadian
+      :after solar
+      :custom
+      (circadian-themes '((:sunrise . modus-operandi)
+    		      (:sunset . modus-vivendi)))
+      :config
+      (circadian-setup))
+
+
+### Modeline
+
+    (use-package mood-line
+      :config
+      (mood-line-mode +1))
 
 
 ### Fonts
@@ -301,9 +325,9 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
         			 "Linux Libertine O-12"
         			 "Georgia-11"))
         
-            (remove-hook 'after-init-hook #'acdw/setup-fonts)))
+            (remove-function after-focus-change-function #'acdw/setup-fonts)))
         
-        (add-hook 'after-init-hook #'acdw/setup-fonts)
+        (add-function :before after-focus-change-function #'acdw/setup-fonts)
 
 2.  Variable-pitch in text modes
 
@@ -618,6 +642,41 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
       (global-aggressive-indent-mode +1))
 
 
+## Completion
+
+    (use-package company
+      :custom
+      (company-idle-delay 0.1)
+    
+      :init
+      (defun acdw/company-complete-common-or-cycle+1 ()
+        (interactive)
+        (company-complete-common-or-cycle +1))
+    
+      (defun acdw/company-complete-common-or-cycle-1 ()
+        (interactive)
+        (company-complete-common-or-cycle -1))
+    
+      :bind
+      (:map company-active-map
+    	("C-n" . acdw/company-complete-common-or-cycle+1)
+    	("C-p" . acdw/company-complete-common-or-cycle-1))
+    
+      :hook
+      (prog-mode-hook . company-mode))
+    
+    (use-package company-prescient
+      :hook
+      (company-mode-hook . company-prescient-mode))
+    
+    ;; this comes with company-quickhelp, so....
+    
+    (use-package company-posframe
+      :after (company)
+      :config
+      (company-posframe-mode +1))
+
+
 # Writing
 
 
@@ -774,8 +833,9 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
       (interactive "P")
       (org-map-entries (lambda ()
     		     (org-with-wide-buffer
-    		      ;; `org-map-entries' narrows the buffer, which prevents us from seeing
-    		      ;; newlines before the current heading, so we do this part widened.
+    		      ;; `org-map-entries' narrows the buffer, which prevents us
+    		      ;; from seeing newlines before the current heading, so we
+    		      ;; do this part widened.
     		      (while (not (looking-back "\n\n" nil))
     			;; Insert blank lines before heading.
     			(insert "\n")))
@@ -787,9 +847,10 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     			 ;; Skip planning lines
     			 (forward-line))
     		       (while (re-search-forward org-drawer-regexp end t)
-    			 ;; Skip drawers. You might think that `org-at-drawer-p' would suffice, but
-    			 ;; for some reason it doesn't work correctly when operating on hidden text.
-    			 ;; This works, taken from `org-agenda-get-some-entry-text'.
+    			 ;; Skip drawers. You might think that `org-at-drawer-p'
+    			 ;; would suffice, but for some reason it doesn't work
+    			 ;; correctly when operating on hidden text.  This
+    			 ;; works, taken from `org-agenda-get-some-entry-text'.
     			 (re-search-forward "^[ \t]*:END:.*\n?" end t)
     			 (goto-char (match-end 0)))
     		       (unless (or (= (point) (point-max))
@@ -810,6 +871,82 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
         (add-hook 'before-save-hook #'cribbed/org-mode-fix-blank-lines)
 
 
+## Elpher
+
+    (use-package elpher
+      :straight (elpher
+    	     :repo "git://thelambdalab.xyz/elpher.git"
+    	     :branch "patch_multiple_buffers")
+    
+      :custom
+      (elpher-ipv4-always t)
+    
+      :custom-face
+      (elpher-gemini-heading1
+       ((t (:inherit (modus-theme-heading-1)))))
+      (elpher-gemini-heading2
+       ((t (:inherit (modus-theme-heading-2)))))
+      (elpher-gemini-heading3
+       ((t (:inherit (modus-theme-heading-3)))))
+    
+      :config
+      (defun elpher:eww-browse-url (original url &optional new-window)
+        "Handle gemini/gopher links with eww."
+        (cond ((string-match-p "\\`\\(gemini\\|gopher\\)://" url)
+    	   (require 'elpher)
+    	   (elpher-go url))
+    	  (t (funcall original url new-window))))
+      (advice-add 'eww-browse-url :around 'elpher:eww-browse-url)
+    
+      :bind (:map elpher-mode-map
+    	      ("n" . elpher-next-link)
+    	      ("p" . elpher-prev-link)
+    	      ("o" . elpher-follow-current-link)
+    	      ("G" . elpher-go-current))
+    
+      :hook
+      (elpher-mode-hook . visual-fill-column-mode))
+
+
+### Gemini mode
+
+    (use-package gemini-mode
+      :straight (gemini-mode
+    	     :repo "https://git.carcosa.net/jmcbray/gemini.el.git")
+    
+      :mode "\\.\\(gemini|gmi\\)\\'"
+    
+      :custom-face
+      (gemini-heading-face-1
+       ((t (:inherit (elpher-gemini-heading1)))))
+      (gemini-heading-face2
+       ((t (:inherit (elpher-gemini-heading2)))))
+      (gemini-heading-face3
+       ((t (:inherit (elpher-gemini-heading3)))))
+    
+      :init
+      (defun acdw/setup-gemini-mode ()
+        (visual-fill-column-mode 1)
+        (variable-pitch-mode -1))
+    
+      :hook
+      (gemini-mode-hook . acdw/setup-gemini-mode))
+
+
+### Gemini write
+
+    (use-package gemini-write
+      :straight (gemini-write
+    	     :repo "https://alexschroeder.ch/cgit/gemini-write"))
+
+
+## Pastebin
+
+    (use-package 0x0
+      :custom
+      (0x0-default-service 'ttm))
+
+
 # Appendices
 
 
@@ -822,17 +959,13 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
 
 1.  Load config
 
-    from [Protesilaos Stavrou](https://protesilaos.com/dotemacs/#h:584c3604-55a1-49d0-9c31-abe46cb1f028).
+    inspired by [Protesilaos Stavrou](https://protesilaos.com/dotemacs/#h:584c3604-55a1-49d0-9c31-abe46cb1f028).
     
-        (let* ((conf (expand-file-name "config"
-        			       user-emacs-directory))
-               (elc (concat conf ".elc"))
-               (el (concat conf ".el"))
-               (org (concat conf ".org")))
-          (cond ((file-exists-p elc) (load-file elc))
-        	((file-exists-p el) (load-file el))
-        	(t (require 'org)
-        	   (org-babel-load-file org))))
+        (let ((conf (expand-file-name "config"
+        			      user-emacs-directory)))
+          (unless (load conf 'no-error)
+            (require 'org)
+            (org-babel-load-file (concat conf ".org"))))
 
 
 ### early-init.el
@@ -852,23 +985,29 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
       (let ((config (expand-file-name "config.org" user-emacs-directory)))
         (save-mark-and-excursion
           (with-current-buffer (find-file config)
-           (let ((prog-mode-hook nil))
-    	 ;; generate the readme
-    	 (require 'ox-md)
-    	 (org-md-export-to-markdown)
-    	 ;; tangle config.org
-    	 (require 'org)
-    	 (let ((inits (org-babel-tangle)))
-    	   ;; byte-compile resulting files
-    	   (dolist (f inits)
-    	     (when (string-match "\\.el\\'" f)
-    	       (byte-compile-file f (not disable-load))))))))))
+    	(let ((prog-mode-hook nil))
+    	  ;; generate the readme
+    	  (when (file-newer-than-file-p config (expand-file-name
+    						"README.md"
+    						user-emacs-directory))
+    	    (require 'ox-md)
+    	    (org-md-export-to-markdown))
+    	  ;; tangle config.org
+    	  (when (file-newer-than-file-p config (expand-file-name
+    						"config.el"
+    						user-emacs-directory))
+    	    (require 'org)
+    	    (let ((inits (org-babel-tangle)))
+    	      ;; byte-compile resulting files
+    	      (dolist (f inits)
+    		(when (string-match "\\.el\\'" f)
+    		  (byte-compile-file f (not disable-load)))))))))))
 
 
 ### Add a hook to tangle when quitting
 
     (defun acdw/refresh-emacs-no-load ()
-      (refresh-emacs t))
+      (refresh-emacs 'disable-load))
     
     (add-hook 'kill-emacs-hook #'acdw/refresh-emacs-no-load)
 
