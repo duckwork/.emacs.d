@@ -866,6 +866,12 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 
 #+begin_src emacs-lisp
   (use-package org
+    :mode ("\\.org\\'" . org-mode)
+
+    :bind (:map org-mode-map
+		("M-n" . outline-next-visible-heading)
+		("M-p" . outline-previous-visible-heading))
+
     :custom
     (org-hide-emphasis-markers t)
     (org-fontify-done-headline t)
@@ -877,13 +883,11 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     (org-src-tab-acts-natively t)
     (org-src-fontify-natively t)
     (org-src-window-setup 'current-window)
-    (org-confirm-babel-evaluate nil))
-#+end_src
+    (org-confirm-babel-evaluate nil)
 
-*** Export to markdown
-
-#+begin_src emacs-lisp
-  (require 'ox-md)
+    :config
+    (require 'org-tempo)
+    (require 'ox-md))
 #+end_src
 
 *** Make bullets look like bullets
