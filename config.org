@@ -842,6 +842,14 @@ Until the =marginalia-annotators= settles, I’m disabling this section.
     (text-mode-hook . typo-mode))
 #+end_src
 
+** Insert /kaomoji/
+
+#+begin_src emacs-lisp
+  (use-package insert-kaomoji
+    :bind
+    ("C-x 8 k" . insert-kaomoji))
+#+end_src
+
 * Applications
 
 ** Magit
