@@ -768,7 +768,8 @@ Until the =marginalia-annotators= settles, I’m disabling this section.
   (use-package company
     :custom
     (company-idle-delay 0.1)
-  
+    (company-minimum-prefix-length 3)
+
     :init
     (defun acdw/company-complete-common-or-cycle+1 ()
       (interactive)
