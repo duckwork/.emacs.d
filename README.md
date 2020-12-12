@@ -19,6 +19,10 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
     		 (expand-file-name "PortableGit/bin"
     				   win-downloads)
     		 (expand-file-name "PortableGit/usr/bin"
+    				   win-downloads)
+    		 (expand-file-name "m/usr/bin"
+    				   win-downloads)
+    		 (expand-file-name "m/mingw64/bin"
     				   win-downloads)))
         (when (file-exists-p path)
           (add-to-list 'exec-path path))))
@@ -92,8 +96,6 @@ This still doesn’t work under Windows – I have to manually download the [rep
       (save-place-file
        (no-littering-expand-var-file-name "places"))
       (undo-fu-session-directory
-       (no-littering-expand-var-file-name "undos/"))
-      (undohist-directory
        (no-littering-expand-var-file-name "undos/"))
       (elpher-certificate-directory
        (no-littering-expand-var-file-name "elpher-certificates/")))
@@ -220,6 +222,42 @@ This still doesn’t work under Windows – I have to manually download the [rep
     (cuss indicate-empty-lines t)
 
 
+## Windows
+
+
+### Split windows *more* sensibly
+
+from [Stack Overflow](https://stackoverflow.com/questions/23659909/reverse-evaluation-order-of-split-height-threshold-and-split-width-threshold-in).
+
+    (defun my-split-window-sensibly (&optional window)
+      (let ((window (or window (selected-window))))
+        (or (and (window-splittable-p window t)
+    	     ;; Split window horizontally.
+    	     (with-selected-window window
+    	       (split-window-right)))
+    	(and (window-splittable-p window)
+    	     ;; Split window vertically.
+    	     (with-selected-window window
+    	       (split-window-below)))
+    	(and (eq window (frame-root-window (window-frame window)))
+    	     (not (window-minibuffer-p window))
+    	     ;; If WINDOW is the only window on its frame and is not the
+    	     ;; minibuffer window, try to split it horizontally disregarding
+    	     ;; the value of `split-width-threshold'.
+    	     (let ((split-width-threshold 0))
+    	       (when (window-splittable-p window t)
+    		 (with-selected-window window
+    		   (split-window-right))))))))
+    
+    (setq split-window-preferred-function #'my-split-window-sensibly)
+
+
+### Winner mode
+
+    (when (fboundp 'winner-mode)
+      (winner-mode +1))
+
+
 ## Startup
 
     (cuss inhibit-startup-screen t "Don't show Emacs' startup buffer.")
@@ -271,7 +309,6 @@ This still doesn’t work under Windows – I have to manually download the [rep
     (cuss calendar-longitude -91.1871)
     
     (use-package circadian
-      :after solar
       :custom
       (circadian-themes '((:sunrise . modus-operandi)
     		      (:sunset . modus-vivendi)))
@@ -474,9 +511,18 @@ This still doesn’t work under Windows – I have to manually download the [rep
 
 ## Undo
 
-    (use-package undohist
+    (use-package undo-fu
+      :bind
+      ("C-/" . undo-fu-only-undo)
+      ("C-?" . undo-fu-only-redo))
+    
+    (use-package undo-fu-session
+      :custom
+      (undo-fu-session-incompatible-files
+       '("/COMMIT_EDITMSG\\'"
+         "/git-rebase-todo\\'"))
       :config
-      (undohist-initialize))
+      (global-undo-fu-session-mode +1))
 
 
 # Editing
@@ -647,6 +693,7 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
     (use-package company
       :custom
       (company-idle-delay 0.1)
+      (company-minimum-prefix-length 3)
     
       :init
       (defun acdw/company-complete-common-or-cycle+1 ()
@@ -718,6 +765,13 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
       (text-mode-hook . typo-mode))
 
 
+## Insert *kaomoji*
+
+    (use-package insert-kaomoji
+      :bind
+      ("C-x 8 k" . insert-kaomoji))
+
+
 # Applications
 
 
@@ -733,6 +787,12 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
 I’ve put org mode under Applications, as opposed to Writing, because it’s  more generally-applicable than that.
 
     (use-package org
+      :mode ("\\.org\\'" . org-mode)
+    
+      :bind (:map org-mode-map
+    	      ("M-n" . outline-next-visible-heading)
+    	      ("M-p" . outline-previous-visible-heading))
+    
       :custom
       (org-hide-emphasis-markers t)
       (org-fontify-done-headline t)
@@ -744,12 +804,11 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
       (org-src-tab-acts-natively t)
       (org-src-fontify-natively t)
       (org-src-window-setup 'current-window)
-      (org-confirm-babel-evaluate nil))
-
-
-### Export to markdown
-
-    (require 'ox-md)
+      (org-confirm-babel-evaluate nil)
+    
+      :config
+      (require 'org-tempo)
+      (require 'ox-md))
 
 
 ### Make bullets look like bullets
@@ -970,7 +1029,7 @@ inspired by ["Lazy Elfeed"](https://karthinks.com/software/lazy-elfeed/).
     (use-package elfeed
       :when (executable-find "curl")
       :hook
-      (elfeed-show-mode . visual-fill-column-mode))
+      (elfeed-show-mode-hook . visual-fill-column-mode))
     
     (use-package elfeed-org
       :custom

@@ -4,6 +4,7 @@
 # except ...
 !config.org
 !init.el
+!early-init.el
 !.gitignore
 !README.md
 
