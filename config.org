@@ -4,7 +4,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3
-#+Time-stamp: <2020-12-10 22:55:25 acdw>
+#+Time-stamp: <2020-12-11 18:29:59 acdw>
 
 Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 
@@ -580,9 +580,18 @@ Until the =marginalia-annotators= settles, I’m disabling this section.
 ** Undo
 
 #+begin_src emacs-lisp
-  (use-package undohist
+  (use-package undo-fu
+    :bind
+    ("C-/" . undo-fu-only-undo)
+    ("C-?" . undo-fu-only-redo))
+
+  (use-package undo-fu-session
+    :custom
+    (undo-fu-session-incompatible-files
+     '("/COMMIT_EDITMSG\\'"
+       "/git-rebase-todo\\'"))
     :config
-    (undohist-initialize))
+    (global-undo-fu-session-mode +1))
 #+end_src
 
 * Editing
