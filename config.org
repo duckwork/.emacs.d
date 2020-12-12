@@ -26,6 +26,10 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 		    (expand-file-name "PortableGit/bin"
 				      win-downloads)
 		    (expand-file-name "PortableGit/usr/bin"
+				      win-downloads)
+		    (expand-file-name "m/usr/bin"
+				      win-downloads)
+		    (expand-file-name "m/mingw64/bin"
 				      win-downloads)))
        (when (file-exists-p path)
 	 (add-to-list 'exec-path path))))
