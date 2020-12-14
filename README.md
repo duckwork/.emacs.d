@@ -1022,22 +1022,55 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
       (0x0-default-service 'ttm))
 
 
-## Elfeed
+## RSS
 
-inspired by ["Lazy Elfeed"](https://karthinks.com/software/lazy-elfeed/).
-
-    (use-package elfeed
-      :when (executable-find "curl")
-      :hook
-      (elfeed-show-mode-hook . visual-fill-column-mode))
-    
-    (use-package elfeed-org
+    (use-package newsticker
       :custom
-      (rmh-elfeed-org-files
-       (list (expand-file-name "elfeed.org"
-    			   user-emacs-directory)))
-      :init
-      (elfeed-org))
+      (newsticker-url-list
+       ;; LABEL URL [START-TIME] [INERVAL] [WGET-ARGUMENTS]
+       '(("wsinatra" "http://lambdacreate.com/static/feed.rss")
+         ("elioat" "https://eli.li/feed.rss")
+         ("ACDW" "https://www.acdw.net/atom.xml")
+         ("june" "https://text.causal.agency/feed.atom")
+         ("kylie - notes" "https://www.somas.is/notes.atom")
+         ("kylie - rhizome" "https://www.somas.is/rhizome.atom")
+         ("brennan" "https://p1k3.com/all.xml")
+         ("Planet Emacs" "https://planet.emacslife.com/atom.xml") 
+         ("nullprogram, Chris Wellons" "https://nullprogram.com/feed/")
+         ("Malleable Systems" "https://malleable.systems/blog/index.xml"))
+       )
+      :hook
+      (newsticker-treeview-item-mode-hook . visual-fill-column-mode))
+
+
+## Web browsing
+
+
+### Open youtube links in mpv
+
+from [karthinks](https://karthinks.com/software/more-batteries-included-with-emacs/#regexp-builder--m-x-re-builder).
+
+    (require 'browse-url)
+    
+    (when (executable-find "mpv")
+      (defun browse-url-mpv (url &optional single)
+        (start-process "mpv" nil (if single "mpv" "umpv")
+    		   (shell-quote-wildcard-pattern url)))
+    
+      (defun browse-url-at-point-mpv (&optional single)
+        "Open a link in mpv."
+        (interactive "P")
+        (let ((browse-url-browser-function
+    	   (if single
+    	       (lambda
+    		 (url &optional _new-window)
+    		 (browse-url-mpv url t))
+    	     #'browse-url-mpv)))
+          (browse-url-at-point)))
+    
+      (cuss browse-url-browser-function
+    	'(("https?:\\/\\/www\\.youtu\\.*be." . browse-url-mpv)
+    	  ("." . browse-url-generic))))
 
 
 # Appendices
