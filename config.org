@@ -1245,9 +1245,9 @@ from [[https://karthinks.com/software/more-batteries-included-with-emacs/#regexp
 
  #+begin_src emacs-lisp
    (defun refresh-emacs (&optional disable-load)
-     (interactive "P")
      "Tangle `config.org', then byte-compile the resulting files.
    Then, load the byte-compilations unless passed with a prefix argument."
+     (interactive "P")
      (let ((config (expand-file-name "config.org" user-emacs-directory)))
        (save-mark-and-excursion
 	 (with-current-buffer (find-file config)
