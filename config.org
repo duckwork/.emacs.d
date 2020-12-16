@@ -459,11 +459,14 @@ from [[https://stackoverflow.com/questions/23659909/reverse-evaluation-order-of-
      ("<help> a" . consult-apropos))
     :init
     (fset 'multi-occur #'consult-multi-occur))
+
+  (use-package consult-selectrum
+    :straight (consult-selectrum
+	       :host github
+	       :repo "minad/consult"))
 #+end_src
 
-** COMMENT Marginalia
-
-Until the =marginalia-annotators= settles, I’m disabling this section.
+** Marginalia
 
 #+begin_src emacs-lisp
   (use-package marginalia
