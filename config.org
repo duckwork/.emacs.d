@@ -1104,6 +1104,15 @@ from [[https://github.com/alphapapa/unpackaged.el#ensure-blank-lines-between-hea
 	       :repo "https://alexschroeder.ch/cgit/gemini-write"))
 #+end_src
 
+*** Ox-gemini
+
+#+begin_src emacs-lisp
+  (use-package ox-gemini
+    :straight (ox-gemini
+	       :repo "https://git.sr.ht/~abrahms/ox-gemini"
+	       :branch "main"))
+#+end_src
+
 ** Pastebin
 
 #+begin_src emacs-lisp
