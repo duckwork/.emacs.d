@@ -1173,6 +1173,35 @@ from [[https://karthinks.com/software/more-batteries-included-with-emacs/#regexp
 	    ("." . browse-url-generic))))
 #+end_src
 
+** Reading e-books
+
+#+begin_src emacs-lisp
+  (use-package nov
+    :mode ("\\.epub\\'" . nov-mode)
+    :init
+    (defun acdw/setup-nov-mode ()
+      (visual-line-mode +1)
+      (visual-fill-column-mode +1)
+      (variable-pitch-mode +1))
+    :config
+    (cuss nov-text-width t)
+    :hook
+    (nov-mode-hook . acdw/setup-nov-mode))
+#+end_src
+
+** Eshell
+
+#+begin_src emacs-lisp
+  (when (executable-find "bash")
+    (use-package bash-completion))
+
+  (when (executable-find "fish")
+    (use-package fish-completion
+      :config
+      (cuss fish-completion-fallback-on-bash-p (executable-find "bash"))
+      (global-fish-completion-mode +1)))
+#+end_src
+
 * Appendices
 
 ** Emacs' files
