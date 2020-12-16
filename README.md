@@ -16,13 +16,13 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
     		 ;; Windows
     		 (expand-file-name "emacs/bin"
     				   win-downloads)
-    		 (expand-file-name "PortableGit/bin"
-    				   win-downloads)
-    		 (expand-file-name "PortableGit/usr/bin"
-    				   win-downloads)
     		 (expand-file-name "m/usr/bin"
     				   win-downloads)
     		 (expand-file-name "m/mingw64/bin"
+    				   win-downloads)
+    		 (expand-file-name "PortableGit/bin"
+    				   win-downloads)
+    		 (expand-file-name "PortableGit/usr/bin"
     				   win-downloads)))
         (when (file-exists-p path)
           (add-to-list 'exec-path path))))
@@ -420,6 +420,24 @@ from [Stack Overflow](https://stackoverflow.com/questions/23659909/reverse-evalu
        ("<help> a" . consult-apropos))
       :init
       (fset 'multi-occur #'consult-multi-occur))
+    
+    (use-package consult-selectrum
+      :straight (consult-selectrum
+    	     :host github
+    	     :repo "minad/consult"))
+
+
+## Marginalia
+
+    (use-package marginalia
+      :straight (marginalia
+    	     :host github
+    	     :repo "minad/marginalia"
+    	     :branch "main")
+      :init
+      (marginalia-mode +1)
+      (cuss marginalia-annotators '(marginalia-annotators-heavy
+    				marginalia-annotators-light)))
 
 
 ## Ignore case
@@ -1015,6 +1033,14 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     	     :repo "https://alexschroeder.ch/cgit/gemini-write"))
 
 
+### Ox-gemini
+
+    (use-package ox-gemini
+      :straight (ox-gemini
+    	     :repo "https://git.sr.ht/~abrahms/ox-gemini"
+    	     :branch "main"))
+
+
 ## Pastebin
 
     (use-package 0x0
@@ -1073,6 +1099,33 @@ from [karthinks](https://karthinks.com/software/more-batteries-included-with-ema
     	  ("." . browse-url-generic))))
 
 
+## Reading e-books
+
+    (use-package nov
+      :mode ("\\.epub\\'" . nov-mode)
+      :init
+      (defun acdw/setup-nov-mode ()
+        (visual-line-mode +1)
+        (visual-fill-column-mode +1)
+        (variable-pitch-mode +1))
+      :config
+      (cuss nov-text-width t)
+      :hook
+      (nov-mode-hook . acdw/setup-nov-mode))
+
+
+## Eshell
+
+    (when (executable-find "bash")
+      (use-package bash-completion))
+    
+    (when (executable-find "fish")
+      (use-package fish-completion
+        :config
+        (cuss fish-completion-fallback-on-bash-p (executable-find "bash"))
+        (global-fish-completion-mode +1)))
+
+
 # Appendices
 
 
@@ -1105,9 +1158,9 @@ from [karthinks](https://karthinks.com/software/more-batteries-included-with-ema
 ## Ease tangling and loading of Emacs' init
 
     (defun refresh-emacs (&optional disable-load)
-      (interactive "P")
       "Tangle `config.org', then byte-compile the resulting files.
     Then, load the byte-compilations unless passed with a prefix argument."
+      (interactive "P")
       (let ((config (expand-file-name "config.org" user-emacs-directory)))
         (save-mark-and-excursion
           (with-current-buffer (find-file config)
