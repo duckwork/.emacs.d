@@ -471,17 +471,10 @@ Until the =marginalia-annotators= settles, I’m disabling this section.
 	       :host github
 	       :repo "minad/marginalia"
 	       :branch "main")
-    :custom
-    (marginalia-annotators
-     '((command . marginalia-annotate-command-full)
-       (customize-group . marginalia-annotate-customize-group)
-       (variable . marginalia-annotate-variable)
-       (face . marginalia-annotate-face)
-       (symbol . marginalia-annotate-symbol)
-       (variable . marginalia-annotate-variable)
-       (package . marginalia-annotate-package)))
     :init
-    (marginalia-mode +1))
+    (marginalia-mode +1)
+    (cuss marginalia-annotators '(marginalia-annotators-heavy
+				  marginalia-annotators-light)))
 #+end_src
 
 ** Ignore case
