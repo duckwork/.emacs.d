@@ -1238,11 +1238,14 @@ from [[https://karthinks.com/software/more-batteries-included-with-emacs/#regexp
   inspired by [[https://protesilaos.com/dotemacs/#h:584c3604-55a1-49d0-9c31-abe46cb1f028][Protesilaos Stavrou]].
 
   #+begin_src emacs-lisp
-    (let ((conf (expand-file-name "config"
-				  user-emacs-directory)))
-      (unless (load conf 'no-error)
+    (let* ((conf (expand-file-name "config"
+				   user-emacs-directory))
+	   (conf-el (concat conf ".el"))
+	   (conf-org (concat conf ".org")))
+      (unless (and (file-newer-than-file-p conf-el conf-org)
+		   (load conf 'no-error))
 	(require 'org)
-	(org-babel-load-file (concat conf ".org"))))
+	(org-babel-load-file conf-org)))
   #+end_src
 
 *** early-init.el
