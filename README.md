@@ -33,20 +33,35 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 
 ### Straight.el
 
-This still doesn’t work under Windows – I have to manually download the [repo archive](https://github.com/raxod502/straight.el/archive/master.zip) and unzip it.  Not the biggest burden, I suppose.
+Since for whatever reason, Straight can't bootstrap itself on Windows
+&#x2013; I've wrapped it in a function here and added the direct git command
+when it errors.
 
-    (defvar bootstrap-version)
-    (let ((bootstrap-file
-           (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-          (bootstrap-version 5))
-      (unless (file-exists-p bootstrap-file)
-        (with-current-buffer
-    	(url-retrieve-synchronously
-    	 "https://raw.githubusercontent.com/raxod502/straight.el/develop/install.el"
-    	 'silent 'inhibit-cookies)
-          (goto-char (point-max))
-          (eval-print-last-sexp)))
-      (load bootstrap-file nil 'nomessage))
+    (defun acdw/bootstrap-straight ()
+      (defvar bootstrap-version)
+    		       (let ((bootstrap-file
+    			      (expand-file-name
+    			       "straight/repos/straight.el/bootstrap.el"
+    			       user-emacs-directory))
+    			     (bootstrap-version 5))
+    			 (unless (file-exists-p bootstrap-file)
+    			   (with-current-buffer
+    			       (url-retrieve-synchronously
+    				(concat "https://raw.githubusercontent.com/"
+    					"raxod502/straight.el/develop/install.el")
+    				'silent 'inhibit-cookies)
+    			     (goto-char (point-max))
+    			     (eval-print-last-sexp)))
+    			 (load bootstrap-file nil 'nomessage)))
+    
+    (unless (ignore-errors (acdw/bootstrap-straight))
+      (message "Straight.el didn't bootstrap correctly.  Cloning directly...")
+      (call-process "git" nil (get-buffer-create "*bootstrap-straight-messages*") nil
+    		"clone"
+    		"https://github.com/raxod502/straight.el"
+    		(expand-file-name "straight/repos/straight.el"
+    				  user-emacs-directory))
+      (acdw/bootstrap-straight))
 
 
 ### Use-package
@@ -384,14 +399,25 @@ from [Stack Overflow](https://stackoverflow.com/questions/23659909/reverse-evalu
 # Interactivity
 
 
-## Selectrum
+## Completing-read
+
+
+### Shadow file names
+
+    (cuss file-name-shadow-properties
+          '(invisible t))
+    
+    (file-name-shadow-mode +1)
+
+
+### Selectrum
 
     (use-package selectrum
       :config
       (selectrum-mode +1))
 
 
-## Prescient
+### Prescient
 
     (use-package prescient
       :config
@@ -403,7 +429,7 @@ from [Stack Overflow](https://stackoverflow.com/questions/23659909/reverse-evalu
       (selectrum-prescient-mode +1))
 
 
-## Consult
+### Consult
 
     (use-package consult
       :after (selectrum)
@@ -427,7 +453,7 @@ from [Stack Overflow](https://stackoverflow.com/questions/23659909/reverse-evalu
     	     :repo "minad/consult"))
 
 
-## Marginalia
+### Marginalia
 
     (use-package marginalia
       :straight (marginalia
@@ -1140,11 +1166,14 @@ from [karthinks](https://karthinks.com/software/more-batteries-included-with-ema
 
     inspired by [Protesilaos Stavrou](https://protesilaos.com/dotemacs/#h:584c3604-55a1-49d0-9c31-abe46cb1f028).
     
-        (let ((conf (expand-file-name "config"
-        			      user-emacs-directory)))
-          (unless (load conf 'no-error)
+        (let* ((conf (expand-file-name "config"
+        			       user-emacs-directory))
+               (conf-el (concat conf ".el"))
+               (conf-org (concat conf ".org")))
+          (unless (and (file-newer-than-file-p conf-el conf-org)
+        	       (load conf 'no-error))
             (require 'org)
-            (org-babel-load-file (concat conf ".org"))))
+            (org-babel-load-file conf-org)))
 
 
 ### early-init.el
