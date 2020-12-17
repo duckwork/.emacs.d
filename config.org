@@ -4,7 +4,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3
-#+Time-stamp: <2020-12-16 16:48:46 aduckworth>
+#+Time-stamp: <2020-12-16 20:14:19 acdw>
 
 Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 
@@ -14,7 +14,8 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 
  #+begin_src emacs-lisp
    (let ((win-downloads "c:/Users/aduckworth/Downloads"))
-     (dolist (path (list ;; Linux
+     (dolist (path (list
+		    ;; Linux
 		    (expand-file-name "bin"
 				      user-emacs-directory)
 		    (expand-file-name "~/bin")
