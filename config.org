@@ -583,8 +583,12 @@ from [[https://github.com/link0ff/emacs-init][link0ff]].
 		:branch "main")
      :init
      (marginalia-mode +1)
-     (cuss marginalia-annotators '(marginalia-annotators-heavy
-				   marginalia-annotators-light)))
+     (cuss marginalia-annotators
+	   (if (eq system-type 'windows-nt)
+	       '(marginalia-annotators-light
+		 marginalia-annotators-heavy)
+	     '(marginalia-annotators-heavy
+	       marginalia-annotators-light))))
  #+end_src
 
 ** Ignore case
