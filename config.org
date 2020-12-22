@@ -1413,6 +1413,14 @@ from [[https://karthinks.com/software/more-batteries-included-with-emacs/#regexp
   ;; init.el -*- lexical-binding: t -*-
   #+end_src
 
+**** Speed up init
+
+#+begin_src emacs-lisp
+  (setq gc-cons-threshold most-positive-fixnum)
+  (defvar old-file-name-handler file-name-handler-alist)
+  (setq file-name-handler-alist nil)
+#+end_src
+
 **** Load config
 
   inspired by [[https://protesilaos.com/dotemacs/#h:584c3604-55a1-49d0-9c31-abe46cb1f028][Protesilaos Stavrou]].
@@ -1427,6 +1435,14 @@ from [[https://karthinks.com/software/more-batteries-included-with-emacs/#regexp
 	(require 'org)
 	(org-babel-load-file conf-org)))
   #+end_src
+
+**** Reset for normal operation
+
+#+begin_src emacs-lisp
+  (setq gc-cons-threshold 16777216 ; 16mb
+	gc-cons-percentage 0.1
+	file-name-handler-alist old-file-name-handler)
+#+end_src
 
 *** early-init.el
     :PROPERTIES:
