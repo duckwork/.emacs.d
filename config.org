@@ -1059,6 +1059,8 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     (org-pretty-entities t)
     (org-num-mode +1)
 
+    (cuss org-directory "~/Org")
+
     (org-src-tab-acts-natively t)
     (org-src-fontify-natively t)
     (org-src-window-setup 'current-window)
