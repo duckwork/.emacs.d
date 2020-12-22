@@ -733,6 +733,12 @@ This is not /quite/ correct yet.  For example, scrolling in the margins with a t
   (cuss save-interprogram-paste-before-kill t)
 #+end_src
 
+*** Sync the system clipboard and the kill ring
+
+#+begin_src emacs-lisp
+  (cuss yank-pop-change-selection t)
+#+end_src
+
 ** So long mode
 
 #+begin_src emacs-lisp
