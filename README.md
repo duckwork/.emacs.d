@@ -7,7 +7,8 @@ Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 ## Correct `exec-path`
 
     (let ((win-downloads "c:/Users/aduckworth/Downloads"))
-      (dolist (path (list ;; Linux
+      (dolist (path (list
+    		 ;; Linux
     		 (expand-file-name "bin"
     				   user-emacs-directory)
     		 (expand-file-name "~/bin")
