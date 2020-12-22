@@ -616,6 +616,10 @@ from [[https://github.com/link0ff/emacs-init][link0ff]].
 
 ** Mouse
 
+*** Fix scrolling in margins
+
+This is not /quite/ correct yet.  For example, scrolling in the margins with a trackpad isn’t picked up (a trackpad sends different mouse events).
+
 #+begin_src emacs-lisp
   (dolist (vec '([left-margin wheel-down]
 		 [right-margin wheel-down]
