@@ -182,6 +182,18 @@ when it errors.
 
 #+begin_src emacs-lisp
   (cuss visible-bell (not (string= (system-name) "larry")))
+
+  (defun acdw/ring-bell-function ()
+    "Custom bell-ringing function."
+    (let ((orig-face (face-foreground 'mode-line)))
+      (set-face-foreground 'modeline "#F2804F")
+      (run-with-idle-timer
+       0.1 nil
+       (lambda (fg)
+	 (set-face-foreground 'mode-line fg))
+       orig-face)))
+
+  (cuss ring-bell-function #'acdw/ring-bell-function)
 #+end_src
 
 *** Tell Ediff to setup windows better
