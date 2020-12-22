@@ -4,7 +4,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3
-#+Time-stamp: <2020-12-21 17:20:22 aduckworth>
+#+Time-stamp: <2020-12-22 00:16:24 acdw>
 
 Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 
@@ -431,18 +431,14 @@ from [[https://github.com/link0ff/emacs-init][link0ff]].
 **** Define fonts
 
 #+begin_src emacs-lisp
-  (defun font-candidate (&rest fonts)
-    (catch :font
-      (dolist (font fonts)
-	(if (find-font (font-spec :name font))
-	    (throw :font font)))))
-
   (defun set-face-from-alternatives (face fonts)
-    (dolist (font fonts)
-      (if (find-font (font-spec :family (car font)))
+    (catch :return
+      (dolist (font fonts)
+	(when (find-font (font-spec :family (car font)))
 	  (apply #'set-face-attribute `(,face nil
 					      :family ,(car font)
-					      ,@(cdr font))))))
+					      ,@(cdr font)))
+	  (throw :return font)))))
 
   (defun acdw/setup-fonts ()
     "Setup fonts.  This has to happen after the frame is setup for
@@ -462,21 +458,21 @@ from [[https://github.com/link0ff/emacs-init][link0ff]].
 
       (set-face-from-alternatives 'fixed-pitch
 				  '(("Libertinus Mono"
-				     :height 1.0)
+				     :height 110)
 				    ("Linux Libertine Mono O"
-				     :height 1.0)
+				     :height 110)
 				    ("Go Mono"
-				     :height 1.0)
+				     :height 100)
 				    ("Consolas"
-				     :height 1.0)))
+				     :height 100)))
 
       (set-face-from-alternatives 'variable-pitch
 				  '(("Libertinus Serif"
-				     :height 1.0)
+				     :height 120)
 				    ("Linux Libertine O"
-				     :height 1.0)
+				     :height 120)
 				    ("Georgia"
-				     :height 1.0)))
+				     :height 110)))
 
       (remove-function after-focus-change-function #'acdw/setup-fonts)))
 

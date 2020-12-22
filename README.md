@@ -398,18 +398,14 @@ from [link0ff](https://github.com/link0ff/emacs-init).
 
 1.  Define fonts
 
-        (defun font-candidate (&rest fonts)
-          (catch :font
-            (dolist (font fonts)
-              (if (find-font (font-spec :name font))
-        	  (throw :font font)))))
-        
         (defun set-face-from-alternatives (face fonts)
-          (dolist (font fonts)
-            (if (find-font (font-spec :family (car font)))
+          (catch :return
+            (dolist (font fonts)
+              (when (find-font (font-spec :family (car font)))
         	(apply #'set-face-attribute `(,face nil
         					    :family ,(car font)
-        					    ,@(cdr font))))))
+        					    ,@(cdr font)))
+        	(throw :return font)))))
         
         (defun acdw/setup-fonts ()
           "Setup fonts.  This has to happen after the frame is setup for
