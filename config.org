@@ -493,6 +493,17 @@ from [[https://github.com/link0ff/emacs-init][link0ff]].
 
 * Interactivity
 
+** Async
+
+#+begin_src emacs-lisp
+  (use-package async)
+
+  (autoload 'dired-async-mode "dired-async.el" nil t)
+  (dired-async-mode +1)
+
+  (async-bytecomp-package-mode +1)
+#+end_src
+
 ** Completing-read
 
 *** Shadow file names
