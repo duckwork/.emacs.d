@@ -995,6 +995,15 @@ Also from link0ff.  See the above for a link.
     :mode "\\.fnl\\'")
 #+end_src
 
+*** Emacs lisp
+
+#+begin_src emacs-lisp
+  (cuss eval-expression-print-length nil
+	"Don't truncate printed expressions by length.")
+  (cuss eval-expression-print-level nil
+	"Don't truncate printed expressions by level.")
+#+end_src
+
 * Writing
 
 ** Visual Fill Column
