@@ -1071,6 +1071,16 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     (require 'ox-md))
 #+end_src
 
+*** Org Agenda
+
+#+begin_src emacs-lisp
+  (cuss org-agenda-files (no-littering-expand-etc-file-name "agenda-files"))
+
+  (if (and (stringp org-agenda-files)
+	   (not (file-exists-p org-agenda-files)))
+      (with-temp-buffer (write-file org-agenda-files)))
+#+end_src
+
 *** Make bullets look like bullets
 
 #+begin_src emacs-lisp
