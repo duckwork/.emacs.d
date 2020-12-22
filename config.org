@@ -808,6 +808,16 @@ Also from link0ff.  See the above for a link.
      ("C-+" . er/contract-region)))
 #+end_src
 
+** Highlight modified regions
+
+#+begin_src emacs-lisp
+  (use-package goggles
+    :custom
+    (goggles-pulse nil)
+    :config
+    (goggles-mode +1))
+#+end_src
+
 * Files
 
 ** Encoding
