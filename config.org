@@ -437,34 +437,46 @@ from [[https://github.com/link0ff/emacs-init][link0ff]].
 	(if (find-font (font-spec :name font))
 	    (throw :font font)))))
 
+  (defun set-face-from-alternatives (face fonts)
+    (dolist (font fonts)
+      (if (find-font (font-spec :family (car font)))
+	  (apply #'set-face-attribute `(,face nil
+					      :family ,(car font)
+					      ,@(cdr font))))))
+
   (defun acdw/setup-fonts ()
     "Setup fonts.  This has to happen after the frame is setup for
   the first time, so it should be added to `window-setup-hook'.  It
   removes itself from that hook."
     (interactive)
     (when (display-graphic-p)
-      (set-face-attribute 'default nil
-			  :font
-			  (font-candidate
-			   "Libertinus Mono-11"
-			   "Linux Libertine Mono O-11"
-			   "Go Mono-10"
-			   "Consolas-10"))
+      (set-face-from-alternatives 'default
+				  '(("Libertinus Mono"
+				     :height 110)
+				    ("Linux Libertine Mono O"
+				     :height 110)
+				    ("Go Mono"
+				     :height 100)
+				    ("Consolas"
+				     :height 100)))
 
-      (set-face-attribute 'fixed-pitch nil
-			  :font
-			  (font-candidate
-			   "Libertinus Mono-11"
-			   "Linux Libertine Mono O-11"
-			   "Go Mono-10"
-			   "Consolas-10"))
+      (set-face-from-alternatives 'fixed-pitch
+				  '(("Libertinus Mono"
+				     :height 1.0)
+				    ("Linux Libertine Mono O"
+				     :height 1.0)
+				    ("Go Mono"
+				     :height 1.0)
+				    ("Consolas"
+				     :height 1.0)))
 
-      (set-face-attribute 'variable-pitch nil
-			  :font
-			  (font-candidate
-			   "Libertinus Serif-13"
-			   "Linux Libertine O-12"
-			   "Georgia-11"))
+      (set-face-from-alternatives 'variable-pitch
+				  '(("Libertinus Serif"
+				     :height 1.0)
+				    ("Linux Libertine O"
+				     :height 1.0)
+				    ("Georgia"
+				     :height 1.0)))
 
       (remove-function after-focus-change-function #'acdw/setup-fonts)))
 
