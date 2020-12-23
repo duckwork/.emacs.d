@@ -1251,6 +1251,14 @@ from [[https://github.com/alphapapa/unpackaged.el#ensure-blank-lines-between-hea
   (add-hook 'before-save-hook #'cribbed/org-mode-fix-blank-lines)
 #+end_src
 
+*** Agenda
+
+#+begin_src emacs-lisp
+  (bind-key "C-a" #'org-agenda 'acdw/map)
+  (cuss org-agenda-files
+	'("~/todo.org"))
+#+end_src
+
 ** Elpher
 
 #+begin_src emacs-lisp
