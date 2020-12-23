@@ -1530,9 +1530,9 @@ from [[https://karthinks.com/software/more-batteries-included-with-emacs/#regexp
 
 *** emacsdc
 
-A wrapper script around emacs-client that starts the daemon if it hasn’t been yet.
-
-#+begin_src sh :tangle emacsdc :shebang "#!/bin/sh"
+Here’s a wrapper script that’ll start =emacs –daemon= if there isn’t one, and then launch =emacsclient= with the arguments.  I’d recommend installing with either ~ln -s bin/emacsdc $HOME/.local/bin/~, or adding =$HOME/.local/bin= to your =$PATH=.
+ 
+#+begin_src sh :tangle bin/emacsdc :mkdirp yes :shebang "#!/bin/sh"
   if ! emacsclient -nc "$@" 2>/dev/null; then
       emacs --daemon
       emacsclient -nc "$@"
