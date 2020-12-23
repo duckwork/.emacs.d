@@ -513,8 +513,7 @@ Since this /comes/ with smart mode line, I’m just going to use it, instead of 
 *** Shadow file names
 
 #+begin_src emacs-lisp
-  (cuss file-name-shadow-properties
-	'(invisible t))
+  (cuss file-name-shadow-properties '(invisible t))
 
   (file-name-shadow-mode +1)
 #+end_src
