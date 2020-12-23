@@ -275,8 +275,8 @@ when it errors.
 
 #+begin_src emacs-lisp
   (cuss indicate-buffer-boundaries
-	'((top . right)
-	  (bottom . right)
+	'((up . right)
+	  (down . right)
 	  (t . nil)))
 
   (cuss indicate-empty-lines t)
