@@ -645,22 +645,22 @@ From [[https://github.com/link0ff/emacs-init][link0ff]].  I thought they made a 
 Also from link0ff.  See the above for a link.
 
 #+begin_src emacs-lisp
-  (defvar my-map
+  (defvar acdw/map
     (let ((map (make-sparse-keymap))
 	  (c-z (global-key-binding "\C-z")))
       (global-unset-key "\C-z")
       (define-key global-map "\C-z" map)
       (define-key map "\C-z" c-z)
       map))
-  (run-hooks 'my-map-defined-hook)
+  (run-hooks 'acdw/map-defined-hook)
 #+end_src
 
 *** Which-key
 
 #+begin_src emacs-lisp
-  (use-package which-key
-    :config
-    (which-key-mode +1))
+  (straight-use-package 'which-key)
+
+  (which-key-mode +1)
 #+end_src
 
 *** Bindings
@@ -1073,7 +1073,7 @@ from [[https://stackoverflow.com/questions/23659909/reverse-evaluation-order-of-
 #+begin_src emacs-lisp
   (use-package magit
     :bind
-    ("C-x g" . magit-status))
+    ("C-z g" . magit-status))
 #+end_src
 
 ** Org mode
