@@ -1409,7 +1409,8 @@ from [[https://karthinks.com/software/more-batteries-included-with-emacs/#regexp
     (defun acdw/setup-nov-mode ()
       (visual-line-mode +1)
       (visual-fill-column-mode +1)
-      (variable-pitch-mode +1))
+      (variable-pitch-mode +1)
+      (setq cursor-type nil))
     :config
     (cuss nov-text-width t)
     :hook
