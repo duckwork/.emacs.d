@@ -114,19 +114,26 @@ when it errors.
 ** Keep a tidy =~/.emacs=
 
 #+begin_src emacs-lisp
-  (use-package no-littering
-    :custom
-    (backup-directory-alist
-     `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
-    (auto-save-file-name-transforms
-     `((".*" ,(no-littering-expand-var-file-name "autosaves/") t)))
-    (save-place-file
-     (no-littering-expand-var-file-name "places"))
-    (undo-fu-session-directory
-     (no-littering-expand-var-file-name "undos/"))
-    (elpher-certificate-directory
-     (no-littering-expand-var-file-name "elpher-certificates/")))
+  (straight-use-package 'no-littering)
 
+  (cuss backup-directory-alist `((".*" . ,(no-littering-expand-var-file-name "backup/")))
+	"Where to store backup files.")
+
+  (cuss auto-save-file-name-transforms
+	`((".*" ,(no-littering-expand-var-file-name "autosaves/") t))
+	"Where to store auto-save files.")
+
+  (cuss save-place-file (no-littering-expand-var-file-name "places")
+	"Where to store place files.")
+
+  (cuss undo-fu-session-directory (no-littering-expand-var-file-name "undos/")
+	"Where to store undo information.")
+
+  (cuss elpher-certificate-directory
+	(no-littering-expand-var-file-name "elpher-certificates/")
+	"Where to store elpher client certificates.")
+
+  ;; Make all directories defined above
   (dolist (dir '("backup"
 		 "autosaves"
 		 "undos"
@@ -368,40 +375,40 @@ from [[https://github.com/link0ff/emacs-init][link0ff]].
 ** Theme
 
 #+begin_src emacs-lisp
-  (use-package modus-themes
-    :straight (modus-themes
-	       :host gitlab
-	       :repo "protesilaos/modus-themes"
-	       :branch "main")
-    :custom
-    (modus-themes-slanted-constructs t)
-    (modus-themes-bold-constructs t)
-    (modus-themes-fringes nil)
-    (modus-themes-mode-line '3d)
-    (modus-themes-syntax 'yellow-comments)
-    (modus-themes-intense-hl-line nil)
-    (modus-themes-paren-match 'intense-bold)
-    (modus-themes-links nil)
-    (modus-themes-no-mixed-fonts nil)
-    (modus-themes-prompts nil)
-    (modus-themes-completions nil)
-    (modus-themes-diffs nil)
-    (modus-themes-org-blocks 'grayscale)
-    (modus-themes-headings
-     '((1 . line)
-       (t . t)))
-    (modus-themes-variable-pitch-headings t)
-    (modus-themes-scale-headings t)
-    (modus-themes-scale-1 1.1)
-    (modus-themes-scale-2 1.15)
-    (modus-themes-scale-3 1.21)
-    (modus-themes-scale-4 1.27)
-    (modus-themes-scale-5 1.33)
-    :custom-face
-    (font-lock-comment-face
-     ((t (:inherit (custom-comment italic variable-pitch)))))
-    :init
-    (load-theme 'modus-operandi t))
+  (straight-use-package '(modus-themes
+			  :host gitlab
+			  :repo "protesilaos/modus-themes"
+			  :branch "main"))
+
+  (cuss modus-themes-slanted-constructs t)
+  (cuss modus-themes-bold-constructs t)
+  (cuss modus-themes-fringes nil)
+  (cuss modus-themes-mode-line '3d)
+  (cuss modus-themes-syntax 'yellow-comments)
+  (cuss modus-themes-intense-hl-line nil)
+  (cuss modus-themes-paren-match 'intense-bold)
+  (cuss modus-themes-links nil)
+  (cuss modus-themes-no-mixed-fonts nil)
+  (cuss modus-themes-prompts nil)
+  (cuss modus-themes-completions nil)
+  (cuss modus-themes-diffs nil)
+  (cuss modus-themes-org-blocks 'grayscale)
+  (cuss modus-themes-headings
+	'((1 . line)
+	  (t . t)))
+  (cuss modus-themes-variable-pitch-headings t)
+  (cuss modus-themes-scale-headings t)
+  (cuss modus-themes-scale-1 1.1)
+  (cuss modus-themes-scale-2 1.15)
+  (cuss modus-themes-scale-3 1.21)
+  (cuss modus-themes-scale-4 1.27)
+  (cuss modus-themes-scale-5 1.33)
+
+  ;; :custom-face
+  (custom-set-faces `(font-lock-comment-face
+		      ((t (:inherit (custom-comment italic variable-pitch))))))
+
+  (load-theme 'modus-operandi t)
 #+end_src
 
 *** Change theme based on time of day
@@ -410,20 +417,38 @@ from [[https://github.com/link0ff/emacs-init][link0ff]].
   (cuss calendar-latitude 30.4515)
   (cuss calendar-longitude -91.1871)
 
-  (use-package circadian
-    :custom
-    (circadian-themes '((:sunrise . modus-operandi)
-			(:sunset . modus-vivendi)))
-    :config
-    (circadian-setup))
+  (straight-use-package 'circadian)
+
+  (cuss circadian-themes '((:sunrise . modus-operandi)
+			   (:sunset . modus-vivendi)))
+
+  (circadian-setup)
 #+end_src
 
 *** Modeline
 
 #+begin_src emacs-lisp
-  (use-package mood-line
-    :config
-    (mood-line-mode +1))
+  (straight-use-package 'smart-mode-line)
+  (cuss sml/no-confirm-load-theme t)
+  (sml/setup)
+#+end_src
+
+**** Rich minority
+
+Since this /comes/ with smart mode line, I’m just going to use it, instead of =diminish= or another package.  I do have to write this helper function, though, to add things to the whitelist.
+
+#+begin_src emacs-lisp
+  (defun rm/whitelist-add (regexp)
+    "Add a REGEXP to the whitelist for `rich-minority'."
+    (if (listp 'rm--whitelist-regexps)
+	(add-to-list 'rm--whitelist-regexps regexp)
+      (setq rm--whitelist-regexps `(,regexp)))
+    (setq rm-whitelist
+	  (mapconcat 'identity rm--whitelist-regexps "\\|")))
+
+  (straight-use-package 'rich-minority)
+
+  (rm/whitelist-add "^$")
 #+end_src
 
 *** Fonts
@@ -494,8 +519,8 @@ from [[https://github.com/link0ff/emacs-init][link0ff]].
 **** Unicode fonts
 
 #+begin_src emacs-lisp
-  (use-package unicode-fonts
-    :config
+  (straight-use-package 'unicode-fonts)
+  (with-eval-after-load 'unicode-fonts
     (unicode-fonts-setup))
 #+end_src
 
@@ -504,8 +529,7 @@ from [[https://github.com/link0ff/emacs-init][link0ff]].
 ** Async
 
 #+begin_src emacs-lisp
-  (use-package async)
-
+  (straight-use-package 'async)
   (autoload 'dired-async-mode "dired-async.el" nil t)
   (dired-async-mode +1)
 
@@ -526,22 +550,30 @@ from [[https://github.com/link0ff/emacs-init][link0ff]].
 *** Selectrum
 
  #+begin_src emacs-lisp
-   (use-package selectrum
-     :config
-     (selectrum-mode +1))
+   (straight-use-package 'selectrum)
+   (require 'selectrum)
+   (selectrum-mode +1)
  #+end_src
 
 *** Prescient
 
  #+begin_src emacs-lisp
-   (use-package prescient
-     :config
-     (prescient-persist-mode +1))
+   (straight-use-package 'prescient)
+   (require 'prescient)
 
-   (use-package selectrum-prescient
-     :after (selectrum prescient)
-     :config
-     (selectrum-prescient-mode +1))
+   (prescient-persist-mode +1)
+
+   (straight-use-package 'selectrum-prescient)
+
+   (with-eval-after-load 'prescient
+     (with-eval-after-load 'selectrum
+       (selectrum-prescient-mode +1)))
+
+   (straight-use-package 'company-prescient)
+
+   (with-eval-after-load 'prescient
+     (with-eval-after-load 'company
+       (company-prescient-mode +1)))
  #+end_src
 
 *** Consult
@@ -572,19 +604,19 @@ from [[https://github.com/link0ff/emacs-init][link0ff]].
 *** Marginalia
 
  #+begin_src emacs-lisp
-   (use-package marginalia
-     :straight (marginalia
-		:host github
-		:repo "minad/marginalia"
-		:branch "main")
-     :init
-     (marginalia-mode +1)
-     (cuss marginalia-annotators
-	   (if (eq system-type 'windows-nt)
-	       '(marginalia-annotators-light
-		 marginalia-annotators-heavy)
-	     '(marginalia-annotators-heavy
-	       marginalia-annotators-light))))
+   (straight-use-package '(marginalia
+			   :host github
+			   :repo "minad/marginalia"
+			   :branch "main"))
+
+   (cuss marginalia-annotators
+	 (if (eq system-type 'windows-nt)
+	     '(marginalia-annotators-light
+	       marginalia-annotators-heavy)
+	   '(marginalia-annotators-heavy
+	     marginalia-annotators-light)))
+
+   (marginalia-mode +1)
  #+end_src
 
 ** Ignore case
@@ -735,13 +767,13 @@ Also from link0ff.  See the above for a link.
     ("C-/" . undo-fu-only-undo)
     ("C-?" . undo-fu-only-redo))
 
-  (use-package undo-fu-session
-    :custom
-    (undo-fu-session-incompatible-files
-     '("/COMMIT_EDITMSG\\'"
-       "/git-rebase-todo\\'"))
-    :config
-    (global-undo-fu-session-mode +1))
+  (straight-use-package 'undo-fu-session)
+
+  (cuss undo-fu-session-incompatible-files
+	'("/COMMIT_EDITMSG\\'"
+	  "/git-rebase-todo\\'"))
+
+  (global-undo-fu-session-mode +1)
 #+end_src
 
 * Editing
@@ -807,11 +839,11 @@ Also from link0ff.  See the above for a link.
 ** Highlight modified regions
 
 #+begin_src emacs-lisp
-  (use-package goggles
-    :custom
-    (goggles-pulse nil)
-    :config
-    (goggles-mode +1))
+  (straight-use-package 'goggles)
+
+  (cuss goggles-pulse nil)
+
+  (goggles-mode +1)
 #+end_src
 
 * Files
@@ -903,16 +935,16 @@ Also from link0ff.  See the above for a link.
 *** Smart parentheses
 
 #+begin_src emacs-lisp
-  (use-package smartparens
-    :init
-    (require 'smartparens-config)
-    :config
-    (show-smartparens-global-mode +1)
-    :hook
-    (prog-mode-hook . smartparens-strict-mode))
+  (straight-use-package 'smartparens)
+  (require 'smartparens-config)
+
+  (show-smartparens-global-mode +1)
+  (add-to-list 'sp-ignore-modes-list 'org-mode)
+
+  (add-hook 'prog-mode-hook #'smartparens-strict-mode)
 #+end_src
 
-** Line numbers
+** COMMENT Line numbers
 
 #+begin_src emacs-lisp
   (defun acdw/enable-line-numbers ()
@@ -932,9 +964,9 @@ Also from link0ff.  See the above for a link.
 ** Indenting
 
 #+begin_src emacs-lisp
-  (use-package aggressive-indent
-    :config
-    (global-aggressive-indent-mode +1))
+  (straight-use-package 'aggressive-indent)
+
+  (global-aggressive-indent-mode +1)
 #+end_src
 
 ** Completion
@@ -1005,25 +1037,53 @@ Also from link0ff.  See the above for a link.
 ** Visual Fill Column
 
 #+begin_src emacs-lisp
-  (use-package visual-fill-column
-    :custom
-    (split-window-preferred-function
-     'visual-fill-column-split-window-sensibly)
-    (visual-fill-column-center-text t)
-    (fill-column 80)
-    :config
-    (advice-add 'text-scale-adjust
-		:after #'visual-fill-column-adjust)
-    :hook
-    (text-mode-hook . visual-fill-column-mode))
+  (straight-use-package 'visual-fill-column)
+
+  (cuss split-window-preferred-function
+	'visual-fill-column-split-window-sensibly)
+  (cuss visual-fill-column-center-text t)
+  (cuss fill-column 80)
+
+  (advice-add 'text-scale-adjust
+	      :after #'visual-fill-column-adjust)
+
+  (add-hook 'text-mode-hook #'visual-fill-column-mode)
+#+end_src
+
+*** COMMENT Split windows /more/ sensibly
+
+from [[https://stackoverflow.com/questions/23659909/reverse-evaluation-order-of-split-height-threshold-and-split-width-threshold-in][Stack Overflow]].
+
+#+begin_src emacs-lisp
+  (defun my-split-window-sensibly (&optional window)
+    (let ((window (or window (selected-window))))
+      (or (and (window-splittable-p window t)
+	       ;; Split window horizontally.
+	       (with-selected-window window
+		 (split-window-right)))
+	  (and (window-splittable-p window)
+	       ;; Split window vertically.
+	       (with-selected-window window
+		 (split-window-below)))
+	  (and (eq window (frame-root-window (window-frame window)))
+	       (not (window-minibuffer-p window))
+	       ;; If WINDOW is the only window on its frame and is not the
+	       ;; minibuffer window, try to split it horizontally disregarding
+	       ;; the value of `split-width-threshold'.
+	       (let ((split-width-threshold 0))
+		 (when (window-splittable-p window t)
+		   (with-selected-window window
+		     (split-window-right))))))))
+
+  (setq split-window-preferred-function #'my-split-window-sensibly)
 #+end_src
 
 ** Type nice-looking quote-type marks
 
 #+begin_src emacs-lisp
-  (use-package typo
-    :hook
-    (text-mode-hook . typo-mode))
+  (straight-use-package 'typo)
+
+  (add-hook 'text-mode-hook #'typo-mode)
 #+end_src
 
 ** Insert /kaomoji/
@@ -1049,31 +1109,25 @@ Also from link0ff.  See the above for a link.
 I’ve put org mode under Applications, as opposed to Writing, because it’s  more generally-applicable than that.
 
 #+begin_src emacs-lisp
-  (use-package org
-    :mode ("\\.org\\'" . org-mode)
+  (straight-use-package 'org)
 
-    :bind (:map org-mode-map
-		("M-n" . outline-next-visible-heading)
-		("M-p" . outline-previous-visible-heading))
-
-    :custom
-    (org-hide-emphasis-markers t)
-    (org-fontify-done-headline t)
-    (org-fontify-whole-heading-line t)
-    (org-fontify-quote-and-verse-blocks t)
-    (org-pretty-entities t)
-    (org-num-mode +1)
-
-    (cuss org-directory "~/Org")
-
-    (org-src-tab-acts-natively t)
-    (org-src-fontify-natively t)
-    (org-src-window-setup 'current-window)
-    (org-confirm-babel-evaluate nil)
-
-    :config
+  (with-eval-after-load 'org
     (require 'org-tempo)
-    (require 'ox-md))
+    (require 'ox-md)
+    (bind-key "M-n" #'outline-next-visible-heading 'org-mode-map)
+    (bind-key "M-p" #'outline-previous-visible-heading 'org-mode-map))
+
+  (cuss org-hide-emphasis-markers t)
+  (cuss org-fontify-done-headline t)
+  (cuss org-fontify-whole-heading-line t)
+  (cuss org-fontify-quote-and-verse-blocks t)
+  (cuss org-pretty-entities t)
+  (cuss org-num-mode +1)
+  (cuss org-src-tab-acts-natively t)
+  (cuss org-src-fontify-natively t)
+  (cuss org-src-window-setup 'current-window)
+  (cuss org-confirm-babel-evaluate nil)
+  (cuss org-directory "~/Org")
 #+end_src
 
 *** Org Agenda
@@ -1310,9 +1364,9 @@ from [[https://github.com/alphapapa/unpackaged.el#ensure-blank-lines-between-hea
 ** Pastebin
 
 #+begin_src emacs-lisp
-  (use-package 0x0
-    :custom
-    (0x0-default-service 'ttm))
+  (straight-use-package '0x0)
+
+  (cuss 0x0-default-service 'ttm)
 #+end_src
 
 ** RSS
@@ -1387,13 +1441,16 @@ from [[https://karthinks.com/software/more-batteries-included-with-emacs/#regexp
 
 #+begin_src emacs-lisp
   (when (executable-find "bash")
-    (use-package bash-completion))
+    (straight-use-package 'bash-completion))
 
   (when (executable-find "fish")
-    (use-package fish-completion
-      :config
-      (cuss fish-completion-fallback-on-bash-p (executable-find "bash"))
-      (global-fish-completion-mode +1)))
+    (straight-use-package 'fish-completion)
+    (require 'fish-completion)
+    (cuss fish-completion-fallback-on-bash-p (executable-find "bash"))
+    (global-fish-completion-mode +1)
+
+    (straight-use-package 'fish-mode)
+    (add-to-list 'auto-mode-alist '("\\.fish\\'" . fish-mode)))
 #+end_src
 
 * Appendices
