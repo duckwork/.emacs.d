@@ -4,7 +4,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3
-#+Time-stamp: <2020-12-22 20:32:24 acdw>
+#+Time-stamp: <2020-12-22 20:48:48 acdw>
 
 Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 
@@ -1251,13 +1251,6 @@ from [[https://github.com/alphapapa/unpackaged.el#ensure-blank-lines-between-hea
   (add-hook 'before-save-hook #'cribbed/org-mode-fix-blank-lines)
 #+end_src
 
-*** Agenda
-
-#+begin_src emacs-lisp
-  (bind-key "C-a" #'org-agenda 'acdw/map)
-  (cuss org-agenda-files
-	'("~/todo.org"))
-#+end_src
 
 ** Elpher
 
