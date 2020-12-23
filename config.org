@@ -4,7 +4,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3
-#+Time-stamp: <2020-12-22 00:16:24 acdw>
+#+Time-stamp: <2020-12-22 20:32:24 acdw>
 
 Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 

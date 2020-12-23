@@ -80,7 +80,6 @@ when it errors.
          '(use-package-custom-update
            :host github
            :repo "a13/use-package-custom-update"))
-        
         (require 'use-package-custom-update)
 
 
@@ -103,19 +102,26 @@ when it errors.
 
 ## Keep a tidy `~/.emacs`
 
-    (use-package no-littering
-      :custom
-      (backup-directory-alist
-       `((".*" . ,(no-littering-expand-var-file-name "backup/"))))
-      (auto-save-file-name-transforms
-       `((".*" ,(no-littering-expand-var-file-name "autosaves/") t)))
-      (save-place-file
-       (no-littering-expand-var-file-name "places"))
-      (undo-fu-session-directory
-       (no-littering-expand-var-file-name "undos/"))
-      (elpher-certificate-directory
-       (no-littering-expand-var-file-name "elpher-certificates/")))
+    (straight-use-package 'no-littering)
     
+    (cuss backup-directory-alist `((".*" . ,(no-littering-expand-var-file-name "backup/")))
+          "Where to store backup files.")
+    
+    (cuss auto-save-file-name-transforms
+          `((".*" ,(no-littering-expand-var-file-name "autosaves/") t))
+          "Where to store auto-save files.")
+    
+    (cuss save-place-file (no-littering-expand-var-file-name "places")
+          "Where to store place files.")
+    
+    (cuss undo-fu-session-directory (no-littering-expand-var-file-name "undos/")
+          "Where to store undo information.")
+    
+    (cuss elpher-certificate-directory
+          (no-littering-expand-var-file-name "elpher-certificates/")
+          "Where to store elpher client certificates.")
+    
+    ;; Make all directories defined above
     (dolist (dir '("backup"
     	       "autosaves"
     	       "undos"
@@ -140,7 +146,6 @@ when it errors.
     (cuss default-frame-alist
           '((tool-bar-lines . 0)
     	(menu-bar-lines . 0)))
-    
     (menu-bar-mode -1)
     (tool-bar-mode -1)
 
@@ -149,7 +154,6 @@ when it errors.
 
     (add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
     (scroll-bar-mode -1)
-    
     (add-to-list 'default-frame-alist '(horizontal-scroll-bars . nil))
     (horizontal-scroll-bar-mode -1)
 
@@ -167,7 +171,6 @@ when it errors.
 ### Remove the bell
 
     (cuss visible-bell (not (string= (system-name) "larry")))
-    
     (defun acdw/ring-bell-function ()
       "Custom bell-ringing function."
       (let ((orig-face (face-foreground 'mode-line)))
@@ -177,7 +180,6 @@ when it errors.
          (lambda (fg)
            (set-face-foreground 'mode-line fg))
          orig-face)))
-    
     (cuss ring-bell-function #'acdw/ring-bell-function)
 
 
@@ -204,7 +206,6 @@ when it errors.
               '((width . 80)
         	(height . 2)
         	(vertical-scrollbars . nil)))
-        
         (set-window-scroll-bars (minibuffer-window) nil nil)
 
 2.  Keep the cursor from going into the prompt
@@ -243,41 +244,13 @@ when it errors.
 ### Buffer boundaries
 
     (cuss indicate-buffer-boundaries
-          '((top . right)
-    	(bottom . right)
+          '((up . right)
+    	(down . right)
     	(t . nil)))
-    
     (cuss indicate-empty-lines t)
 
 
 ## Windows
-
-
-### Split windows *more* sensibly
-
-from [Stack Overflow](https://stackoverflow.com/questions/23659909/reverse-evaluation-order-of-split-height-threshold-and-split-width-threshold-in).
-
-    (defun my-split-window-sensibly (&optional window)
-      (let ((window (or window (selected-window))))
-        (or (and (window-splittable-p window t)
-    	     ;; Split window horizontally.
-    	     (with-selected-window window
-    	       (split-window-right)))
-    	(and (window-splittable-p window)
-    	     ;; Split window vertically.
-    	     (with-selected-window window
-    	       (split-window-below)))
-    	(and (eq window (frame-root-window (window-frame window)))
-    	     (not (window-minibuffer-p window))
-    	     ;; If WINDOW is the only window on its frame and is not the
-    	     ;; minibuffer window, try to split it horizontally disregarding
-    	     ;; the value of `split-width-threshold'.
-    	     (let ((split-width-threshold 0))
-    	       (when (window-splittable-p window t)
-    		 (with-selected-window window
-    		   (split-window-right))))))))
-    
-    (setq split-window-preferred-function #'my-split-window-sensibly)
 
 
 ### Winner mode
@@ -338,40 +311,40 @@ from [link0ff](https://github.com/link0ff/emacs-init).
 
 ## Theme
 
-    (use-package modus-themes
-      :straight (modus-themes
-    	     :host gitlab
-    	     :repo "protesilaos/modus-themes"
-    	     :branch "main")
-      :custom
-      (modus-themes-slanted-constructs t)
-      (modus-themes-bold-constructs t)
-      (modus-themes-fringes nil)
-      (modus-themes-mode-line '3d)
-      (modus-themes-syntax 'yellow-comments)
-      (modus-themes-intense-hl-line nil)
-      (modus-themes-paren-match 'intense-bold)
-      (modus-themes-links nil)
-      (modus-themes-no-mixed-fonts nil)
-      (modus-themes-prompts nil)
-      (modus-themes-completions nil)
-      (modus-themes-diffs nil)
-      (modus-themes-org-blocks 'grayscale)
-      (modus-themes-headings
-       '((1 . line)
-         (t . t)))
-      (modus-themes-variable-pitch-headings t)
-      (modus-themes-scale-headings t)
-      (modus-themes-scale-1 1.1)
-      (modus-themes-scale-2 1.15)
-      (modus-themes-scale-3 1.21)
-      (modus-themes-scale-4 1.27)
-      (modus-themes-scale-5 1.33)
-      :custom-face
-      (font-lock-comment-face
-       ((t (:inherit (custom-comment italic variable-pitch)))))
-      :init
-      (load-theme 'modus-operandi t))
+    (straight-use-package '(modus-themes
+    			:host gitlab
+    			:repo "protesilaos/modus-themes"
+    			:branch "main"))
+    
+    (cuss modus-themes-slanted-constructs t)
+    (cuss modus-themes-bold-constructs t)
+    (cuss modus-themes-fringes nil)
+    (cuss modus-themes-mode-line '3d)
+    (cuss modus-themes-syntax 'yellow-comments)
+    (cuss modus-themes-intense-hl-line nil)
+    (cuss modus-themes-paren-match 'intense-bold)
+    (cuss modus-themes-links nil)
+    (cuss modus-themes-no-mixed-fonts nil)
+    (cuss modus-themes-prompts nil)
+    (cuss modus-themes-completions nil)
+    (cuss modus-themes-diffs nil)
+    (cuss modus-themes-org-blocks 'grayscale)
+    (cuss modus-themes-headings
+          '((1 . line)
+    	(t . t)))
+    (cuss modus-themes-variable-pitch-headings t)
+    (cuss modus-themes-scale-headings t)
+    (cuss modus-themes-scale-1 1.1)
+    (cuss modus-themes-scale-2 1.15)
+    (cuss modus-themes-scale-3 1.21)
+    (cuss modus-themes-scale-4 1.27)
+    (cuss modus-themes-scale-5 1.33)
+    
+    ;; :custom-face
+    (custom-set-faces `(font-lock-comment-face
+    		    ((t (:inherit (custom-comment italic variable-pitch))))))
+    
+    (load-theme 'modus-operandi t)
 
 
 ### Change theme based on time of day
@@ -379,19 +352,35 @@ from [link0ff](https://github.com/link0ff/emacs-init).
     (cuss calendar-latitude 30.4515)
     (cuss calendar-longitude -91.1871)
     
-    (use-package circadian
-      :custom
-      (circadian-themes '((:sunrise . modus-operandi)
-    		      (:sunset . modus-vivendi)))
-      :config
-      (circadian-setup))
+    (straight-use-package 'circadian)
+    
+    (cuss circadian-themes '((:sunrise . modus-operandi)
+    			 (:sunset . modus-vivendi)))
+    
+    (circadian-setup)
 
 
 ### Modeline
 
-    (use-package mood-line
-      :config
-      (mood-line-mode +1))
+    (straight-use-package 'smart-mode-line)
+    (cuss sml/no-confirm-load-theme t)
+    (sml/setup)
+
+1.  Rich minority
+
+    Since this *comes* with smart mode line, I’m just going to use it, instead of `diminish` or another package.  I do have to write this helper function, though, to add things to the whitelist.
+    
+        (defun rm/whitelist-add (regexp)
+          "Add a REGEXP to the whitelist for `rich-minority'."
+          (if (listp 'rm--whitelist-regexps)
+              (add-to-list 'rm--whitelist-regexps regexp)
+            (setq rm--whitelist-regexps `(,regexp)))
+          (setq rm-whitelist
+        	(mapconcat 'identity rm--whitelist-regexps "\\|")))
+        
+        (straight-use-package 'rich-minority)
+        
+        (rm/whitelist-add "^$")
 
 
 ### Fonts
@@ -422,25 +411,22 @@ from [link0ff](https://github.com/link0ff/emacs-init).
         				   :height 100)
         				  ("Consolas"
         				   :height 100)))
-        
             (set-face-from-alternatives 'fixed-pitch
         				'(("Libertinus Mono"
-        				   :height 1.0)
+        				   :height 110)
         				  ("Linux Libertine Mono O"
-        				   :height 1.0)
+        				   :height 110)
         				  ("Go Mono"
-        				   :height 1.0)
+        				   :height 100)
         				  ("Consolas"
-        				   :height 1.0)))
-        
+        				   :height 100)))
             (set-face-from-alternatives 'variable-pitch
         				'(("Libertinus Serif"
-        				   :height 1.0)
+        				   :height 120)
         				  ("Linux Libertine O"
-        				   :height 1.0)
+        				   :height 120)
         				  ("Georgia"
-        				   :height 1.0)))
-        
+        				   :height 110)))
             (remove-function after-focus-change-function #'acdw/setup-fonts)))
         
         (add-function :before after-focus-change-function #'acdw/setup-fonts)
@@ -455,8 +441,8 @@ from [link0ff](https://github.com/link0ff/emacs-init).
 
 4.  Unicode fonts
 
-        (use-package unicode-fonts
-          :config
+        (straight-use-package 'unicode-fonts)
+        (with-eval-after-load 'unicode-fonts
           (unicode-fonts-setup))
 
 
@@ -465,11 +451,9 @@ from [link0ff](https://github.com/link0ff/emacs-init).
 
 ## Async
 
-    (use-package async)
-    
+    (straight-use-package 'async)
     (autoload 'dired-async-mode "dired-async.el" nil t)
     (dired-async-mode +1)
-    
     (async-bytecomp-package-mode +1)
 
 
@@ -478,29 +462,36 @@ from [link0ff](https://github.com/link0ff/emacs-init).
 
 ### Shadow file names
 
-    (cuss file-name-shadow-properties
-          '(invisible t))
+    (cuss file-name-shadow-properties '(invisible t))
     
     (file-name-shadow-mode +1)
 
 
 ### Selectrum
 
-    (use-package selectrum
-      :config
-      (selectrum-mode +1))
+    (straight-use-package 'selectrum)
+    (require 'selectrum)
+    (selectrum-mode +1)
 
 
 ### Prescient
 
-    (use-package prescient
-      :config
-      (prescient-persist-mode +1))
+    (straight-use-package 'prescient)
+    (require 'prescient)
     
-    (use-package selectrum-prescient
-      :after (selectrum prescient)
-      :config
-      (selectrum-prescient-mode +1))
+    (prescient-persist-mode +1)
+    
+    (straight-use-package 'selectrum-prescient)
+    
+    (with-eval-after-load 'prescient
+      (with-eval-after-load 'selectrum
+        (selectrum-prescient-mode +1)))
+    
+    (straight-use-package 'company-prescient)
+    
+    (with-eval-after-load 'prescient
+      (with-eval-after-load 'company
+        (company-prescient-mode +1)))
 
 
 ### Consult
@@ -520,7 +511,6 @@ from [link0ff](https://github.com/link0ff/emacs-init).
        ("<help> a" . consult-apropos))
       :init
       (fset 'multi-occur #'consult-multi-occur))
-    
     (use-package consult-selectrum
       :straight (consult-selectrum
     	     :host github
@@ -529,19 +519,19 @@ from [link0ff](https://github.com/link0ff/emacs-init).
 
 ### Marginalia
 
-    (use-package marginalia
-      :straight (marginalia
-    	     :host github
-    	     :repo "minad/marginalia"
-    	     :branch "main")
-      :init
-      (marginalia-mode +1)
-      (cuss marginalia-annotators
-    	(if (eq system-type 'windows-nt)
-    	    '(marginalia-annotators-light
-    	      marginalia-annotators-heavy)
-    	  '(marginalia-annotators-heavy
-    	    marginalia-annotators-light))))
+    (straight-use-package '(marginalia
+    			:host github
+    			:repo "minad/marginalia"
+    			:branch "main"))
+    
+    (cuss marginalia-annotators
+          (if (eq system-type 'windows-nt)
+    	  '(marginalia-annotators-light
+    	    marginalia-annotators-heavy)
+    	'(marginalia-annotators-heavy
+    	  marginalia-annotators-light)))
+    
+    (marginalia-mode +1)
 
 
 ## Ignore case
@@ -595,21 +585,21 @@ From [link0ff](https://github.com/link0ff/emacs-init).  I thought they made a gr
 
 Also from link0ff.  See the above for a link.
 
-    (defvar my-map
+    (defvar acdw/map
       (let ((map (make-sparse-keymap))
     	(c-z (global-key-binding "\C-z")))
         (global-unset-key "\C-z")
         (define-key global-map "\C-z" map)
         (define-key map "\C-z" c-z)
         map))
-    (run-hooks 'my-map-defined-hook)
+    (run-hooks 'acdw/map-defined-hook)
 
 
 ### Which-key
 
-    (use-package which-key
-      :config
-      (which-key-mode +1))
+    (straight-use-package 'which-key)
+    
+    (which-key-mode +1)
 
 
 ### Bindings
@@ -630,11 +620,8 @@ Also from link0ff.  See the above for a link.
           '(kill-ring
     	search-ring
     	regexp-search-ring))
-    
     (cuss savehist-save-minibuffer-history t)
-    
     (cuss history-length t)
-    
     (cuss history-delete-duplicates t)
     
     (savehist-mode +1)
@@ -656,7 +643,6 @@ Also from link0ff.  See the above for a link.
     
     (cuss recentf-max-menu-items 100)
     (cuss recentf-max-saved-items 100)
-    
     (with-eval-after-load 'no-littering
       (add-to-list 'recentf-exclude no-littering-var-directory)
       (add-to-list 'recentf-exclude no-littering-etc-directory))
@@ -683,13 +669,13 @@ Also from link0ff.  See the above for a link.
       ("C-/" . undo-fu-only-undo)
       ("C-?" . undo-fu-only-redo))
     
-    (use-package undo-fu-session
-      :custom
-      (undo-fu-session-incompatible-files
-       '("/COMMIT_EDITMSG\\'"
-         "/git-rebase-todo\\'"))
-      :config
-      (global-undo-fu-session-mode +1))
+    (straight-use-package 'undo-fu-session)
+    
+    (cuss undo-fu-session-incompatible-files
+          '("/COMMIT_EDITMSG\\'"
+    	"/git-rebase-todo\\'"))
+    
+    (global-undo-fu-session-mode +1)
 
 
 # Editing
@@ -748,11 +734,11 @@ Also from link0ff.  See the above for a link.
 
 ## Highlight modified regions
 
-    (use-package goggles
-      :custom
-      (goggles-pulse nil)
-      :config
-      (goggles-mode +1))
+    (straight-use-package 'goggles)
+    
+    (cuss goggles-pulse nil)
+    
+    (goggles-mode +1)
 
 
 # Files
@@ -776,10 +762,10 @@ Also from link0ff.  See the above for a link.
 from [Emacs Wiki](https://www.emacswiki.org/emacs/EndOfLineTips).
 
     (defun ewiki/no-junk-please-were-unixish ()
-      "Convert line endings to UNIX, dammit."
-      (let ((coding-str (symbol-name buffer-file-coding-system)))
-        (when (string-match "-\\(?:dos\\|mac\\)$" coding-str)
-          (set-buffer-file-coding-system 'unix))))
+           "Convert line endings to UNIX, dammit."
+           (let ((coding-str (symbol-name buffer-file-coding-system)))
+    	    (when (string-match "-\\(?:dos\\|mac\\)$" coding-str)
+    		  (set-buffer-file-coding-system 'unix))))
 
 I add it to the `find-file-hook` *and* `before-save-hook` because I don't want to ever work with anything other than UNIX line endings ever again.  I just don't care.  Even Microsoft Notepad can handle UNIX line endings, so I don't want to hear it.
 
@@ -837,36 +823,20 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
 
 ### Smart parentheses
 
-    (use-package smartparens
-      :init
-      (require 'smartparens-config)
-      :config
-      (show-smartparens-global-mode +1)
-      :hook
-      (prog-mode-hook . smartparens-strict-mode))
-
-
-## Line numbers
-
-    (defun acdw/enable-line-numbers ()
-      "Enable line numbers, through either
-      `display-line-numbers-mode' or through `linum-mode'."
-      (if (and (fboundp 'display-line-numbers-mode)
-    	   (display-graphic-p))
-          (display-line-numbers-mode +1)
-        (linum-mode +1)))
+    (straight-use-package 'smartparens)
+    (require 'smartparens-config)
     
-    (cuss display-line-numbers-width 2
-          "Always have at least 2 digits for line numbers.")
+    (show-smartparens-global-mode +1)
+    (add-to-list 'sp-ignore-modes-list 'org-mode)
     
-    (add-hook 'prog-mode-hook #'acdw/enable-line-numbers)
+    (add-hook 'prog-mode-hook #'smartparens-strict-mode)
 
 
 ## Indenting
 
-    (use-package aggressive-indent
-      :config
-      (global-aggressive-indent-mode +1))
+    (straight-use-package 'aggressive-indent)
+    
+    (global-aggressive-indent-mode +1)
 
 
 ## Completion
@@ -875,30 +845,23 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
       :custom
       (company-idle-delay 0.1)
       (company-minimum-prefix-length 3)
-    
       :init
       (defun acdw/company-complete-common-or-cycle+1 ()
         (interactive)
         (company-complete-common-or-cycle +1))
-    
       (defun acdw/company-complete-common-or-cycle-1 ()
         (interactive)
         (company-complete-common-or-cycle -1))
-    
       :bind
       (:map company-active-map
     	("C-n" . acdw/company-complete-common-or-cycle+1)
     	("C-p" . acdw/company-complete-common-or-cycle-1))
-    
       :hook
       (prog-mode-hook . company-mode))
-    
     (use-package company-prescient
       :hook
       (company-mode-hook . company-prescient-mode))
-    
     ;; this comes with company-quickhelp, so....
-    
     (use-package company-posframe
       :after (company)
       :config
@@ -934,24 +897,24 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
 
 ## Visual Fill Column
 
-    (use-package visual-fill-column
-      :custom
-      (split-window-preferred-function
-       'visual-fill-column-split-window-sensibly)
-      (visual-fill-column-center-text t)
-      (fill-column 80)
-      :config
-      (advice-add 'text-scale-adjust
-    	      :after #'visual-fill-column-adjust)
-      :hook
-      (text-mode-hook . visual-fill-column-mode))
+    (straight-use-package 'visual-fill-column)
+    
+    (cuss split-window-preferred-function
+          'visual-fill-column-split-window-sensibly)
+    (cuss visual-fill-column-center-text t)
+    (cuss fill-column 80)
+    
+    (advice-add 'text-scale-adjust
+    	    :after #'visual-fill-column-adjust)
+    
+    (add-hook 'text-mode-hook #'visual-fill-column-mode)
 
 
 ## Type nice-looking quote-type marks
 
-    (use-package typo
-      :hook
-      (text-mode-hook . typo-mode))
+    (straight-use-package 'typo)
+    
+    (add-hook 'text-mode-hook #'typo-mode)
 
 
 ## Insert *kaomoji*
@@ -968,44 +931,37 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
 
     (use-package magit
       :bind
-      ("C-x g" . magit-status))
+      ("C-z g" . magit-status))
 
 
 ## Org mode
 
 I’ve put org mode under Applications, as opposed to Writing, because it’s  more generally-applicable than that.
 
-    (use-package org
-      :mode ("\\.org\\'" . org-mode)
+    (straight-use-package 'org)
     
-      :bind (:map org-mode-map
-    	      ("M-n" . outline-next-visible-heading)
-    	      ("M-p" . outline-previous-visible-heading))
-    
-      :custom
-      (org-hide-emphasis-markers t)
-      (org-fontify-done-headline t)
-      (org-fontify-whole-heading-line t)
-      (org-fontify-quote-and-verse-blocks t)
-      (org-pretty-entities t)
-      (org-num-mode +1)
-    
-      (cuss org-directory "~/Org")
-    
-      (org-src-tab-acts-natively t)
-      (org-src-fontify-natively t)
-      (org-src-window-setup 'current-window)
-      (org-confirm-babel-evaluate nil)
-    
-      :config
+    (with-eval-after-load 'org
       (require 'org-tempo)
-      (require 'ox-md))
+      (require 'ox-md)
+      (bind-key "M-n" #'outline-next-visible-heading 'org-mode-map)
+      (bind-key "M-p" #'outline-previous-visible-heading 'org-mode-map))
+    
+    (cuss org-hide-emphasis-markers t)
+    (cuss org-fontify-done-headline t)
+    (cuss org-fontify-whole-heading-line t)
+    (cuss org-fontify-quote-and-verse-blocks t)
+    (cuss org-pretty-entities t)
+    (cuss org-num-mode +1)
+    (cuss org-src-tab-acts-natively t)
+    (cuss org-src-fontify-natively t)
+    (cuss org-src-window-setup 'current-window)
+    (cuss org-confirm-babel-evaluate nil)
+    (cuss org-directory "~/Org")
 
 
 ### Org Agenda
 
     (cuss org-agenda-files (no-littering-expand-etc-file-name "agenda-files"))
-    
     (if (and (stringp org-agenda-files)
     	 (not (file-exists-p org-agenda-files)))
         (with-temp-buffer (write-file org-agenda-files)))
@@ -1025,7 +981,6 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 ### [A better return in Org mode](http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/)
 
     (require 'org-inlinetask)
-    
     (defun scimax/org-return (&optional ignore)
       "Add new list item, heading or table row with RET.
     A double return on an empty element deletes it.
@@ -1034,25 +989,20 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
       (if ignore
           (org-return)
         (cond
-    
          ((eq 'line-break (car (org-element-context)))
           (org-return t))
-    
          ;; Open links like usual, unless point is at the end of a line.
          ;; and if at beginning of line, just press enter.
          ((or (and (eq 'link (car (org-element-context))) (not (eolp)))
     	  (bolp))
           (org-return))
-    
          ;; It doesn't make sense to add headings in inline tasks. Thanks Anders
          ;; Johansson!
          ((org-inlinetask-in-task-p)
           (org-return))
-    
          ;; checkboxes too
          ((org-at-item-checkbox-p)
           (org-insert-todo-heading nil))
-    
          ;; lists end with two blank lines, so we need to make sure we are also not
          ;; at the beginning of a line to avoid a loop where a new entry gets
          ;; created with only one blank line.
@@ -1062,7 +1012,6 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     	(beginning-of-line)
     	(delete-region (line-beginning-position) (line-end-position))
     	(org-return)))
-    
          ;; org-heading
          ((org-at-heading-p)
           (if (not (string= "" (org-element-property :title (org-element-context))))
@@ -1072,7 +1021,6 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     	(beginning-of-line)
     	(setf (buffer-substring
     	       (line-beginning-position) (line-end-position)) "")))
-    
          ;; tables
          ((org-at-table-p)
           (if (-any?
@@ -1086,12 +1034,9 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     	(setf (buffer-substring
     	       (line-beginning-position) (line-end-position)) "")
     	(org-return)))
-    
          ;; fall-through case
          (t
           (org-return)))))
-    
-    
     (define-key org-mode-map (kbd "RET")
       'scimax/org-return)
 
@@ -1142,8 +1087,14 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
           (when (eq major-mode 'org-mode)
             (let ((current-prefix-arg 4)) ; Emulate C-u
               (call-interactively 'unpackaged/org-fix-blank-lines))))
-        
         (add-hook 'before-save-hook #'cribbed/org-mode-fix-blank-lines)
+
+
+### Agenda
+
+    (bind-key "C-a" #'org-agenda 'acdw/map)
+    (cuss org-agenda-files
+          '("~/todo.org"))
 
 
 ## Elpher
@@ -1225,9 +1176,9 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
 
 ## Pastebin
 
-    (use-package 0x0
-      :custom
-      (0x0-default-service 'ttm))
+    (straight-use-package '0x0)
+    
+    (cuss 0x0-default-service 'ttm)
 
 
 ## RSS
@@ -1259,12 +1210,10 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
 from [karthinks](https://karthinks.com/software/more-batteries-included-with-emacs/#regexp-builder--m-x-re-builder).
 
     (require 'browse-url)
-    
     (when (executable-find "mpv")
       (defun browse-url-mpv (url &optional single)
         (start-process "mpv" nil (if single "mpv" "umpv")
     		   (shell-quote-wildcard-pattern url)))
-    
       (defun browse-url-at-point-mpv (&optional single)
         "Open a link in mpv."
         (interactive "P")
@@ -1275,7 +1224,6 @@ from [karthinks](https://karthinks.com/software/more-batteries-included-with-ema
     		 (browse-url-mpv url t))
     	     #'browse-url-mpv)))
           (browse-url-at-point)))
-    
       (cuss browse-url-browser-function
     	'(("https?:\\/\\/www\\.youtu\\.*be." . browse-url-mpv)
     	  ("." . browse-url-generic))))
@@ -1289,7 +1237,8 @@ from [karthinks](https://karthinks.com/software/more-batteries-included-with-ema
       (defun acdw/setup-nov-mode ()
         (visual-line-mode +1)
         (visual-fill-column-mode +1)
-        (variable-pitch-mode +1))
+        (variable-pitch-mode +1)
+        (setq cursor-type nil))
       :config
       (cuss nov-text-width t)
       :hook
@@ -1299,13 +1248,16 @@ from [karthinks](https://karthinks.com/software/more-batteries-included-with-ema
 ## Eshell
 
     (when (executable-find "bash")
-      (use-package bash-completion))
+      (straight-use-package 'bash-completion))
     
     (when (executable-find "fish")
-      (use-package fish-completion
-        :config
-        (cuss fish-completion-fallback-on-bash-p (executable-find "bash"))
-        (global-fish-completion-mode +1)))
+      (straight-use-package 'fish-completion)
+      (require 'fish-completion)
+      (cuss fish-completion-fallback-on-bash-p (executable-find "bash"))
+      (global-fish-completion-mode +1)
+    
+      (straight-use-package 'fish-mode)
+      (add-to-list 'auto-mode-alist '("\\.fish\\'" . fish-mode)))
 
 
 # Appendices
@@ -1347,9 +1299,9 @@ from [karthinks](https://karthinks.com/software/more-batteries-included-with-ema
 ### early-init.el
 
     ;; early-init.el -*- lexical-binding: t; no-byte-compile: t; -*-
-
-    (setq load-prefer-newer t)
-    (setq frame-inhibit-implied-resize t)
+    
+      (setq load-prefer-newer t)
+      (setq frame-inhibit-implied-resize t)
 
 
 ## Ease tangling and loading of Emacs' init
@@ -1384,7 +1336,6 @@ from [karthinks](https://karthinks.com/software/more-batteries-included-with-ema
 
     (defun acdw/refresh-emacs-no-load ()
       (refresh-emacs 'disable-load))
-    
     (add-hook 'kill-emacs-hook #'acdw/refresh-emacs-no-load)
 
 
@@ -1393,7 +1344,7 @@ from [karthinks](https://karthinks.com/software/more-batteries-included-with-ema
 
 ### emacsdc
 
-A wrapper script around emacs-client that starts the daemon if it hasn’t been yet.
+Here’s a wrapper script that’ll start `emacs –daemon` if there isn’t one, and then launch `emacsclient` with the arguments.  I’d recommend installing with either `ln -s bin/emacsdc $HOME/.local/bin/`, or adding `$HOME/.local/bin` to your `$PATH`.
 
     if ! emacsclient -nc "$@" 2>/dev/null; then
         emacs --daemon
@@ -1404,7 +1355,6 @@ A wrapper script around emacs-client that starts the daemon if it hasn’t been 
 ## License
 
 Copyright © 2020 Case Duckworth <acdw@acdw.net>
-
 This work is free.  You can redistribute it and/or modify it under the
 terms of the Do What the Fuck You Want To Public License, Version 2,
 as published by Sam Hocevar.  See the `LICENSE` file, tangled from the
@@ -1420,7 +1370,6 @@ following source block, for details.
     this license document, and changing it is allowed as long as the name is changed.
     
     DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-    
     TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
     
        0. You just DO WHAT THE FUCK YOU WANT TO.
@@ -1430,6 +1379,5 @@ following source block, for details.
 
 It's highly likely that the WTFPL is completely incompatible with the
 GPL, for what should be fairly obvious reasons.  To that, I say:
-
 **SUE ME, RMS!**
 
