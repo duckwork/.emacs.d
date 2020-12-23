@@ -1482,10 +1482,8 @@ from [[https://karthinks.com/software/more-batteries-included-with-emacs/#regexp
     :END:
 
   #+begin_src emacs-lisp :comments no
-  ;; early-init.el -*- lexical-binding: t; no-byte-compile: t; -*-
-  #+end_src
+    ;; early-init.el -*- lexical-binding: t; no-byte-compile: t; -*-
 
-  #+begin_src emacs-lisp
     (setq load-prefer-newer t)
     (setq frame-inhibit-implied-resize t)
   #+end_src
