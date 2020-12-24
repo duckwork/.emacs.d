@@ -107,6 +107,8 @@ when it errors.
  #+begin_src emacs-lisp
    (defmacro cuss (var val &optional docstring)
      "Basically `:custom' from `use-package', broken out."
+     (declare (indent 2)
+	      (doc-string 3))
      `(funcall (or (get ',var 'custom-set) #'set-default)
 	       ',var ,val))
  #+end_src
@@ -116,22 +118,25 @@ when it errors.
 #+begin_src emacs-lisp
   (straight-use-package 'no-littering)
 
-  (cuss backup-directory-alist `((".*" . ,(no-littering-expand-var-file-name "backup/")))
-	"Where to store backup files.")
+  (cuss backup-directory-alist
+      `((".*" . ,(no-littering-expand-var-file-name "backup/")))
+    "Where to store backup files.")
 
   (cuss auto-save-file-name-transforms
-	`((".*" ,(no-littering-expand-var-file-name "autosaves/") t))
-	"Where to store auto-save files.")
+      `((".*" ,(no-littering-expand-var-file-name "autosaves/") t))
+    "Where to store auto-save files.")
 
-  (cuss save-place-file (no-littering-expand-var-file-name "places")
-	"Where to store place files.")
+  (cuss save-place-file
+      (no-littering-expand-var-file-name "places")
+    "Where to store place files.")
 
-  (cuss undo-fu-session-directory (no-littering-expand-var-file-name "undos/")
-	"Where to store undo information.")
+  (cuss undo-fu-session-directory
+      (no-littering-expand-var-file-name "undos/")
+    "Where to store undo information.")
 
   (cuss elpher-certificate-directory
-	(no-littering-expand-var-file-name "elpher-certificates/")
-	"Where to store elpher client certificates.")
+      (no-littering-expand-var-file-name "elpher-certificates/")
+    "Where to store elpher client certificates.")
 
   ;; Make all directories defined above
   (dolist (dir '("backup"
@@ -156,8 +161,9 @@ when it errors.
 
 #+begin_src emacs-lisp
   (cuss default-frame-alist
-	'((tool-bar-lines . 0)
-	  (menu-bar-lines . 0)))
+      '((tool-bar-lines . 0)
+	(menu-bar-lines . 0))
+    "On a default frame, show no tool bars or menu bars.")
 
   (menu-bar-mode -1)
   (tool-bar-mode -1)
@@ -176,7 +182,8 @@ when it errors.
 *** Dialog boxen
 
 #+begin_src emacs-lisp
-  (cuss use-dialog-box nil)
+  (cuss use-dialog-box nil
+    "Don't show dialog boxes.")
 #+end_src
 
 *** Shorten confirmations
@@ -188,7 +195,9 @@ when it errors.
 *** Remove the bell
 
 #+begin_src emacs-lisp
-  (cuss visible-bell (not (string= (system-name) "larry")))
+  ;(cuss visible-bell
+  ;    (not (string= (system-name) "larry"))
+  ;  "Only show a visible bell when on 'larry'.")
 
   (defun acdw/ring-bell-function ()
     "Custom bell-ringing function."
@@ -225,9 +234,10 @@ when it errors.
 
 #+begin_src emacs-lisp
   (cuss minibuffer-frame-alist
-	'((width . 80)
-	  (height . 2)
-	  (vertical-scrollbars . nil)))
+      '((width . 80)
+	(height . 2)
+	(vertical-scrollbars . nil))
+    "Set up the minibuffer frame.")
 
   (set-window-scroll-bars (minibuffer-window) nil nil)
 #+end_src
@@ -236,7 +246,8 @@ when it errors.
 
 #+begin_src emacs-lisp
   (cuss minibuffer-prompt-properties
-	'(read-only t cursor-intangible t face minibuffer-prompt))
+      '(read-only t cursor-intangible t face minibuffer-prompt)
+    "Disable moving the cursor into the minibuffer prompt.")
 #+end_src
 
 *** Tabs
@@ -244,23 +255,25 @@ when it errors.
 **** Show the tabs as current buffer, plus window count
 
 #+begin_src emacs-lisp
-  (cuss tab-bar-tab-name-function #'tab-bar-tab-name-current-with-count)
+  (cuss tab-bar-tab-name-function
+      #'tab-bar-tab-name-current-with-count)
 #+end_src
 
 **** Only show the tab bar when there's more than one tab
 
 #+begin_src emacs-lisp
   (cuss tab-bar-show 1
-	"Show the tab bar only when there's more than 1 tab.")
+    "Show the tab bar only when there's more than 1 tab.")
 #+end_src
 
 *** Cursor
 
 #+begin_src emacs-lisp
   (cuss cursor-type 'bar
-	"Show a vertical bar for the cursor.")
+    "Show a vertical bar for the cursor.")
   (cuss cursor-in-non-selected-windows 'hollow
-	"In inactive windows, make the cursor an empty box.")
+    "In inactive windows, make the cursor an empty box.")
+
   (blink-cursor-mode 0)
 #+end_src
 
@@ -275,11 +288,13 @@ when it errors.
 
 #+begin_src emacs-lisp
   (cuss indicate-buffer-boundaries
-	'((up . right)
-	  (down . right)
-	  (t . nil)))
+      '((up . right)
+	(down . right)
+	(t . nil))
+    "Show arrows on the right when there's more to the buffer up or down.")
 
-  (cuss indicate-empty-lines t)
+  (cuss indicate-empty-lines t
+    "Show a bitmap on the left for empty lines after the end of a buffer.")
 #+end_src
 
 ** Windows
@@ -295,9 +310,9 @@ when it errors.
 
  #+begin_src emacs-lisp
    (cuss windmove-create-window t
-	 "Create windows in a direction if they don't exist.")
+     "Create windows in a direction if they don't exist.")
    (cuss windomove-wrap-around t
-	 "Wrap window movements around frame edges.")
+     "Wrap window movements around frame edges.")
 
    (windmove-default-keybindings)
  #+end_src
@@ -366,8 +381,8 @@ from [[https://github.com/link0ff/emacs-init][link0ff]].
   (cuss modus-themes-diffs nil)
   (cuss modus-themes-org-blocks 'grayscale)
   (cuss modus-themes-headings
-	'((1 . line)
-	  (t . t)))
+      '((1 . line)
+	(t . t)))
   (cuss modus-themes-variable-pitch-headings t)
   (cuss modus-themes-scale-headings t)
   (cuss modus-themes-scale-1 1.1)
@@ -678,9 +693,9 @@ Also from link0ff.  See the above for a link.
   (require 'savehist)
 
   (cuss savehist-additional-variables
-	'(kill-ring
-	  search-ring
-	  regexp-search-ring))
+      '(kill-ring
+	search-ring
+	regexp-search-ring))
 
   (cuss savehist-save-minibuffer-history t)
 
@@ -697,7 +712,7 @@ Also from link0ff.  See the above for a link.
   (require 'saveplace)
 
   (cuss save-place-forget-unreadable-files
-	(not (eq system-type 'windows-nt)))
+      (not (eq system-type 'windows-nt)))
 
   (save-place-mode 1)
 #+end_src
