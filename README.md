@@ -80,6 +80,7 @@ when it errors.
          '(use-package-custom-update
            :host github
            :repo "a13/use-package-custom-update"))
+        
         (require 'use-package-custom-update)
 
 
@@ -146,6 +147,7 @@ when it errors.
     (cuss default-frame-alist
           '((tool-bar-lines . 0)
     	(menu-bar-lines . 0)))
+    
     (menu-bar-mode -1)
     (tool-bar-mode -1)
 
@@ -154,6 +156,7 @@ when it errors.
 
     (add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
     (scroll-bar-mode -1)
+    
     (add-to-list 'default-frame-alist '(horizontal-scroll-bars . nil))
     (horizontal-scroll-bar-mode -1)
 
@@ -171,6 +174,7 @@ when it errors.
 ### Remove the bell
 
     (cuss visible-bell (not (string= (system-name) "larry")))
+    
     (defun acdw/ring-bell-function ()
       "Custom bell-ringing function."
       (let ((orig-face (face-foreground 'mode-line)))
@@ -180,6 +184,7 @@ when it errors.
          (lambda (fg)
            (set-face-foreground 'mode-line fg))
          orig-face)))
+    
     (cuss ring-bell-function #'acdw/ring-bell-function)
 
 
@@ -206,6 +211,7 @@ when it errors.
               '((width . 80)
         	(height . 2)
         	(vertical-scrollbars . nil)))
+        
         (set-window-scroll-bars (minibuffer-window) nil nil)
 
 2.  Keep the cursor from going into the prompt
@@ -247,6 +253,7 @@ when it errors.
           '((up . right)
     	(down . right)
     	(t . nil)))
+    
     (cuss indicate-empty-lines t)
 
 
@@ -411,6 +418,7 @@ from [link0ff](https://github.com/link0ff/emacs-init).
         				   :height 100)
         				  ("Consolas"
         				   :height 100)))
+        
             (set-face-from-alternatives 'fixed-pitch
         				'(("Libertinus Mono"
         				   :height 110)
@@ -420,6 +428,7 @@ from [link0ff](https://github.com/link0ff/emacs-init).
         				   :height 100)
         				  ("Consolas"
         				   :height 100)))
+        
             (set-face-from-alternatives 'variable-pitch
         				'(("Libertinus Serif"
         				   :height 120)
@@ -427,6 +436,7 @@ from [link0ff](https://github.com/link0ff/emacs-init).
         				   :height 120)
         				  ("Georgia"
         				   :height 110)))
+        
             (remove-function after-focus-change-function #'acdw/setup-fonts)))
         
         (add-function :before after-focus-change-function #'acdw/setup-fonts)
@@ -454,6 +464,7 @@ from [link0ff](https://github.com/link0ff/emacs-init).
     (straight-use-package 'async)
     (autoload 'dired-async-mode "dired-async.el" nil t)
     (dired-async-mode +1)
+    
     (async-bytecomp-package-mode +1)
 
 
@@ -511,6 +522,7 @@ from [link0ff](https://github.com/link0ff/emacs-init).
        ("<help> a" . consult-apropos))
       :init
       (fset 'multi-occur #'consult-multi-occur))
+    
     (use-package consult-selectrum
       :straight (consult-selectrum
     	     :host github
@@ -620,8 +632,11 @@ Also from link0ff.  See the above for a link.
           '(kill-ring
     	search-ring
     	regexp-search-ring))
+    
     (cuss savehist-save-minibuffer-history t)
+    
     (cuss history-length t)
+    
     (cuss history-delete-duplicates t)
     
     (savehist-mode +1)
@@ -643,6 +658,7 @@ Also from link0ff.  See the above for a link.
     
     (cuss recentf-max-menu-items 100)
     (cuss recentf-max-saved-items 100)
+    
     (with-eval-after-load 'no-littering
       (add-to-list 'recentf-exclude no-littering-var-directory)
       (add-to-list 'recentf-exclude no-littering-etc-directory))
@@ -762,10 +778,10 @@ Also from link0ff.  See the above for a link.
 from [Emacs Wiki](https://www.emacswiki.org/emacs/EndOfLineTips).
 
     (defun ewiki/no-junk-please-were-unixish ()
-           "Convert line endings to UNIX, dammit."
-           (let ((coding-str (symbol-name buffer-file-coding-system)))
-    	    (when (string-match "-\\(?:dos\\|mac\\)$" coding-str)
-    		  (set-buffer-file-coding-system 'unix))))
+      "Convert line endings to UNIX, dammit."
+      (let ((coding-str (symbol-name buffer-file-coding-system)))
+        (when (string-match "-\\(?:dos\\|mac\\)$" coding-str)
+          (set-buffer-file-coding-system 'unix))))
 
 I add it to the `find-file-hook` *and* `before-save-hook` because I don't want to ever work with anything other than UNIX line endings ever again.  I just don't care.  Even Microsoft Notepad can handle UNIX line endings, so I don't want to hear it.
 
@@ -845,23 +861,30 @@ I add it to the `find-file-hook` *and* `before-save-hook` because I don't want t
       :custom
       (company-idle-delay 0.1)
       (company-minimum-prefix-length 3)
+    
       :init
       (defun acdw/company-complete-common-or-cycle+1 ()
         (interactive)
         (company-complete-common-or-cycle +1))
+    
       (defun acdw/company-complete-common-or-cycle-1 ()
         (interactive)
         (company-complete-common-or-cycle -1))
+    
       :bind
       (:map company-active-map
     	("C-n" . acdw/company-complete-common-or-cycle+1)
     	("C-p" . acdw/company-complete-common-or-cycle-1))
+    
       :hook
       (prog-mode-hook . company-mode))
+    
     (use-package company-prescient
       :hook
       (company-mode-hook . company-prescient-mode))
+    
     ;; this comes with company-quickhelp, so....
+    
     (use-package company-posframe
       :after (company)
       :config
@@ -962,6 +985,7 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 ### Org Agenda
 
     (cuss org-agenda-files (no-littering-expand-etc-file-name "agenda-files"))
+    
     (if (and (stringp org-agenda-files)
     	 (not (file-exists-p org-agenda-files)))
         (with-temp-buffer (write-file org-agenda-files)))
@@ -981,6 +1005,7 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 ### [A better return in Org mode](http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/)
 
     (require 'org-inlinetask)
+    
     (defun scimax/org-return (&optional ignore)
       "Add new list item, heading or table row with RET.
     A double return on an empty element deletes it.
@@ -989,20 +1014,25 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
       (if ignore
           (org-return)
         (cond
+    
          ((eq 'line-break (car (org-element-context)))
           (org-return t))
+    
          ;; Open links like usual, unless point is at the end of a line.
          ;; and if at beginning of line, just press enter.
          ((or (and (eq 'link (car (org-element-context))) (not (eolp)))
     	  (bolp))
           (org-return))
+    
          ;; It doesn't make sense to add headings in inline tasks. Thanks Anders
          ;; Johansson!
          ((org-inlinetask-in-task-p)
           (org-return))
+    
          ;; checkboxes too
          ((org-at-item-checkbox-p)
           (org-insert-todo-heading nil))
+    
          ;; lists end with two blank lines, so we need to make sure we are also not
          ;; at the beginning of a line to avoid a loop where a new entry gets
          ;; created with only one blank line.
@@ -1012,6 +1042,7 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     	(beginning-of-line)
     	(delete-region (line-beginning-position) (line-end-position))
     	(org-return)))
+    
          ;; org-heading
          ((org-at-heading-p)
           (if (not (string= "" (org-element-property :title (org-element-context))))
@@ -1021,6 +1052,7 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     	(beginning-of-line)
     	(setf (buffer-substring
     	       (line-beginning-position) (line-end-position)) "")))
+    
          ;; tables
          ((org-at-table-p)
           (if (-any?
@@ -1034,9 +1066,12 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     	(setf (buffer-substring
     	       (line-beginning-position) (line-end-position)) "")
     	(org-return)))
+    
          ;; fall-through case
          (t
           (org-return)))))
+    
+    
     (define-key org-mode-map (kbd "RET")
       'scimax/org-return)
 
@@ -1087,14 +1122,8 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
           (when (eq major-mode 'org-mode)
             (let ((current-prefix-arg 4)) ; Emulate C-u
               (call-interactively 'unpackaged/org-fix-blank-lines))))
+        
         (add-hook 'before-save-hook #'cribbed/org-mode-fix-blank-lines)
-
-
-### Agenda
-
-    (bind-key "C-a" #'org-agenda 'acdw/map)
-    (cuss org-agenda-files
-          '("~/todo.org"))
 
 
 ## Elpher
@@ -1210,10 +1239,12 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
 from [karthinks](https://karthinks.com/software/more-batteries-included-with-emacs/#regexp-builder--m-x-re-builder).
 
     (require 'browse-url)
+    
     (when (executable-find "mpv")
       (defun browse-url-mpv (url &optional single)
         (start-process "mpv" nil (if single "mpv" "umpv")
     		   (shell-quote-wildcard-pattern url)))
+    
       (defun browse-url-at-point-mpv (&optional single)
         "Open a link in mpv."
         (interactive "P")
@@ -1224,6 +1255,7 @@ from [karthinks](https://karthinks.com/software/more-batteries-included-with-ema
     		 (browse-url-mpv url t))
     	     #'browse-url-mpv)))
           (browse-url-at-point)))
+    
       (cuss browse-url-browser-function
     	'(("https?:\\/\\/www\\.youtu\\.*be." . browse-url-mpv)
     	  ("." . browse-url-generic))))
@@ -1300,8 +1332,8 @@ from [karthinks](https://karthinks.com/software/more-batteries-included-with-ema
 
     ;; early-init.el -*- lexical-binding: t; no-byte-compile: t; -*-
     
-      (setq load-prefer-newer t)
-      (setq frame-inhibit-implied-resize t)
+    (setq load-prefer-newer t)
+    (setq frame-inhibit-implied-resize t)
 
 
 ## Ease tangling and loading of Emacs' init
@@ -1336,6 +1368,7 @@ from [karthinks](https://karthinks.com/software/more-batteries-included-with-ema
 
     (defun acdw/refresh-emacs-no-load ()
       (refresh-emacs 'disable-load))
+    
     (add-hook 'kill-emacs-hook #'acdw/refresh-emacs-no-load)
 
 
@@ -1355,6 +1388,7 @@ Here’s a wrapper script that’ll start `emacs –daemon` if there isn’t one
 ## License
 
 Copyright © 2020 Case Duckworth <acdw@acdw.net>
+
 This work is free.  You can redistribute it and/or modify it under the
 terms of the Do What the Fuck You Want To Public License, Version 2,
 as published by Sam Hocevar.  See the `LICENSE` file, tangled from the
@@ -1370,6 +1404,7 @@ following source block, for details.
     this license document, and changing it is allowed as long as the name is changed.
     
     DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
+    
     TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
     
        0. You just DO WHAT THE FUCK YOU WANT TO.
@@ -1379,5 +1414,6 @@ following source block, for details.
 
 It's highly likely that the WTFPL is completely incompatible with the
 GPL, for what should be fairly obvious reasons.  To that, I say:
+
 **SUE ME, RMS!**
 

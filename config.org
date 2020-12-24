@@ -4,7 +4,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3
-#+Time-stamp: <2020-12-22 20:48:48 acdw>
+#+Time-stamp: <2020-12-23 20:27:53 acdw>
 
 Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
 
@@ -71,27 +71,6 @@ when it errors.
 				     user-emacs-directory))
      (acdw/bootstrap-straight))
  #+end_src
-
-*** Use-package
-
- #+begin_src emacs-lisp
-   (setq straight-use-package-by-default t)
-   (setq use-package-hook-name-suffix nil)
-   (straight-use-package 'use-package)
- #+end_src
-
-*** Extra use-package keywords
-
-**** :custom-update
-
-#+begin_src emacs-lisp
-  (straight-use-package
-   '(use-package-custom-update
-     :host github
-     :repo "a13/use-package-custom-update"))
-
-  (require 'use-package-custom-update)
-#+end_src
 
 ** Customize variables
 
@@ -554,37 +533,29 @@ Since this /comes/ with smart mode line, I’m just going to use it, instead of 
    (with-eval-after-load 'prescient
      (with-eval-after-load 'selectrum
        (selectrum-prescient-mode +1)))
-
-   (straight-use-package 'company-prescient)
-
-   (with-eval-after-load 'prescient
-     (with-eval-after-load 'company
-       (company-prescient-mode +1)))
  #+end_src
 
 *** Consult
 
  #+begin_src emacs-lisp
-   (use-package consult
-     :after (selectrum)
-     :straight (consult
-		:host github
-		:repo "minad/consult")
-     :bind
-     (("C-x b" . consult-buffer)
-      ("C-x 4 b" . consult-buffer-other-window)
-      ("C-x 5 b" . consult-buffer-other-frame)
-      ("M-g o" . consult-outline)
-      ("M-g l" . consult-line)
-      ("M-y" . consult-yank-pop)
-      ("<help> a" . consult-apropos))
-     :init
-     (fset 'multi-occur #'consult-multi-occur))
+   (straight-use-package '(consult
+			   :host github
+			   :repo "minad/consult"))
+   (require 'consult)
 
-   (use-package consult-selectrum
-     :straight (consult-selectrum
-		:host github
-		:repo "minad/consult"))
+   (define-key ctl-x-map "b" #'consult-buffer)
+   (define-key ctl-x-map "4b" #'consult-buffer-other-window)
+   (define-key ctl-x-map "5b" #'consult-buffer-other-frame)
+   (define-key goto-map "o" #'consult-outline)
+   (define-key goto-map "l" #'consult-line)
+   (global-set-key (kbd "M-y") #'consult-yank-pop)
+   (define-key help-map "a" #'consult-apropos)
+
+   (fset 'multi-occur #'consult-multi-occur)
+
+   (straight-use-package '(consult-selectrum
+			   :host github
+			   :repo "minad/consult"))
  #+end_src
 
 *** Marginalia
@@ -596,11 +567,11 @@ Since this /comes/ with smart mode line, I’m just going to use it, instead of 
 			   :branch "main"))
 
    (cuss marginalia-annotators
-	 (if (eq system-type 'windows-nt)
-	     '(marginalia-annotators-light
-	       marginalia-annotators-heavy)
-	   '(marginalia-annotators-heavy
-	     marginalia-annotators-light)))
+       (if (eq system-type 'windows-nt)
+	   '(marginalia-annotators-light
+	     marginalia-annotators-heavy)
+	 '(marginalia-annotators-heavy
+	   marginalia-annotators-light)))
 
    (marginalia-mode +1)
  #+end_src
@@ -616,16 +587,31 @@ Since this /comes/ with smart mode line, I’m just going to use it, instead of 
 ** Search
 
 #+begin_src emacs-lisp
-  (use-package ctrlf
-    :custom
-    (ctrlf-show-match-count-at-eol nil)
-    :bind
-    ("C-s" . ctrlf-forward-regexp)
-    ("C-r" . ctrlf-backward-regexp)
-    ("C-M-s" . ctrlf-forward-literal)
-    ("C-M-r" . ctrlf-backward-literal)
-    :config
-    (ctrlf-mode +1))
+  (straight-use-package 'ctrlf)
+  (require 'ctrlf)
+
+  (cuss ctrlf-show-match-count-at-eol nil)
+
+  (cuss ctrlf-mode-bindings
+      '(("C-s" . ctrlf-forward-regexp)
+	("C-r" . ctrlf-backward-regexp)
+	("C-M-s" . ctrlf-forward-literal)
+	("C-M-r" . ctrlf-backward-literal)
+	("M-s _" . ctrlf-forward-symbol)
+	("M-s ." . ctrlf-forward-symbol-at-point)))
+
+  (ctrlf-mode +1)
+#+end_src
+
+** Replace
+
+#+begin_src emacs-lisp
+  (straight-use-package 'anzu)
+  (global-anzu-mode +1)
+
+  (cuss anzu-replace-to-string-separator " → ")
+  (global-set-key (kbd "M-%") #'anzu-query-replace-regexp)
+  (global-set-key (kbd "M-C-%") #'anzu-query-replace)
 #+end_src
 
 ** Mouse
@@ -639,7 +625,7 @@ This is not /quite/ correct yet.  For example, scrolling in the margins with a t
 		 [right-margin wheel-down]
 		 [left-margin wheel-up]
 		 [right-margin wheel-up]))
-    (bind-key vec #'mwheel-scroll))
+    (global-set-key vec #'mwheel-scroll))
 #+end_src
 
 ** Keyboard
@@ -650,7 +636,7 @@ From [[https://github.com/link0ff/emacs-init][link0ff]].  I thought they made a 
 
 #+begin_src emacs-lisp
   (when window-system
-    (define-key global-map [escape] 'keyboard-escape-quit)
+    (global-set-key [escape] 'keyboard-escape-quit)
     (define-key isearch-mode-map  [escape] 'isearch-cancel))
 #+end_src
 
@@ -682,7 +668,7 @@ Also from link0ff.  See the above for a link.
 **** Switch to another window
 
 #+begin_src emacs-lisp
-  (bind-key "M-o" #'other-window)
+  (global-set-key (kbd "M-o") #'other-window)
 #+end_src
 
 * Persistence
@@ -748,18 +734,21 @@ Also from link0ff.  See the above for a link.
 ** Undo
 
 #+begin_src emacs-lisp
-  (use-package undo-fu
-    :bind
-    ("C-/" . undo-fu-only-undo)
-    ("C-?" . undo-fu-only-redo))
+  (straight-use-package 'undo-fu)
+  (require 'undo-fu)
+
+  (global-set-key (kbd "C-/") #'undo-fu-only-undo)
+  (global-set-key (kbd "C-?") #'undo-fu-only-redo)
 
   (straight-use-package 'undo-fu-session)
+  (require 'undo-fu-session)
 
   (cuss undo-fu-session-incompatible-files
-	'("/COMMIT_EDITMSG\\'"
-	  "/git-rebase-todo\\'"))
+      '("/COMMIT_EDITMSG\\'"
+	"/git-rebase-todo\\'"))
 
   (global-undo-fu-session-mode +1)
+
 #+end_src
 
 * Editing
@@ -806,20 +795,20 @@ Also from link0ff.  See the above for a link.
 ** Multiple cursors
 
 #+begin_src emacs-lisp
-  (use-package multiple-cursors
-    :bind
-    ("C->" . mc/mark-next-like-this)
-    ("C-<" . mc/mark-previous-like-this)
-    ("C-c C-<" . mc/mark-all-like-this))
+  (straight-use-package 'multiple-cursors)
+
+  (global-set-key (kbd "C->") #'mc/mark-next-like-this)
+  (global-set-key (kbd "C-<") #'mc/mark-previous-like-this)
+  (global-set-key (kbd "C-c C-<") #'mc/mark-all-like-this)
 #+end_src
 
 ** Expand region
 
 #+begin_src emacs-lisp
-  (use-package expand-region
-    :bind
-    (("C-=" . er/expand-region)
-     ("C-+" . er/contract-region)))
+  (straight-use-package 'expand-region)
+
+  (global-set-key (kbd "C-=") #'er/expand-region)
+  (global-set-key (kbd "C-+") #'er/contract-region)
 #+end_src
 
 ** Highlight modified regions
@@ -958,38 +947,28 @@ Also from link0ff.  See the above for a link.
 ** Completion
 
 #+begin_src emacs-lisp
-  (use-package company
-    :custom
-    (company-idle-delay 0.1)
-    (company-minimum-prefix-length 3)
+  (unless (eq system-type 'windows-nt)
+    (straight-use-package 'company)
+    (cuss company-idle-delay 0.1)
+    (cuss company-minimum-prefix-length 2)
 
-    :init
-    (defun acdw/company-complete-common-or-cycle+1 ()
-      (interactive)
-      (company-complete-common-or-cycle +1))
+    (add-hook 'prog-mode-hook #'company-mode)
 
-    (defun acdw/company-complete-common-or-cycle-1 ()
-      (interactive)
-      (company-complete-common-or-cycle -1))
+    (straight-use-package 'company-prescient)
+    (add-hook 'company-mode-hook #'company-prescient-mode)
 
-    :bind
-    (:map company-active-map
-	  ("C-n" . acdw/company-complete-common-or-cycle+1)
-	  ("C-p" . acdw/company-complete-common-or-cycle-1))
+    (straight-use-package 'company-posframe)
 
-    :hook
-    (prog-mode-hook . company-mode))
-
-  (use-package company-prescient
-    :hook
-    (company-mode-hook . company-prescient-mode))
-
-  ;; this comes with company-quickhelp, so....
-
-  (use-package company-posframe
-    :after (company)
-    :config
-    (company-posframe-mode +1))
+    (with-eval-after-load 'company
+      (company-posframe-mode +1)
+      (define-key company-active-map (kbd "C-n")
+	(lambda ()
+	  (interactive)
+	  (company-complete-common-or-cycle +1)))
+      (define-key company-active-map (kbd "C-p")
+	(lambda ()
+	  (interactive)
+	  (company-complete-common-or-cycle -1)))))
 #+end_src
 
 ** Languages
@@ -997,16 +976,16 @@ Also from link0ff.  See the above for a link.
 *** Lua
 
 #+begin_src emacs-lisp
-  (use-package lua-mode
-    :mode "\\.lua\\'"
-    :interpreter "lua")
+  (straight-use-package 'lua-mode)
+  (add-to-list 'auto-mode-alist '("\\.lua\\'" . lua-mode))
+  (add-to-list 'interpreter-mode-alist '("lua" . lua-mode))
 #+end_src
 
 *** Fennel
 
 #+begin_src emacs-lisp
-  (use-package fennel-mode
-    :mode "\\.fnl\\'")
+  (straight-use-package 'fennel-mode)
+  (add-to-list 'auto-mode-alist '("\\.fnl\\'" . fennel-mode))
 #+end_src
 
 *** Emacs lisp
@@ -1068,16 +1047,14 @@ from [[https://stackoverflow.com/questions/23659909/reverse-evaluation-order-of-
 
 #+begin_src emacs-lisp
   (straight-use-package 'typo)
-
   (add-hook 'text-mode-hook #'typo-mode)
 #+end_src
 
 ** Insert /kaomoji/
 
 #+begin_src emacs-lisp
-  (use-package insert-kaomoji
-    :bind
-    ("C-x 8 k" . insert-kaomoji))
+  (straight-use-package 'insert-kaomoji)
+  (global-set-key (kbd "C-x 8 k") #'insert-kaomoji)
 #+end_src
 
 * Applications
@@ -1085,9 +1062,9 @@ from [[https://stackoverflow.com/questions/23659909/reverse-evaluation-order-of-
 ** Magit
 
 #+begin_src emacs-lisp
-  (use-package magit
-    :bind
-    ("C-z g" . magit-status))
+  (straight-use-package 'magit)
+
+  (define-key acdw/map "g" #'magit-status)
 #+end_src
 
 ** Org mode
@@ -1100,8 +1077,8 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
   (with-eval-after-load 'org
     (require 'org-tempo)
     (require 'ox-md)
-    (bind-key "M-n" #'outline-next-visible-heading 'org-mode-map)
-    (bind-key "M-p" #'outline-previous-visible-heading 'org-mode-map))
+    (define-key org-mode-map (kbd "M-n") #'outline-next-visible-heading)
+    (define-key org-mode-map (kbd "M-p") #'outline-previous-visible-heading))
 
   (cuss org-hide-emphasis-markers t)
   (cuss org-fontify-done-headline t)
@@ -1124,9 +1101,11 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
   (if (and (stringp org-agenda-files)
 	   (not (file-exists-p org-agenda-files)))
       (with-temp-buffer (write-file org-agenda-files)))
+
+  (define-key acdw/map (kbd "C-a") #'org-agenda)
 #+end_src
 
-*** Make bullets look like bullets
+*** COMMENT Make bullets look like bullets
 
 #+begin_src emacs-lisp
   (font-lock-add-keywords
@@ -1266,86 +1245,79 @@ from [[https://github.com/alphapapa/unpackaged.el#ensure-blank-lines-between-hea
   (add-hook 'before-save-hook #'cribbed/org-mode-fix-blank-lines)
 #+end_src
 
-
 ** Elpher
 
 #+begin_src emacs-lisp
-  (use-package elpher
-    :straight (elpher
-	       :repo "git://thelambdalab.xyz/elpher.git"
-	       :branch "patch_multiple_buffers")
-  
-    :custom
-    (elpher-ipv4-always t)
-  
-    :custom-face
-    (elpher-gemini-heading1
-     ((t (:inherit (modus-theme-heading-1)))))
-    (elpher-gemini-heading2
-     ((t (:inherit (modus-theme-heading-2)))))
-    (elpher-gemini-heading3
-     ((t (:inherit (modus-theme-heading-3)))))
-  
-    :config
-    (defun elpher:eww-browse-url (original url &optional new-window)
-      "Handle gemini/gopher links with eww."
-      (cond ((string-match-p "\\`\\(gemini\\|gopher\\)://" url)
-	     (require 'elpher)
-	     (elpher-go url))
-	    (t (funcall original url new-window))))
-    (advice-add 'eww-browse-url :around 'elpher:eww-browse-url)
-  
-    :bind (:map elpher-mode-map
-		("n" . elpher-next-link)
-		("p" . elpher-prev-link)
-		("o" . elpher-follow-current-link)
-		("G" . elpher-go-current))
-  
-    :hook
-    (elpher-mode-hook . visual-fill-column-mode))
+  (straight-use-package '(elpher
+			  :repo "git://thelambdalab.xyz/elpher.git"
+			  :branch "patch_multiple_buffers"))
+
+  (cuss elpher-ipv4-always t)
+
+  (custom-set-faces
+   `(elpher-gemini-heading1
+     ((t (:inherit (modus-theme-heading1)))))
+   `(elpher-gemini-heading2
+     ((t (:inherit (modus-theme-heading2)))))
+   `(elpher-gemini-heading3
+     ((t (:inherit (modus-theme-heading3))))))
+
+  (defun elpher:eww-browse-url (original url &optional new-window)
+    "Handle gemini/gopher links with eww."
+    (cond ((string-match-p "\\`\\(gemini\\|gopher\\)://" url)
+	   (require 'elpher)
+	   (elpher-go url))
+	  (t (funcall original url new-window))))
+
+  (advice-add 'eww-browse-url :around 'elpher:eww-browse-url)
+
+  (unless (fboundp 'elpher-bookmarks)
+    (autoload #'elpher-bookmarks "elpher" nil t))
+
+  (define-key acdw/map "e" #'elpher-bookmarks)
+
+  (with-eval-after-load 'elpher
+    (dolist (key '(("n" . elpher-next-link)
+		   ("p" . elpher-prev-link)
+		   ("o" . elpher-follow-current-link)
+		   ("G" . elpher-go-current)))
+      (define-key elpher-mode-map (car key) (cdr key))))
+
+  (add-hook 'elpher-mode-hook #'visual-fill-column-mode)
 #+end_src
 
 *** Gemini mode
 
 #+begin_src emacs-lisp
-  (use-package gemini-mode
-    :straight (gemini-mode
-	       :repo "https://git.carcosa.net/jmcbray/gemini.el.git")
-  
-    :mode "\\.\\(gemini|gmi\\)\\'"
-  
-    :custom-face
-    (gemini-heading-face-1
-     ((t (:inherit (elpher-gemini-heading1)))))
-    (gemini-heading-face2
-     ((t (:inherit (elpher-gemini-heading2)))))
-    (gemini-heading-face3
-     ((t (:inherit (elpher-gemini-heading3)))))
-  
-    :init
-    (defun acdw/setup-gemini-mode ()
-      (visual-fill-column-mode 1)
-      (variable-pitch-mode -1))
-  
-    :hook
-    (gemini-mode-hook . acdw/setup-gemini-mode))
+  (straight-use-package
+   '(gemini-mode
+     :repo "https://git.carcosa.net/jmcbray/gemini.el.git"))
+
+  (add-to-list 'auto-mode-alist
+	       '("\\.\\(gemini\\|gmi\\)\\'" . gemini-mode))
+
+  (defun acdw/setup-gemini-mode ()
+    (visual-fill-column-mode +1)
+    (variable-pitch-mode -1))
+
+  (add-hook 'gemini-mode-hook #'acdw/setup-gemini-mode)
 #+end_src
 
 *** Gemini write
 
 #+begin_src emacs-lisp
-  (use-package gemini-write
-    :straight (gemini-write
-	       :repo "https://alexschroeder.ch/cgit/gemini-write"))
+  (straight-use-package
+   '(gemini-write
+     :repo "https://alexschroeder.ch/cgit/gemini-write"))
 #+end_src
 
 *** Ox-gemini
 
 #+begin_src emacs-lisp
-  (use-package ox-gemini
-    :straight (ox-gemini
-	       :repo "https://git.sr.ht/~abrahms/ox-gemini"
-	       :branch "main"))
+  (straight-use-package
+   '(ox-gemini
+     :repo "https://git.sr.ht/~abrahms/ox-gemini"
+     :branch "main"))
 #+end_src
 
 ** Pastebin
@@ -1359,23 +1331,21 @@ from [[https://github.com/alphapapa/unpackaged.el#ensure-blank-lines-between-hea
 ** RSS
 
 #+begin_src emacs-lisp
-  (use-package newsticker
-    :custom
-    (newsticker-url-list
-     ;; LABEL URL [START-TIME] [INERVAL] [WGET-ARGUMENTS]
-     '(("wsinatra" "http://lambdacreate.com/static/feed.rss")
-       ("elioat" "https://eli.li/feed.rss")
-       ("ACDW" "https://www.acdw.net/atom.xml")
-       ("june" "https://text.causal.agency/feed.atom")
-       ("kylie - notes" "https://www.somas.is/notes.atom")
-       ("kylie - rhizome" "https://www.somas.is/rhizome.atom")
-       ("brennan" "https://p1k3.com/all.xml")
-       ("Planet Emacs" "https://planet.emacslife.com/atom.xml") 
-       ("nullprogram, Chris Wellons" "https://nullprogram.com/feed/")
-       ("Malleable Systems" "https://malleable.systems/blog/index.xml"))
-     )
-    :hook
-    (newsticker-treeview-item-mode-hook . visual-fill-column-mode))
+  (cuss newsticker-url-list
+	;; LABEL URL [START-TIME] [INERVAL] [WGET-ARGUMENTS]
+	'(("wsinatra" "http://lambdacreate.com/static/feed.rss")
+	  ("elioat" "https://eli.li/feed.rss")
+	  ("ACDW" "https://www.acdw.net/atom.xml")
+	  ("june" "https://text.causal.agency/feed.atom")
+	  ("kylie - notes" "https://www.somas.is/notes.atom")
+	  ("kylie - rhizome" "https://www.somas.is/rhizome.atom")
+	  ("brennan" "https://p1k3.com/all.xml")
+	  ("Planet Emacs" "https://planet.emacslife.com/atom.xml") 
+	  ("nullprogram, Chris Wellons" "https://nullprogram.com/feed/")
+	  ("Malleable Systems" "https://malleable.systems/blog/index.xml"))
+	)
+
+  (add-hook 'newsticker-treeview-item-mode-hook #'visual-fill-column-mode)
 #+end_src
 
 ** Web browsing
@@ -1411,18 +1381,19 @@ from [[https://karthinks.com/software/more-batteries-included-with-emacs/#regexp
 ** Reading e-books
 
 #+begin_src emacs-lisp
-  (use-package nov
-    :mode ("\\.epub\\'" . nov-mode)
-    :init
-    (defun acdw/setup-nov-mode ()
-      (visual-line-mode +1)
-      (visual-fill-column-mode +1)
-      (variable-pitch-mode +1)
-      (setq cursor-type nil))
-    :config
-    (cuss nov-text-width t)
-    :hook
-    (nov-mode-hook . acdw/setup-nov-mode))
+  (straight-use-package 'nov)
+
+  (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
+
+  (defun acdw/setup-nov-mode ()
+    (visual-line-mode +1)
+    (visual-fill-column-mode +1)
+    (variable-pitch-mode +1)
+    (setq cursor-type nil))
+
+  (cuss nov-text-width t)
+
+  (add-hook 'nov-mode-hook #'acdw/setup-nov-mode)
 #+end_src
 
 ** Eshell
