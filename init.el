@@ -1,10 +1,12 @@
 ;; init.el -*- lexical-binding: t -*-
 
-(setq gc-cons-threshold most-positive-fixnum)
-(defvar old-file-name-handler file-name-handler-alist)
-(setq file-name-handler-alist nil)
+(setq load-prefer-newer t)
 
-(let* ((conf (expand-file-name "config"
+(let* (;; Speed up init
+       (gc-cons-threshold most-positive-fixnum)
+       (file-name-handler-alist nil)
+       ;; Config file names
+       (conf (expand-file-name "config"
 			       user-emacs-directory))
        (conf-el (concat conf ".el"))
        (conf-org (concat conf ".org")))
@@ -12,7 +14,3 @@
 	       (load conf 'no-error))
     (require 'org)
     (org-babel-load-file conf-org)))
-
-(setq gc-cons-threshold 16777216 ; 16mb
-      gc-cons-percentage 0.1
-      file-name-handler-alist old-file-name-handler)

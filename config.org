@@ -1421,24 +1421,18 @@ from [[https://karthinks.com/software/more-batteries-included-with-emacs/#regexp
     :header-args: :tangle init.el
     :END:
 
-  #+begin_src emacs-lisp :comments no
-  ;; init.el -*- lexical-binding: t -*-
-  #+end_src
+I realized I didn’t need =early-init.el=, since it really only set =load-prefer-newer=.  So I’ve set that here, and wrapped the actual loading of config in a =let*= form that speeds up init, and loads the newer of either =config.org= or =config.el=.
 
-**** Speed up init
+  #+BEGIN_SRC emacs-lisp
+    ;; init.el -*- lexical-binding: t -*-
 
-#+begin_src emacs-lisp
-  (setq gc-cons-threshold most-positive-fixnum)
-  (defvar old-file-name-handler file-name-handler-alist)
-  (setq file-name-handler-alist nil)
-#+end_src
+    (setq load-prefer-newer t)
 
-**** Load config
-
-  inspired by [[https://protesilaos.com/dotemacs/#h:584c3604-55a1-49d0-9c31-abe46cb1f028][Protesilaos Stavrou]].
-
-  #+begin_src emacs-lisp
-    (let* ((conf (expand-file-name "config"
+    (let* (;; Speed up init
+	   (gc-cons-threshold most-positive-fixnum)
+	   (file-name-handler-alist nil)
+	   ;; Config file names
+	   (conf (expand-file-name "config"
 				   user-emacs-directory))
 	   (conf-el (concat conf ".el"))
 	   (conf-org (concat conf ".org")))
@@ -1446,31 +1440,11 @@ from [[https://karthinks.com/software/more-batteries-included-with-emacs/#regexp
 		   (load conf 'no-error))
 	(require 'org)
 	(org-babel-load-file conf-org)))
-  #+end_src
-
-**** Reset for normal operation
-
-#+begin_src emacs-lisp
-  (setq gc-cons-threshold 16777216 ; 16mb
-	gc-cons-percentage 0.1
-	file-name-handler-alist old-file-name-handler)
-#+end_src
-
-*** early-init.el
-    :PROPERTIES:
-    :header-args: :tangle early-init.el
-    :END:
-
-  #+begin_src emacs-lisp :comments no
-    ;; early-init.el -*- lexical-binding: t; no-byte-compile: t; -*-
-
-    (setq load-prefer-newer t)
-    (setq frame-inhibit-implied-resize t)
-  #+end_src
+  #+END_SRC
 
 ** Ease tangling and loading of Emacs' init
 
- #+begin_src emacs-lisp
+ #+BEGIN_SRC emacs-lisp
    (defun refresh-emacs (&optional disable-load)
      "Tangle `config.org', then byte-compile the resulting files.
    Then, load the byte-compilations unless passed with a prefix argument."
