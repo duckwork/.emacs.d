@@ -1,435 +1,350 @@
 #+TITLE: Emacs, emacs, emacs
 #+AUTHOR: Case Duckworth
 #+PROPERTY: header-args :tangle config.el :comments both :mkdirp yes
+#+STARTUP: 
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
-#+BANKRUPTCY_COUNT: 3
-#+Time-stamp: <2020-12-23 20:27:53 acdw>
+#+BANKRUPTCY_COUNT: 3.2
+#+Time-stamp: <2020-12-30 23:33:02 acdw>
 
-Let’s configure Emacs using Org mode, they said.  It’ll be fun, they said.
+Why the hell not, let’s do this again.
 
-* Pave the way
+* Basics
+
+** About me
+
+#+BEGIN_SRC emacs-lisp
+(setq user-full-name "Case Duckworth"
+      user-mail-address "acdw@acdw.net")
+#+END_SRC
 
 ** Correct =exec-path=
 
- #+begin_src emacs-lisp
-   (let ((win-downloads "c:/Users/aduckworth/Downloads"))
-     (dolist (path (list
-		    ;; Linux
-		    (expand-file-name "bin"
-				      user-emacs-directory)
-		    (expand-file-name "~/bin")
-		    (expand-file-name "~/.local/bin")
-		    (expand-file-name "~/Scripts")
-		    ;; Windows
-		    (expand-file-name "emacs/bin"
-				      win-downloads)
-		    (expand-file-name "m/usr/bin"
-				      win-downloads)
-		    (expand-file-name "m/mingw64/bin"
-				      win-downloads)
-		    (expand-file-name "PortableGit/bin"
-				      win-downloads)
-		    (expand-file-name "PortableGit/usr/bin"
-				      win-downloads)))
-       (when (file-exists-p path)
-	 (add-to-list 'exec-path path))))
- #+end_src
+Straight depends on Git, so I need to tell Emacs where different paths are.
+
+#+BEGIN_SRC emacs-lisp
+(let ((win-downloads "c:/Users/aduckworth/Downloads"))
+  (dolist (path (list
+		 ;; Linux
+		 (expand-file-name "bin"
+				   user-emacs-directory)
+		 (expand-file-name "~/bin")
+		 (expand-file-name "~/.local/bin")
+		 (expand-file-name "~/Scripts")
+		 ;; Windows
+		 (expand-file-name "emacs/bin"
+				   win-downloads)
+		 (expand-file-name "m/usr/bin"
+				   win-downloads)
+		 (expand-file-name "m/mingw64/bin"
+				   win-downloads)
+		 (expand-file-name "PortableGit/bin"
+				   win-downloads)
+		 (expand-file-name "PortableGit/usr/bin"
+				   win-downloads)))
+    (when (file-exists-p path)
+      (add-to-list 'exec-path path))))
+#+END_SRC
 
 ** Package management
 
 *** Straight.el
 
-Since for whatever reason, Straight can't bootstrap itself on Windows
--- I've wrapped it in a function here and added the direct git command
-when it errors.
+Straight can't bootstrap itself on Windows, so I've wrapped the
+bootstrap code from straight's repo in a function.
 
- #+begin_src emacs-lisp
-   (defun acdw/bootstrap-straight ()
-     (defvar bootstrap-version)
-			  (let ((bootstrap-file
-				 (expand-file-name
-				  "straight/repos/straight.el/bootstrap.el"
+#+BEGIN_SRC emacs-lisp
+(defun acdw/bootstrap-straight ()
+  "Bootstrap straight.el."
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+	 (expand-file-name
+	  "straight/repos/straight.el/bootstrap.el"
+	  user-emacs-directory))
+	(bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+	  (url-retrieve-synchronously
+	   (concat
+	    "https://raw.githubusercontent.com/"
+	    "raxod502/straight.el/"
+	    "develop/install.el")
+	   'silent 'inhibit-cookies)
+	(goto-char (point-max))
+	(eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage)))
+#+END_SRC
+
+Now, I'll /try/ running it regular-style, ignoring the errors.  If it
+doesn't work, I'll call git directly and clone the repo myself.
+
+#+BEGIN_SRC emacs-lisp
+(unless (ignore-errors (acdw/bootstrap-straight))
+  (message "Straight.el didn't bootstrap correctly.  Cloning directly...")
+  (call-process "git" nil
+		(get-buffer-create "*bootstrap-straight-messages*") nil
+		"clone"
+		"https://github.com/raxod502/straight.el"
+		(expand-file-name "straight/repos/straight.el"
 				  user-emacs-directory))
-				(bootstrap-version 5))
-			    (unless (file-exists-p bootstrap-file)
-			      (with-current-buffer
-				  (url-retrieve-synchronously
-				   (concat "https://raw.githubusercontent.com/"
-					   "raxod502/straight.el/develop/install.el")
-				   'silent 'inhibit-cookies)
-				(goto-char (point-max))
-				(eval-print-last-sexp)))
-			    (load bootstrap-file nil 'nomessage)))
+  (acdw/bootstrap-straight))
+#+END_SRC
 
-   (unless (ignore-errors (acdw/bootstrap-straight))
-     (message "Straight.el didn't bootstrap correctly.  Cloning directly...")
-     (call-process "git" nil (get-buffer-create "*bootstrap-straight-messages*") nil
-		   "clone"
-		   "https://github.com/raxod502/straight.el"
-		   (expand-file-name "straight/repos/straight.el"
-				     user-emacs-directory))
-     (acdw/bootstrap-straight))
- #+end_src
+** Customize macro
 
-** Customize variables
+#+BEGIN_SRC emacs-lisp
+(defmacro cuss (var val &optional docstring)
+  "Basically, `:custom' from `use-package', but without `use-package'."
+  (declare (doc-string 3)
+	   (indent 2))
+  `(funcall (or (get ',var 'custom-set) #'set-default)
+	    ',var ,val))
+#+END_SRC
 
-*** Put customizations in a separate file
+** Clean =.emacs.d=
 
- #+begin_src emacs-lisp
-   (setq custom-file
-	 (expand-file-name "custom.el" user-emacs-directory))
- #+end_src
+#+BEGIN_SRC emacs-lisp
+(straight-use-package 'no-littering)
+(require 'no-littering)
+#+END_SRC
 
-*** A macro for ease of customization
-
- #+begin_src emacs-lisp
-   (defmacro cuss (var val &optional docstring)
-     "Basically `:custom' from `use-package', broken out."
-     (declare (indent 2)
-	      (doc-string 3))
-     `(funcall (or (get ',var 'custom-set) #'set-default)
-	       ',var ,val))
- #+end_src
-
-** Keep a tidy =~/.emacs=
-
-#+begin_src emacs-lisp
-  (straight-use-package 'no-littering)
-
-  (cuss backup-directory-alist
-      `((".*" . ,(no-littering-expand-var-file-name "backup/")))
-    "Where to store backup files.")
-
-  (cuss auto-save-file-name-transforms
-      `((".*" ,(no-littering-expand-var-file-name "autosaves/") t))
-    "Where to store auto-save files.")
-
-  (cuss save-place-file
-      (no-littering-expand-var-file-name "places")
-    "Where to store place files.")
-
-  (cuss undo-fu-session-directory
-      (no-littering-expand-var-file-name "undos/")
-    "Where to store undo information.")
-
-  (cuss elpher-certificate-directory
-      (no-littering-expand-var-file-name "elpher-certificates/")
-    "Where to store elpher client certificates.")
-
-  ;; Make all directories defined above
-  (dolist (dir '("backup"
-		 "autosaves"
-		 "undos"
-		 "elpher-certificates"))
-    (make-directory (no-littering-expand-var-file-name dir) 'parents))
-#+end_src
-
-** About me
-
-#+begin_src emacs-lisp
-  (setq user-full-name "Case Duckworth"
-	user-mail-address "acdw@acdw.net")
-#+end_src
-
-* Look and Feel
-
-** Simplify the UI
-
-*** Tool bars and menu bars
-
-#+begin_src emacs-lisp
-  (cuss default-frame-alist
-      '((tool-bar-lines . 0)
-	(menu-bar-lines . 0))
-    "On a default frame, show no tool bars or menu bars.")
-
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-#+end_src
-
-*** Scroll bars
-
-#+begin_src emacs-lisp
-  (add-to-list 'default-frame-alist '(vertical-scroll-bars . nil))
-  (scroll-bar-mode -1)
-
-  (add-to-list 'default-frame-alist '(horizontal-scroll-bars . nil))
-  (horizontal-scroll-bar-mode -1)
-#+end_src
-
-*** Dialog boxen
-
-#+begin_src emacs-lisp
-  (cuss use-dialog-box nil
-    "Don't show dialog boxes.")
-#+end_src
-
-*** Shorten confirmations
-
-#+begin_src emacs-lisp
-  (fset 'yes-or-no-p #'y-or-n-p)
-#+end_src
-
-*** Remove the bell
-
-#+begin_src emacs-lisp
-  ;(cuss visible-bell
-  ;    (not (string= (system-name) "larry"))
-  ;  "Only show a visible bell when on 'larry'.")
-
-  (defun acdw/ring-bell-function ()
-    "Custom bell-ringing function."
-    (let ((orig-face (face-foreground 'mode-line)))
-      (set-face-foreground 'modeline "#F2804F")
-      (run-with-idle-timer
-       0.1 nil
-       (lambda (fg)
-	 (set-face-foreground 'mode-line fg))
-       orig-face)))
-
-  (cuss ring-bell-function #'acdw/ring-bell-function)
-#+end_src
-
-*** Tell Ediff to setup windows better
-
-#+begin_src emacs-lisp
-  (declare-function ediff-setup-windows-plain "ediff-wind.el")
-  (cuss ediff-window-setup-function #'ediff-setup-windows-plain)
-#+end_src
-
-** Tweak the remaining UI
-
-*** Fringes
-
-#+begin_src emacs-lisp
-  (add-to-list 'default-frame-alist '(left-fringe-width . 2))
-  (add-to-list 'default-frame-alist '(right-fringe-width . 2))
-#+end_src
-
-*** Minibuffer
-
-**** Setup the minibuffer frame
-
-#+begin_src emacs-lisp
-  (cuss minibuffer-frame-alist
-      '((width . 80)
-	(height . 2)
-	(vertical-scrollbars . nil))
-    "Set up the minibuffer frame.")
-
-  (set-window-scroll-bars (minibuffer-window) nil nil)
-#+end_src
-
-**** Keep the cursor from going into the prompt
-
-#+begin_src emacs-lisp
-  (cuss minibuffer-prompt-properties
-      '(read-only t cursor-intangible t face minibuffer-prompt)
-    "Disable moving the cursor into the minibuffer prompt.")
-#+end_src
-
-*** Tabs
-
-**** Show the tabs as current buffer, plus window count
-
-#+begin_src emacs-lisp
-  (cuss tab-bar-tab-name-function
-      #'tab-bar-tab-name-current-with-count)
-#+end_src
-
-**** Only show the tab bar when there's more than one tab
-
-#+begin_src emacs-lisp
-  (cuss tab-bar-show 1
-    "Show the tab bar only when there's more than 1 tab.")
-#+end_src
+** Look and feel
 
 *** Cursor
 
-#+begin_src emacs-lisp
-  (cuss cursor-type 'bar
-    "Show a vertical bar for the cursor.")
-  (cuss cursor-in-non-selected-windows 'hollow
-    "In inactive windows, make the cursor an empty box.")
+#+BEGIN_SRC emacs-lisp
+(cuss cursor-type 'bar
+  "Show a vertical bar for the cursor.")
 
-  (blink-cursor-mode 0)
-#+end_src
+(cuss cursor-in-non-selected-windows 'hollow
+  "Show an empty box in inactive windows.")
 
-*** Buffer names
+;; Don't blink the cursor
+(blink-cursor-mode -1)
+#+END_SRC
 
-#+begin_src emacs-lisp
-  (require 'uniquify)
-  (cuss uniquify-buffer-name-style 'forward)
-#+end_src
+*** Tool Bars
 
-*** Buffer boundaries
+**** Tool bars and menu bars
 
-#+begin_src emacs-lisp
-  (cuss indicate-buffer-boundaries
-      '((up . right)
-	(down . right)
-	(t . nil))
-    "Show arrows on the right when there's more to the buffer up or down.")
+#+BEGIN_SRC emacs-lisp
+(cuss default-frame-alist
+      '((tool-bar-lines . 0)
+	(menu-bar-lines .0))
+  "Setup the default frame alist.")
 
-  (cuss indicate-empty-lines t
-    "Show a bitmap on the left for empty lines after the end of a buffer.")
-#+end_src
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+#+END_SRC
 
-** Windows
+**** Scroll bars
 
-*** Winner mode
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'default-frame-alist
+	     '(vertical-scroll-bars . nil))
 
-#+begin_src emacs-lisp
-  (when (fboundp 'winner-mode)
-    (winner-mode +1))
-#+end_src
+(scroll-bar-mode -1)
 
-*** Windmove
+(add-to-list 'default-frame-alist
+	     '(horizontal-scroll-bars . nil))
 
- #+begin_src emacs-lisp
-   (cuss windmove-create-window t
-     "Create windows in a direction if they don't exist.")
-   (cuss windomove-wrap-around t
-     "Wrap window movements around frame edges.")
+(horizontal-scroll-bar-mode -1)
+#+END_SRC
 
-   (windmove-default-keybindings)
- #+end_src
+*** Dialogs
 
-*** Pop some buffers up in the same window
+#+BEGIN_SRC emacs-lisp
+(cuss use-dialog-box nil
+  "Don't use dialog boxes to ask questions.")
+#+END_SRC
 
-from [[https://github.com/link0ff/emacs-init][link0ff]].
+**** Yes or no questions
 
-#+begin_src emacs-lisp
-  (push `(,(rx bos
-	       "*"
-	       (or "Help" "Apropos" "Colors" "Buffer List" "Command History"
-		   "Dictionary" "Locate" "Messages" "Proced" "eww" "snd"
-		   (and "gud-" (+ (any "a-z0-9")))
-		   "compilation" "grep" "erlang" "haskell"
-		   ;; Handle both "*shell*" and e.g. "*emacs-shell*"
-		   ;; generated by `project-shell':
-		   (and (? (* nonl) "-") "shell")
-		   "Shell Command Output"
-		   (and "SQL: " (+ (any "A-za-z")))
-		   "Diff" "vc-dir" "vc-log" "vc-search-log")
-	       "*"
-	       ;; Uniquifed buffer name with optional suffix in angle brackets
-	       (? (and "<" (+ (not (any ">"))) ">"))
-	       eos)
-	  display-buffer-same-window
-	  (inhibit-same-window . nil))
-	display-buffer-alist)
+#+BEGIN_SRC emacs-lisp
+(fset 'yes-or-no-p #'y-or-n-p)
+#+END_SRC
 
-  (defun display-buffer-from-help-p (_buffer-name _action)
-    (unless current-prefix-arg
-      (with-current-buffer (window-buffer)
-	(eq major-mode 'help-mode))))
+**** The Bell
 
-  (push '(display-buffer-from-help-p display-buffer-same-window)
-	display-buffer-alist)
-#+end_src
+#+BEGIN_SRC emacs-lisp
+(defun acdw/ring-bell-function ()
+  "Ring the bell."
+  (let ((orig-face (face-foreground 'mode-line)))
+    (set-face-foreground 'mode-line "#F2804F")
+    (run-with-idle-timer
+     0.1 nil
+     (lambda (fg)
+       (set-face-foreground 'mode-line fg))
+     orig-face)))
 
-** Startup
+(cuss ring-bell-function #'acdw/ring-bell-function)
+#+END_SRC
 
-#+begin_src emacs-lisp
-  (cuss inhibit-startup-screen t "Don't show Emacs' startup buffer.")
-  (cuss initial-buffer-choice t "Start at *scratch*.")
-  (cuss initial-scratch-message "" "Empty *scratch*.")
-#+end_src
+*** Frames
 
-** Theme
+**** Fringes
 
-#+begin_src emacs-lisp
-  (straight-use-package '(modus-themes
-			  :host gitlab
-			  :repo "protesilaos/modus-themes"
-			  :branch "main"))
+#+BEGIN_SRC emacs-lisp
+(cuss indicate-empty-lines t
+  "Show an indicator on the left fringe of empty lines past the
+end of the buffer.")
+(cuss indicate-buffer-boundaries 'right
+  "Indicate the beginning and end of the buffer and whether it
+  scrolls off-window in the right fringe.")
+#+END_SRC
 
-  (cuss modus-themes-slanted-constructs t)
-  (cuss modus-themes-bold-constructs t)
-  (cuss modus-themes-fringes nil)
-  (cuss modus-themes-mode-line '3d)
-  (cuss modus-themes-syntax 'yellow-comments)
-  (cuss modus-themes-intense-hl-line nil)
-  (cuss modus-themes-paren-match 'intense-bold)
-  (cuss modus-themes-links nil)
-  (cuss modus-themes-no-mixed-fonts nil)
-  (cuss modus-themes-prompts nil)
-  (cuss modus-themes-completions nil)
-  (cuss modus-themes-diffs nil)
-  (cuss modus-themes-org-blocks 'grayscale)
-  (cuss modus-themes-headings
-      '((1 . line)
-	(t . t)))
-  (cuss modus-themes-variable-pitch-headings t)
-  (cuss modus-themes-scale-headings t)
-  (cuss modus-themes-scale-1 1.1)
-  (cuss modus-themes-scale-2 1.15)
-  (cuss modus-themes-scale-3 1.21)
-  (cuss modus-themes-scale-4 1.27)
-  (cuss modus-themes-scale-5 1.33)
+**** Minibuffer
 
-  ;; :custom-face
-  (custom-set-faces `(font-lock-comment-face
-		      ((t (:inherit (custom-comment italic variable-pitch))))))
+#+BEGIN_SRC emacs-lisp
+(cuss minibuffer-prompt-properties
+    '(read-only t cursor-intangible t face minibuffer-prompt)
+  "Keep the cursor away from the minibuffer prompt.")
+#+END_SRC
 
-  (load-theme 'modus-operandi t)
-#+end_src
+**** Tabs
 
-*** Change theme based on time of day
+#+BEGIN_SRC emacs-lisp
+(cuss tab-bar-tab-name-function
+    #'tab-bar-tab-name-current-with-count
+  "Show the tab name as the name of the current buffer, plus a
+  count of the windows in the tab.")
 
-#+begin_src emacs-lisp
-  (cuss calendar-latitude 30.4515)
-  (cuss calendar-longitude -91.1871)
+(cuss tab-bar-show 1
+  "Show the tab bar, when there's more than one tab.")
+#+END_SRC
 
-  (straight-use-package 'circadian)
+*** Windows
 
-  (cuss circadian-themes '((:sunrise . modus-operandi)
-			   (:sunset . modus-vivendi)))
+**** Winner mode
 
-  (circadian-setup)
-#+end_src
+#+BEGIN_SRC emacs-lisp
+(when (fboundp 'winner-mode)
+  (winner-mode +1))
+#+END_SRC
+
+**** Switch windows
+
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "M-o") #'other-window)
+#+END_SRC
+
+*** Buffers
+
+**** Uniquify buffers
+
+#+BEGIN_SRC emacs-lisp
+(require 'uniquify)
+(cuss uniquify-buffer-name-style 'forward
+  "Uniquify buffers' names by going up the path trees until they
+become unique.")
+#+END_SRC
+
+**** Startup buffers
+
+#+BEGIN_SRC emacs-lisp
+(cuss inhibit-startup-screen t
+  "Don't show Emacs' startup buffer.")
+
+(cuss initial-buffer-choice t
+  "Start with *scratch*.")
+
+(cuss initial-scratch-message ""
+  "Empty *scratch* buffer.")
+#+END_SRC
 
 *** Modeline
 
-#+begin_src emacs-lisp
-  (straight-use-package 'smart-mode-line)
-  (cuss sml/no-confirm-load-theme t)
-  (sml/setup)
-#+end_src
+**** Smart mode line
+
+ #+BEGIN_SRC emacs-lisp
+ (straight-use-package 'smart-mode-line)
+
+ (cuss sml/no-confirm-load-theme t
+   "Pass the NO-CONFIRM flag to `load-theme'.")
+
+ (sml/setup)
+ #+END_SRC
 
 **** Rich minority
 
-Since this /comes/ with smart mode line, I’m just going to use it, instead of =diminish= or another package.  I do have to write this helper function, though, to add things to the whitelist.
+ Since this /comes/ with smart mode line, I’m just going to use it,
+ instead of =diminish= or another package.  I do have to write this
+ helper function, though, to add things to the whitelist.
 
-#+begin_src emacs-lisp
-  (defun rm/whitelist-add (regexp)
-    "Add a REGEXP to the whitelist for `rich-minority'."
-    (if (listp 'rm--whitelist-regexps)
-	(add-to-list 'rm--whitelist-regexps regexp)
-      (setq rm--whitelist-regexps `(,regexp)))
-    (setq rm-whitelist
-	  (mapconcat 'identity rm--whitelist-regexps "\\|")))
+ #+BEGIN_SRC emacs-lisp
+ (defun rm/whitelist-add (regexp)
+   "Add a REGEXP to the whitelist for `rich-minority'."
+   (if (listp 'rm--whitelist-regexps)
+       (add-to-list 'rm--whitelist-regexps regexp)
+     (setq rm--whitelist-regexps `(,regexp)))
+   (setq rm-whitelist
+	 (mapconcat 'identity rm--whitelist-regexps "\\|")))
 
-  (straight-use-package 'rich-minority)
+ (straight-use-package 'rich-minority)
 
-  (rm/whitelist-add "^$")
-#+end_src
+ (rm/whitelist-add "^$")
+ #+END_SRC
+
+*** Theme
+
+**** Modus Themes
+
+#+BEGIN_SRC emacs-lisp
+(straight-use-package 'modus-themes)
+
+(cuss modus-themes-slanted-constructs t
+  "Use more slanted constructs.")
+(cuss modus-themes-bold-constructs t
+  "Use more bold constructs.")
+
+(cuss modus-themes-region 'bg-only
+  "Only highlight the background of the selected region.")
+
+(cuss modus-themes-org-blocks 'grayscale
+  "Show org-blocks with a grayscale background.")
+(cuss modus-themes-headings
+    '((1 . line)
+      (t . t))
+  "Highlight top headings with `line' style, and others by default.")
+
+(cuss modus-themes-scale-headings t
+  "Scale headings by the ratios below.")
+(cuss modus-themes-scale-1 1.1)
+(cuss modus-themes-scale-2 1.15)
+(cuss modus-themes-scale-3 1.21)
+(cuss modus-themes-scale-4 1.27)
+(cuss modus-themes-scale-5 1.33)
+
+(load-theme 'modus-operandi t)
+#+END_SRC
+
+**** Change themes based on time of day
+
+#+BEGIN_SRC emacs-lisp
+(cuss calendar-latitude 30.4515)
+(cuss calendar-longitude -91.1871)
+
+(straight-use-package 'circadian)
+
+(cuss circadian-themes '((:sunrise . modus-operandi)
+			 (:sunset . modus-vivendi)))
+
+(circadian-setup)
+#+END_SRC
 
 *** Fonts
 
 **** Define fonts
 
-#+begin_src emacs-lisp
+#+BEGIN_SRC emacs-lisp
   (defun set-face-from-alternatives (face fonts)
     (catch :return
       (dolist (font fonts)
 	(when (find-font (font-spec :family (car font)))
-	  (apply #'set-face-attribute `(,face nil
-					      :family ,(car font)
-					      ,@(cdr font)))
-	  (throw :return font)))))
+      (apply #'set-face-attribute `(,face nil
+			  :family ,(car font)
+			  ,@(cdr font)))
+      (throw :return font)))))
 
   (defun acdw/setup-fonts ()
     "Setup fonts.  This has to happen after the frame is setup for
