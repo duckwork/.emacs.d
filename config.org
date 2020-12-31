@@ -1238,40 +1238,47 @@ I realized I didn’t need =early-init.el=, since it really only set =load-prefe
 	     (when (file-newer-than-file-p config (expand-file-name
 						   "README.md"
 						   user-emacs-directory))
+	       (message "Exporting README.md...")
 	       (require 'ox-md)
-	       (org-md-export-to-markdown))
+	       (with-demoted-errors "Problem exporting README.md: %S"
+		 (org-md-export-to-markdown)))
 	     ;; tangle config.org
 	     (when (file-newer-than-file-p config (expand-file-name
 						   "config.el"
 						   user-emacs-directory))
+	       (message "Tangling config.org...")
 	       (require 'org)
 	       (let ((inits (org-babel-tangle)))
 		 ;; byte-compile resulting files
+		 (message "Byte-compiling...")
 		 (dolist (f inits)
 		   (when (string-match "\\.el\\'" f)
 		     (byte-compile-file f (not disable-load)))))))))))
-	   #+end_src
-
-*** Add a hook to tangle when quitting
-
-#+begin_src emacs-lisp
-  (defun acdw/refresh-emacs-no-load ()
-    (refresh-emacs 'disable-load))
-
-  (add-hook 'kill-emacs-hook #'acdw/refresh-emacs-no-load)
-#+end_src
+ #+END_SRC
 
 ** Ancillary scripts
 
 *** emacsdc
 
-Here’s a wrapper script that’ll start =emacs –daemon= if there isn’t one, and then launch =emacsclient= with the arguments.  I’d recommend installing with either ~ln -s bin/emacsdc $HOME/.local/bin/~, or adding =$HOME/.local/bin= to your =$PATH=.
+Here's a wrapper script that'll start =emacs –daemon= if there isn't
+one, and then launch =emacsclient= with the arguments.  I'd recommend
+installing with either ~ln -s bin/emacsdc $HOME/.local/bin/~, or
+adding =$HOME/.local/bin= to your =$PATH=.
  
-#+begin_src sh :tangle bin/emacsdc :mkdirp yes :shebang "#!/bin/sh"
-  if ! emacsclient -nc "$@" 2>/dev/null; then
-      emacs --daemon
-      emacsclient -nc "$@"
-  fi
+#+BEGIN_SRC sh :tangle bin/emacsdc :mkdirp yes :shebang "#!/bin/sh"
+if ! emacsclient -nc "$@" 2>/dev/null; then
+    emacs --daemon
+    emacsclient -nc "$@"
+fi
+#+END_SRC
+
+*** Emacs.cmd
+
+Here’s a wrapper script that’ll run Emacs on Windows, with a custom =$HOME=.  I have mine setup like this: Emacs is downloaded from [[https://mirrors.tripadvisor.com/gnu/emacs/windows/emacs-27/emacs-27.1-x86_64.zip][the GNU mirror]] and unzipped to =~/Downloads/emacs/=.  =Emacs.cmd= sets =$HOME= to =~/Downloads/emacshome/=, which is where =.emacs.d= is, and whatever else I might want to throw in there.
+
+#+begin_src bat :tangle bin/Emacs.cmd
+  set HOME=%~dp0..\..\emacshome
+  "%~dp0runemacs.exe" %*
 #+end_src
 
 ** License
