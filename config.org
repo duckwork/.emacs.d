@@ -1263,7 +1263,7 @@ I realized I didn’t need =early-init.el=, since it really only set =load-prefe
 	     (when (file-newer-than-file-p config (expand-file-name
 						   "README.md"
 						   user-emacs-directory))
-	       (message "Exporting README.md...")
+	       (message "%s" "Exporting README.md...")
 	       (require 'ox-md)
 	       (with-demoted-errors "Problem exporting README.md: %S"
 		 (org-md-export-to-markdown)))
@@ -1271,11 +1271,11 @@ I realized I didn’t need =early-init.el=, since it really only set =load-prefe
 	     (when (file-newer-than-file-p config (expand-file-name
 						   "config.el"
 						   user-emacs-directory))
-	       (message "Tangling config.org...")
+	       (message "%s" "Tangling config.org...")
 	       (require 'org)
 	       (let ((inits (org-babel-tangle)))
 		 ;; byte-compile resulting files
-		 (message "Byte-compiling...")
+		 (message "%s" "Byte-compiling...")
 		 (dolist (f inits)
 		   (when (string-match "\\.el\\'" f)
 		     (byte-compile-file f (not disable-load)))))))))))
