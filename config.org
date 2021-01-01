@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2020-12-30 23:33:02 acdw>
+#+Time-stamp: <2021-01-01 11:00:05 acdw>
 
 Why the hell not, let’s do this again.
 
@@ -79,18 +79,20 @@ Now, I'll /try/ running it regular-style, ignoring the errors.  If it
 doesn't work, I'll call git directly and clone the repo myself.
 
 #+BEGIN_SRC emacs-lisp
-(unless (ignore-errors (acdw/bootstrap-straight))
-  (message "Straight.el didn't bootstrap correctly.  Cloning directly...")
-  (call-process "git" nil
-		(get-buffer-create "*bootstrap-straight-messages*") nil
-		"clone"
-		"https://github.com/raxod502/straight.el"
-		(expand-file-name "straight/repos/straight.el"
-				  user-emacs-directory))
-  (acdw/bootstrap-straight))
+  (unless (ignore-errors (acdw/bootstrap-straight))
+    (message "%s" "Straight.el didn't bootstrap correctly.  Cloning directly...")
+    (call-process "git" nil
+		  (get-buffer-create "*bootstrap-straight-messages*") nil
+		  "clone"
+		  "https://github.com/raxod502/straight.el"
+		  (expand-file-name "straight/repos/straight.el"
+				    user-emacs-directory))
+    (acdw/bootstrap-straight))
 #+END_SRC
 
-** Customize macro
+** Customize macros
+
+*** Emulate use-package’s =:custom=
 
 #+BEGIN_SRC emacs-lisp
 (defmacro cuss (var val &optional docstring)
@@ -767,16 +769,16 @@ Anyway, I should probably be able to figure out how to properly change the theme
 *** Backups
 
 #+BEGIN_SRC emacs-lisp
-(cuss backup-by-copying 1)
-(cuss delete-old-versions -1)
-(cuss version-control t)
-(cuss vc-make-backup-files t)
+  (cuss backup-by-copying 1)
+  (cuss delete-old-versions -1)
+  (cuss version-control t)
+  (cuss vc-make-backup-files t)
 
-(with-eval-after-load 'no-littering
-  (let ((dir (no-littering-expand-var-file-name "backup")))
-    (make-directory dir 'parents)
-    (cuss backup-directory-alist
-	`((".*" . ,dir)))))
+  (with-eval-after-load 'no-littering
+    (let ((dir (no-littering-expand-var-file-name "backup")))
+      (make-directory dir 'parents)
+      (cuss backup-directory-alist
+	  `((".*" . ,dir)))))
 #+END_SRC
 
 *** Auto-saves
@@ -1006,25 +1008,25 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 *** Basics
 
 #+BEGIN_SRC emacs-lisp
-(straight-use-package 'org)
+  (straight-use-package 'org)
 
-(with-eval-after-load 'org
-  (require 'org-tempo)
-  (require 'ox-md)
-  (define-key org-mode-map (kbd "M-n") #'outline-next-visible-heading)
-  (define-key org-mode-map (kbd "M-p") #'outline-previous-visible-heading))
+  (with-eval-after-load 'org
+    (require 'org-tempo)
+    (require 'ox-md)
+    (define-key org-mode-map (kbd "M-n") #'outline-next-visible-heading)
+    (define-key org-mode-map (kbd "M-p") #'outline-previous-visible-heading))
 
-(cuss org-hide-emphasis-markers t)
-(cuss org-fontify-done-headline t)
-(cuss org-fontify-whole-heading-line t)
-(cuss org-fontify-quote-and-verse-blocks t)
-(cuss org-pretty-entities t)
-(cuss org-num-mode +1)
-(cuss org-src-tab-acts-natively t)
-(cuss org-src-fontify-natively t)
-(cuss org-src-window-setup 'current-window)
-(cuss org-confirm-babel-evaluate nil)
-(cuss org-directory "~/Org")
+  (cuss org-hide-emphasis-markers t)
+  (cuss org-fontify-done-headline t)
+  (cuss org-fontify-whole-heading-line t)
+  (cuss org-fontify-quote-and-verse-blocks t)
+  (cuss org-pretty-entities t)
+  (cuss org-src-tab-acts-natively t)
+  (cuss org-src-fontify-natively t)
+  (cuss org-src-window-setup 'current-window)
+  (cuss org-confirm-babel-evaluate nil)
+  (cuss org-directory "~/Org")
+  (cuss org-ellipsis "…")
 #+END_SRC
 
 **** Tags
@@ -1285,7 +1287,7 @@ I realized I didn’t need =early-init.el=, since it really only set =load-prefe
 
 *** emacsdc
 
-Here's a wrapper script that'll start =emacs –daemon= if there isn't
+Here's a wrapper script that'll start =emacs --daemon= if there isn't
 one, and then launch =emacsclient= with the arguments.  I'd recommend
 installing with either ~ln -s bin/emacsdc $HOME/.local/bin/~, or
 adding =$HOME/.local/bin= to your =$PATH=.
@@ -1299,10 +1301,19 @@ fi
 
 *** Emacs.cmd
 
-Here’s a wrapper script that’ll run Emacs on Windows, with a custom =$HOME=.  I have mine setup like this: Emacs is downloaded from [[https://mirrors.tripadvisor.com/gnu/emacs/windows/emacs-27/emacs-27.1-x86_64.zip][the GNU mirror]] and unzipped to =~/Downloads/emacs/=.  =Emacs.cmd= sets =$HOME= to =~/Downloads/emacshome/=, which is where =.emacs.d= is, and whatever else I might want to throw in there.
+Here's a wrapper script that'll run Emacs on Windows, with a custom
+=$HOME=.  I have mine setup like this: Emacs is downloaded from [[https://mirrors.tripadvisor.com/gnu/emacs/windows/emacs-27/emacs-27.1-x86_64.zip][the
+GNU mirror]] and unzipped to =~/Downloads/emacs/=.  =Emacs.cmd= sets
+=$HOME= to =~/Downloads/emacshome/=, which is where =.emacs.d= is, and
+whatever else I might want to throw in there.
 
 #+begin_src bat :tangle bin/Emacs.cmd
   set HOME=%~dp0..\..\emacshome
+
+  REM Run "Quick Mode"
+  REM "%~dp0runemacs.exe" -Q %*
+
+  REM Regular
   "%~dp0runemacs.exe" %*
 #+end_src
 
