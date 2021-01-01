@@ -983,6 +983,12 @@ This has to be done /before/ loading the package.  It's included in =visual-fill
 
 ** Typographical niceties
 
+*** Variable pitch in text-modes
+
+#+begin_src emacs-lisp
+  (add-hook 'text-mode-hook #'variable-pitch-mode)
+#+end_src
+
 *** Typo mode
 
 #+BEGIN_SRC emacs-lisp
