@@ -479,6 +479,13 @@ Anyway, I should probably be able to figure out how to properly change the theme
  (cuss read-file-name-completion-ignore-case t)
  #+END_SRC
 
+**** Minibuffer recursivity
+
+#+begin_src emacs-lisp
+  (cuss enable-recursive-minibuffers t)
+  (minibuffer-depth-indicate-mode +1)
+#+end_src
+
 **** Selectrum
 
  #+BEGIN_SRC emacs-lisp
