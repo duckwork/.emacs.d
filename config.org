@@ -126,6 +126,13 @@ doesn't work, I'll call git directly and clone the repo myself.
 (require 'no-littering)
 #+END_SRC
 
+*** Don’t clutter =init.el= with customizations
+
+#+begin_src emacs-lisp
+  (with-eval-after-load 'no-littering 
+    (cuss custom-file (no-littering-expand-etc-file-name "custom.el")))
+#+end_src
+
 ** Look and feel
 
 *** Cursor
