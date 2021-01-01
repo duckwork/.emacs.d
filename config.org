@@ -1027,6 +1027,20 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 (cuss org-directory "~/Org")
 #+END_SRC
 
+**** Tags
+
+#+begin_src emacs-lisp
+  (cuss org-tags-column 0
+    "Show tags directly after the headline.
+  This is the best-looking option with variable-pitch fonts.")
+
+  (cussface
+   '(org-tag
+     ((t
+       (:height 0.8 :weight normal :slant italic :foreground "grey40" :inherit
+		(variable-pitch))))))
+#+end_src
+
 *** Org Agenda
 
 #+BEGIN_SRC emacs-lisp
