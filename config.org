@@ -277,6 +277,37 @@ become unique.")
   "Empty *scratch* buffer.")
 #+END_SRC
 
+**** COMMENT Focus and move buffers directionally
+
+Commented for now because I really need to figure out the keybindings I want to use for this.  The real issue is the collisions between Org-mode, Windows, and Emacs’ normal bindings.
+
+#+begin_src emacs-lisp
+  ;; change focus
+  ;; for more on `ignore-error-wrapper', see
+  ;; https://www.emacswiki.org/emacs/WindMove#h5o-3
+  (defun ignore-error-wrapper (fn)
+    "Funtion return new function that ignore errors.
+     The function wraps a function with `ignore-errors' macro."
+    (lexical-let ((fn fn))
+      (lambda ()
+	(interactive)
+	(ignore-errors
+	  (funcall fn)))))
+
+  (global-set-key [S-left] (ignore-error-wrapper 'windmove-left))
+  (global-set-key [S-right] (ignore-error-wrapper 'windmove-right))
+  (global-set-key [S-up] (ignore-error-wrapper 'windmove-up))
+  (global-set-key [S-down] (ignore-error-wrapper 'windmove-down))
+
+  ;; shift buffers
+  (straight-use-package 'buffer-move)
+
+  (global-set-key (kbd "<C-S-up>")     'buf-move-up)
+  (global-set-key (kbd "<C-S-down>")   'buf-move-down)
+  (global-set-key (kbd "<C-S-left>")   'buf-move-left)
+  (global-set-key (kbd "<C-S-right>")  'buf-move-right)
+#+end_src
+
 *** Modeline
 
 **** Smart mode line
