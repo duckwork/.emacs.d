@@ -101,6 +101,24 @@ doesn't work, I'll call git directly and clone the repo myself.
 	    ',var ,val))
 #+END_SRC
 
+*** Emulate use-package’s =:custom-face=, but better
+
+#+begin_src emacs-lisp
+  (defvar acdw--custom-faces ()
+    "List of custom faces to run through acdw/set-custom-faces.")
+
+  (defun acdw/set-custom-faces ()
+    "Run `customize-set-faces' on `acdw--custom-faces'."
+    (message "%s" "Customizing faces...")
+    (apply #'custom-set-faces acdw--custom-faces))
+
+  (defun cussface (spec)
+    "Add SPEC to `acdw--custom-faces', and add a hook to run
+  `acdw/set-custom-faces' after init."
+    (add-to-list 'acdw--custom-faces spec)
+    (add-hook 'after-init-hook #'acdw/set-custom-faces))
+#+end_src
+
 ** Clean =.emacs.d=
 
 #+BEGIN_SRC emacs-lisp
