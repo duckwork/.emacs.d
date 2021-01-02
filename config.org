@@ -154,27 +154,15 @@ doesn't work, I'll call git directly and clone the repo myself.
 **** Tool bars and menu bars
 
 #+BEGIN_SRC emacs-lisp
-(cuss default-frame-alist
-      '((tool-bar-lines . 0)
-	(menu-bar-lines .0))
-  "Setup the default frame alist.")
-
-(menu-bar-mode -1)
-(tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
 #+END_SRC
 
 **** Scroll bars
 
 #+BEGIN_SRC emacs-lisp
-(add-to-list 'default-frame-alist
-	     '(vertical-scroll-bars . nil))
-
-(scroll-bar-mode -1)
-
-(add-to-list 'default-frame-alist
-	     '(horizontal-scroll-bars . nil))
-
-(horizontal-scroll-bar-mode -1)
+  (scroll-bar-mode -1)
+  (horizontal-scroll-bar-mode -1)
 #+END_SRC
 
 *** Dialogs
@@ -1299,8 +1287,6 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     :header-args: :tangle init.el
     :END:
 
-I realized I didn’t need =early-init.el=, since it really only set =load-prefer-newer=.  So I’ve set that here, and wrapped the actual loading of config in a =let*= form that speeds up init, and loads the newer of either =config.org= or =config.el=.
-
   #+BEGIN_SRC emacs-lisp
     ;; init.el -*- lexical-binding: t -*-
 
@@ -1319,6 +1305,19 @@ I realized I didn’t need =early-init.el=, since it really only set =load-prefe
 	(require 'org)
 	(org-babel-load-file conf-org)))
   #+END_SRC
+
+*** early-init.el
+:PROPERTIES:
+:header-args: :tangle early-init.el
+:END:
+
+#+BEGIN_SRC emacs-lisp
+  ;; I use `straight.el' instead of `package.el'.
+  (setq package-enable-at-startup nil)
+
+  ;; Don't resize the frame when loading fonts
+  (setq frame-inhibit-implied-resize t)
+#+end_src
 
 ** Ease tangling and loading of Emacs' init
 
