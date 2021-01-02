@@ -1,13 +1,11 @@
 #+TITLE: Emacs, emacs, emacs
 #+AUTHOR: Case Duckworth
 #+PROPERTY: header-args :tangle config.el :comments both :mkdirp yes
-#+STARTUP: 
+#+STARTUP: overview
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-02 10:01:56 acdw>
-
-Why the hell not, let’s do this again.
+#+Time-stamp: <2021-01-02 11:07:58 acdw>
 
 * Basics
 
