@@ -735,21 +735,26 @@ from [[https://www.reddit.com/r/emacs/comments/km9by4/weekly_tipstricketc_thread
 *** Recent files
 
 #+BEGIN_SRC emacs-lisp
-(require 'recentf)
+  (require 'recentf)
 
-(cuss recentf-max-menu-items 100
-  "The maximum number of items in the recentf menu.")
-(cuss recentf-max-saved-items nil
-  "Don't limit the number of recent files.")
+  (cuss recentf-max-menu-items 100
+    "The maximum number of items in the recentf menu.")
+  (cuss recentf-max-saved-items nil
+    "Don't limit the number of recent files.")
 
-(with-eval-after-load 'no-littering
-  (add-to-list 'recentf-exclude no-littering-var-directory)
-  (add-to-list 'recentf-exclude no-littering-etc-directory))
+  (with-eval-after-load 'no-littering
+    (add-to-list 'recentf-exclude no-littering-var-directory)
+    (add-to-list 'recentf-exclude no-littering-etc-directory))
 
-(recentf-mode +1)
+  (recentf-mode +1)
 
-;; save the recentf-list every 5 minutes
-(run-at-time nil (* 5 60) 'recentf-save-list)
+  ;; save recentf list when focusing away
+  (defun acdw/save-recentf-when-nonfocused ()
+    "Save `recentf-file' when out of focus."
+    (acdw/when-unfocused #'recentf-save-list))
+
+  (add-function :after after-focus-change-function
+		#'acdw/save-recentf-when-nonfocused)
 #+END_SRC
 
 ** Undo
