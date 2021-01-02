@@ -904,6 +904,17 @@ For right now, I’m /just/ using Anzu – I don’t like parts of =isearch= but
 
 #+end_src
 
+*** Overwrite mode
+
+    #+begin_src emacs-lisp
+      (defun acdw/overwrite-mode-change-cursor ()
+	(setq cursor-type (if overwrite-mode t 'bar)))
+
+      (add-hook 'overwrite-mode-hook #'acdw/overwrite-mode-change-cursor)
+
+      (rm/whitelist-add "Ovwrt")
+    #+end_src
+
 * Programming
 
 ** Parentheses
