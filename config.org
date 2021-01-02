@@ -1094,6 +1094,7 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
   (cuss org-confirm-babel-evaluate nil)
   (cuss org-directory "~/Org")
   (cuss org-ellipsis "…")
+  (cuss org-catch-invisible-edits 'show)
 #+END_SRC
 
 **** Tags
