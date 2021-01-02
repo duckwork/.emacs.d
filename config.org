@@ -143,7 +143,7 @@ doesn't work, I'll call git directly and clone the repo myself.
 (cuss cursor-type 'bar
   "Show a vertical bar for the cursor.")
 
-(cuss cursor-in-non-selected-windows 'hollow
+(cuss cursor-in-non-selected-windows 'hbar
   "Show an empty box in inactive windows.")
 
 ;; Don't blink the cursor
