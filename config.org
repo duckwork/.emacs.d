@@ -89,7 +89,7 @@ doesn't work, I'll call git directly and clone the repo myself.
     (acdw/bootstrap-straight))
 #+END_SRC
 
-** Customize macros
+** Ease-of-configuring functions
 
 *** Emulate use-package’s =:custom=
 
@@ -119,6 +119,17 @@ doesn't work, I'll call git directly and clone the repo myself.
     (add-to-list 'acdw--custom-faces spec)
     (add-hook 'after-init-hook #'acdw/set-custom-faces))
 #+end_src
+
+*** Determine whether any Emacs frame is focused or not
+
+This comes in handy when I want to garbage collect, say, or save recent files.
+
+    #+begin_src emacs-lisp
+      (defun acdw/when-unfocused (func &rest args)
+	"Run FUNC with ARGS only if all frames are out of focus."
+	(if (seq-every-p #'null (mapcar #'frame-focus-state (frame-list)))
+	    (apply func args)))
+    #+end_src
 
 ** Clean =.emacs.d=
 
