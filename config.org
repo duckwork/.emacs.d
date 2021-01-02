@@ -628,6 +628,21 @@ Commented for now because I really need to figure out the keybindings I want to 
   (global-set-key (kbd "M-/") #'hippie-expand)
 #+end_src
 
+*** Garbage collection
+
+    #+begin_src emacs-lisp
+      (straight-use-package 'gcmh)
+      (gcmh-mode +1)
+
+      (defun dotfiles--gc-on-last-frame-out-of-focus ()
+	"GC if all frames are inactive."
+	(if (seq-every-p #'null (mapcar #'frame-focus-state (frame-list)))
+	    (garbage-collect)))
+
+      (add-function :after after-focus-change-function
+		    #'dotfiles--gc-on-last-frame-out-of-focus)
+    #+end_src
+
 ** Keyboard
 
 *** =ESC= cancels all
