@@ -634,6 +634,12 @@ Anyway, I should probably be able to figure out how to properly change the theme
   (add-hook 'after-init-hook #'setup-ido-mode)
 #+end_src
 
+*** Completion
+
+#+begin_src emacs-lisp
+  (global-set-key (kbd "M-/") #'hippie-expand)
+#+end_src
+
 ** Keyboard
 
 *** =ESC= cancels all
