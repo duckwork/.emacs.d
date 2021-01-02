@@ -403,10 +403,11 @@ Anyway, I should probably be able to figure out how to properly change the theme
     (catch :return
       (dolist (font fonts)
 	(when (find-font (font-spec :family (car font)))
-      (apply #'set-face-attribute `(,face nil
-			  :family ,(car font)
-			  ,@(cdr font)))
-      (throw :return font)))))
+	  (apply #'set-face-attribute `(,face
+					nil
+					:family (car font)
+					,@(cdr font)))
+	  (throw :return font)))))
 
   (defun acdw/setup-fonts ()
     "Setup fonts.  This has to happen after the frame is setup for
