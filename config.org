@@ -953,46 +953,22 @@ For right now, I’m /just/ using Anzu – I don’t like parts of =isearch= but
 This has to be done /before/ loading the package.  It's included in =visual-fill-column=, too, but for some reason isn't loaded there.
 
 #+BEGIN_SRC emacs-lisp
-  (global-set-key [right-margin mouse-1] (global-key-binding [mouse-1])) ; #'mouse-set-point
-  (global-set-key [right-margin mouse-2] (global-key-binding [mouse-2])) ; #'mouse-yank-primary
-  (global-set-key [right-margin mouse-3] (global-key-binding [mouse-3])) ; #'mouse-save-then-kill
-  (global-set-key [right-margin drag-mouse-1] #'ignore)
-  (global-set-key [right-margin drag-mouse-2] #'ignore)
-  (global-set-key [right-margin drag-mouse-3] #'ignore)
-  (global-set-key [right-margin double-mouse-1] #'ignore)
-  (global-set-key [right-margin double-mouse-2] #'ignore)
-  (global-set-key [right-margin double-mouse-3] #'ignore)
-  (global-set-key [right-margin triple-mouse-1] #'ignore)
-  (global-set-key [right-margin triple-mouse-2] #'ignore)
-  (global-set-key [right-margin triple-mouse-3] #'ignore)
-  (global-set-key [left-margin mouse-1] (global-key-binding [mouse-1])) ; #'mouse-set-point
-  (global-set-key [left-margin mouse-2] (global-key-binding [mouse-2])) ; #'mouse-yank-primary
-  (global-set-key [left-margin mouse-3] (global-key-binding [mouse-3])) ; #'mouse-save-then-kill
-  (global-set-key [left-margin drag-mouse-1] #'ignore)
-  (global-set-key [left-margin drag-mouse-2] #'ignore)
-  (global-set-key [left-margin drag-mouse-3] #'ignore)
-  (global-set-key [left-margin double-mouse-1] #'ignore)
-  (global-set-key [left-margin double-mouse-2] #'ignore)
-  (global-set-key [left-margin double-mouse-3] #'ignore)
-  (global-set-key [left-margin triple-mouse-1] #'ignore)
-  (global-set-key [left-margin triple-mouse-2] #'ignore)
-  (global-set-key [left-margin triple-mouse-3] #'ignore)
+  (dolist (margin '(right-margin left-margin))
+    (dolist (button '(mouse-1 mouse-2 mouse-3))
+      (global-set-key (vector margin button)
+		      (global-key-binding (vector button)))))
 
   (mouse-wheel-mode +1)
 
   (when (bound-and-true-p mouse-wheel-mode)
-    (global-set-key [right-margin mouse-wheel-down-event] #'mwheel-scroll)
-    (global-set-key [right-margin mouse-wheel-up-event] #'mwheel-scroll)
-    (global-set-key [right-margin wheel-down] #'mwheel-scroll)
-    (global-set-key [right-margin wheel-up] #'mwheel-scroll)
-    (global-set-key [left-margin mouse-wheel-down-event] #'mwheel-scroll)
-    (global-set-key [left-margin mouse-wheel-up-event] #'mwheel-scroll)
-    (global-set-key [left-margin wheel-down] #'mwheel-scroll)
-    (global-set-key [left-margin wheel-up] #'mwheel-scroll)
-    (global-set-key [right-margin mouse-4] #'mwheel-scroll)
-    (global-set-key [right-margin mouse-5] #'mwheel-scroll)
-    (global-set-key [left-margin mouse-4] #'mwheel-scroll)
-    (global-set-key [left-margin mouse-5] #'mwheel-scroll))
+    (dolist (margin '(right-margin left-margin))
+      (dolist (event '(mouse-wheel-down-event
+		       mouse-wheel-up-event
+		       wheel-down
+		       wheel-up
+		       mouse-4
+		       mouse-5))
+	(global-set-key (vector margin event) #'mwheel-scroll))))
 #+END_SRC
 
 *** Load the package
