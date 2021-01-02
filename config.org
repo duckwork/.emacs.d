@@ -1306,11 +1306,8 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 ** Emacs' files
 
 *** init.el
-    :PROPERTIES:
-    :header-args: :tangle init.el
-    :END:
 
-  #+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp :tangle init.el :comments no
     ;; init.el -*- lexical-binding: t -*-
 
     (setq load-prefer-newer t)
@@ -1330,11 +1327,10 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
   #+END_SRC
 
 *** early-init.el
-:PROPERTIES:
-:header-args: :tangle early-init.el
-:END:
 
-#+BEGIN_SRC emacs-lisp
+#+BEGIN_SRC emacs-lisp :tangle early-init.el :comments no
+  ;; early-init.el -*- no-byte-compile: t; -*-
+
   ;; I use `straight.el' instead of `package.el'.
   (setq package-enable-at-startup nil)
 
