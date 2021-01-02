@@ -1046,9 +1046,14 @@ This has to be done /before/ loading the package.  It's included in =visual-fill
 *** Typo mode
 
 #+BEGIN_SRC emacs-lisp
-(straight-use-package 'typo)
+  (straight-use-package 'typo)
 
-(add-hook 'text-mode-hook #'typo-mode)
+  (add-hook 'text-mode-hook #'typo-mode)
+
+  ;; Disable `typo-mode' when inside an Org source block
+  (with-eval-after-load 'typo
+    (add-to-list 'typo-disable-electricity-functions
+		 #'org-in-src-block-p))
 #+END_SRC
 
 ** Word count
