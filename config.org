@@ -1004,6 +1004,16 @@ This has to be done /before/ loading the package.  It's included in =visual-fill
 (add-hook 'text-mode-hook #'typo-mode)
 #+END_SRC
 
+** Word count
+
+#+BEGIN_SRC emacs-lisp
+  (straight-use-package 'wc-mode)
+
+  (add-hook 'text-mode-hook #'wc-mode)
+
+  (rm/whitelist-add "WC")
+#+end_src
+
 * Applications
 
 ** Org mode
