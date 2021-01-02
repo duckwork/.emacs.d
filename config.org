@@ -375,22 +375,23 @@ Commented for now because I really need to figure out the keybindings I want to 
 (load-theme 'modus-operandi t)
 #+END_SRC
 
-**** COMMENT Change themes based on time of day
-
-Comment out because, for /some/ reason, =circadian-setup= fucks with =C-g= in the minibuffer.  WTF, amirite ?!
-
-Anyway, I should probably be able to figure out how to properly change the theme on my own … later.
+**** Change themes based on time of day
 
 #+BEGIN_SRC emacs-lisp
-(cuss calendar-latitude 30.4515)
-(cuss calendar-longitude -91.1871)
+  (cuss calendar-latitude 30.4515)
+  (cuss calendar-longitude -91.1871)
 
-(straight-use-package 'circadian)
+  ;; sunrise
+  (run-at-time (nth 1 (split-string (sunrise-sunset)))
+	       (* 60 60 24)
+	       (lambda ()
+		 (modus-themes-load-operandi)))
 
-(cuss circadian-themes '((:sunrise . modus-operandi)
-			 (:sunset . modus-vivendi)))
-
-(circadian-setup)
+  ;; sunset
+  (run-at-time (nth 4 (split-string (sunrise-sunset)))
+	       (* 60 60 24)
+	       (lambda ()
+		 (modus-themes-load-vivendi)))
 #+END_SRC
 
 *** Fonts
