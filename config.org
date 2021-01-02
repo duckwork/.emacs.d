@@ -1356,13 +1356,16 @@ I realized I didn’t need =early-init.el=, since it really only set =load-prefe
 ** Ancillary scripts
 
 *** emacsdc
+:PROPERTY:
+:header-args: :tangle bin/emacsdc :tangle-mode (identity #o755)
+:END:
 
 Here's a wrapper script that'll start =emacs --daemon= if there isn't
 one, and then launch =emacsclient= with the arguments.  I'd recommend
 installing with either ~ln -s bin/emacsdc $HOME/.local/bin/~, or
 adding =$HOME/.local/bin= to your =$PATH=.
  
-#+BEGIN_SRC sh :tangle bin/emacsdc :mkdirp yes :shebang "#!/bin/sh"
+#+BEGIN_SRC sh :shebang "#!/bin/sh"
 if ! emacsclient -nc "$@" 2>/dev/null; then
     emacs --daemon
     emacsclient -nc "$@"
