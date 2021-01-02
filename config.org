@@ -676,6 +676,13 @@ Commented for now because I really need to figure out the keybindings I want to 
 (run-hooks 'acdw/map-defined-hook)
 #+END_SRC
 
+*** Show keybindings
+
+    #+begin_src emacs-lisp
+      (straight-use-package 'which-key)
+      (which-key-mode +1)
+    #+end_src
+
 ** Mouse
 
 *** Preserve screen position when scrolling with the mouse wheel
