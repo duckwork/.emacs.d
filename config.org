@@ -451,6 +451,13 @@ Anyway, I should probably be able to figure out how to properly change the theme
   "Add 10% extra space below each line.")
 #+END_SRC
 
+**** Underlines
+
+#+begin_src emacs-lisp
+  (cuss x-underline-at-descent-line t
+    "Draw the underline at the same place as the descent line.")
+#+end_src
+
 **** Unicode Fonts
 
   #+BEGIN_SRC emacs-lisp
