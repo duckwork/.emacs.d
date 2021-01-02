@@ -416,23 +416,20 @@ Anyway, I should probably be able to figure out how to properly change the theme
     (interactive)
     (when (display-graphic-p)
       (set-face-from-alternatives 'default
-				  '(("Libertinus Mono"
-				     :height 110)
-				    ("Linux Libertine Mono O"
-				     :height 110)
+				  '(("Input Mono"
+				     :height 105)
 				    ("Go Mono"
 				     :height 100)
 				    ("Consolas"
 				     :height 100)))
 
       (set-face-from-alternatives 'fixed-pitch
-				  '(("Linux Libertine Mono O")
+				  '(("Input Mono")
 				    ("Go Mono")
 				    ("Consolas")))
 
       (set-face-from-alternatives 'variable-pitch
-				  '(("Libertinus Serif")
-				    ("Linux Libertine O")
+				  '(("Input Serif")
 				    ("Georgia")))
 
       (remove-function after-focus-change-function #'acdw/setup-fonts)))
