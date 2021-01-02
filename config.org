@@ -662,6 +662,22 @@ Anyway, I should probably be able to figure out how to properly change the theme
 (run-hooks 'acdw/map-defined-hook)
 #+END_SRC
 
+** Mouse
+
+*** Preserve screen position when scrolling with the mouse wheel
+
+from [[https://www.reddit.com/r/emacs/comments/km9by4/weekly_tipstricketc_thread/ghg2c9d/][u/TheFrenchPoulp]].
+
+#+BEGIN_SRC emacs-lisp
+  (advice-add 'mwheel-scroll :around #'me/mwheel-scroll)
+
+  (defun me/mwheel-scroll (original &rest arguments)
+    "Like `mwheel-scroll' but preserve screen position.
+  See `scroll-preserve-screen-position'."
+    (let ((scroll-preserve-screen-position :always))
+      (apply original arguments)))
+#+end_src
+
 ** Persistence
 
 *** Minibuffer history
