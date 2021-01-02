@@ -1250,6 +1250,17 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 
 *** TODO Capture
 
+*** Include Org links in source code
+
+    #+BEGIN_SRC emacs-lisp
+      (straight-use-package '(org-link-minor-mode
+			      :host github
+			      :repo "seanohalpin/org-link-minor-mode"))
+
+      ;; enable in elisp buffers
+      (add-hook 'emacs-lisp-mode-hook #'org-link-minor-mode)
+    #+end_src
+
 ** Git
 
 #+begin_src emacs-lisp
