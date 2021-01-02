@@ -1251,6 +1251,27 @@ exist after each headings's drawers."
   (define-key acdw/map "g" #'magit-status)
 #+end_src
 
+** Beancount mode
+
+#+begin_src emacs-lisp
+  (straight-use-package '(beancount-mode
+			  :host github
+			  :repo "beancount/beancount-mode"))
+  (require 'beancount)
+
+  (add-to-list 'auto-mode-alist '("\\.beancount\\'" . beancount-mode))
+
+  (defun acdw/disable-aggressive-indent ()
+    "Turn `aggressive-indent-mode' off for a buffer."
+    (aggressive-indent-mode -1))
+
+  (add-hook 'beancount-mode-hook #'outline-minor-mode)
+  (add-hook 'beancount-mode-hook #'acdw/disable-aggressive-indent)
+
+  (define-key beancount-mode-map (kbd "M-n") #'outline-next-visible-heading)
+  (define-key beancount-mode-map (kbd "M-p") #'outline-previous-visible-heading)
+#+end_src
+
 * Appendices
 
 ** Emacs' files
