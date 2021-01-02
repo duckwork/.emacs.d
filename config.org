@@ -1347,20 +1347,21 @@ fi
 
 *** Emacs.cmd
 
-Here's a wrapper script that'll run Emacs on Windows, with a custom
-=$HOME=.  I have mine setup like this: Emacs is downloaded from [[https://mirrors.tripadvisor.com/gnu/emacs/windows/emacs-27/emacs-27.1-x86_64.zip][the
-GNU mirror]] and unzipped to =~/Downloads/emacs/=.  =Emacs.cmd= sets
-=$HOME= to =~/Downloads/emacshome/=, which is where =.emacs.d= is, and
-whatever else I might want to throw in there.
+Here's a wrapper script that'll run Emacs on Windows, with a custom =$HOME=.  I have
+mine setup like this: Emacs is downloaded from [[https://mirrors.tripadvisor.com/gnu/emacs/windows/emacs-27/emacs-27.1-x86_64.zip][the GNU mirror]] and unzipped to
+=~/Downloads/emacs/=.  For some reason, Emacs by default sets =$HOME= to =%APPDATA%=,
+which doesn’t make a lot of sense to me.  I change it to =%USERPROFILE%=, and then run
+Emacs with the supplied arguments.
 
 #+begin_src bat :tangle bin/Emacs.cmd
-  set HOME=%~dp0..\..\emacshome
+  set HOME=%USERPROFILE%
+  set EMACS="%USERPROFILE%\Downloads\emacs\bin\runemacs.exe"
 
   REM Run "Quick Mode"
-  REM "%~dp0runemacs.exe" -Q %*
+  REM "%EMACS%" -Q %*
 
   REM Regular
-  "%~dp0runemacs.exe" %*
+  "%EMACS%" %*
 #+end_src
 
 ** License
