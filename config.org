@@ -526,25 +526,25 @@ Anyway, I should probably be able to figure out how to properly change the theme
 			   :repo "minad/consult"))
    (require 'consult-selectrum)
 
-   (define-key ctl-x-map "b" #'consult-buffer)
-   (define-key ctl-x-map (kbd "C-r") #'consult-buffer)
-   (define-key ctl-x-map "4b" #'consult-buffer-other-window)
-   (define-key ctl-x-map "5b" #'consult-buffer-other-frame)
+   (with-eval-after-load 'consult
+     (define-key ctl-x-map "b" #'consult-buffer)
+     (define-key ctl-x-map (kbd "C-r") #'consult-buffer)
+     (define-key ctl-x-map "4b" #'consult-buffer-other-window)
+     (define-key ctl-x-map "5b" #'consult-buffer-other-frame)
 
-   (define-key goto-map "o" #'consult-outline)
-   (define-key goto-map "g" #'consult-line)
-   (define-key goto-map (kbd "M-g") #'consult-line)
-   (define-key goto-map "l" #'consult-line)
-   (define-key goto-map "m" #'consult-mark)
-   (define-key goto-map "k" #'consult-global-mark)
-   (define-key goto-map "i" #'consult-imenu)
-   (define-key goto-map "e" #'consult-error)
+     (define-key goto-map "o" #'consult-outline)
+     (define-key goto-map "g" #'consult-line)
+     (define-key goto-map (kbd "M-g") #'consult-line)
+     (define-key goto-map "l" #'consult-line)
+     (define-key goto-map "m" #'consult-mark)
+     (define-key goto-map "i" #'consult-imenu)
+     (define-key goto-map "e" #'consult-error)
 
-   (global-set-key (kbd "M-y") #'consult-yank-pop)
+     (global-set-key (kbd "M-y") #'consult-yank-pop)
 
-   (define-key help-map "a" #'consult-apropos)
+     (define-key help-map "a" #'consult-apropos)
 
-   (fset 'multi-occur #'consult-multi-occur)
+     (fset 'multi-occur #'consult-multi-occur))
  #+END_SRC
 
 **** Marginalia
