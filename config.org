@@ -918,6 +918,14 @@ For right now, I’m /just/ using Anzu – I don’t like parts of =isearch= but
       (rm/whitelist-add "Ovwrt")
     #+end_src
 
+*** The Mark
+
+    #+begin_src emacs-lisp
+      (cuss set-mark-repeat-command-pop t
+	"Repeat `set-mark-command' with a prefix argument, without
+	repeatedly entering the prefix argument.")
+    #+end_src
+
 * Programming
 
 ** Parentheses
