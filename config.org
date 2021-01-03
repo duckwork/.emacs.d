@@ -1,18 +1,17 @@
 #+TITLE: Emacs, emacs, emacs
 #+AUTHOR: Case Duckworth
-#+PROPERTY: header-args :tangle config.el :tangle-mode (identity #o444)
-#+PROPERTY: header-args :comments both :mkdirp yes
+#+PROPERTY: header-args :tangle config.el :tangle-mode (identity #o444) :comments both :mkdirp yes
 #+STARTUP: overview
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-02 11:38:06 acdw>
+#+Time-stamp: <2021-01-03 08:37:07 acdw>
 
 * Basics
 
 ** Disclaimer
 
-   #+begin_src emacs-lisp :comments no :tangle config.el
+   #+begin_src emacs-lisp :comments no
      ;; config.el -*- lexical-binding: t -*-
      ;; This file is automatically tangled from config.org.
      ;; Hand edits will be overwritten!
