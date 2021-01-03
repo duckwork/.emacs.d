@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-03 08:37:07 acdw>
+#+Time-stamp: <2021-01-03 08:49:40 acdw>
 
 * Basics
 
@@ -1281,6 +1281,9 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
   (cuss org-directory "~/Org")
   (cuss org-ellipsis "…")
   (cuss org-catch-invisible-edits 'show)
+
+  (cuss org-export-headline-levels 8
+    "Maximum level of headlines to export /as/ a headline.")
 #+END_SRC
 
 **** Tags

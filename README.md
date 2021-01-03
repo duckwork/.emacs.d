@@ -152,15 +152,17 @@ This comes in handy when I want to garbage collect, say, or save recent files.
 
 ### Tool Bars
 
-1.  Tool bars and menu bars
 
-	(menu-bar-mode -1)
-	(tool-bar-mode -1)
+#### Tool bars and menu bars
 
-2.  Scroll bars
+    (menu-bar-mode -1)
+    (tool-bar-mode -1)
 
-	(scroll-bar-mode -1)
-	(horizontal-scroll-bar-mode -1)
+
+#### Scroll bars
+
+    (scroll-bar-mode -1)
+    (horizontal-scroll-bar-mode -1)
 
 
 ### Dialogs
@@ -168,262 +170,283 @@ This comes in handy when I want to garbage collect, say, or save recent files.
     (cuss use-dialog-box nil
       "Don't use dialog boxes to ask questions.")
 
-1.  Yes or no questions
 
-	(fset 'yes-or-no-p #'y-or-n-p)
+#### Yes or no questions
 
-2.  The Bell
+    (fset 'yes-or-no-p #'y-or-n-p)
 
-    from [EmacsWiki](https://www.emacswiki.org/emacs/AlarmBell#h5o-3).
+
+#### The Bell
+
+from [EmacsWiki](https://www.emacswiki.org/emacs/AlarmBell#h5o-3).
+
+    (setq visible-bell nil
+	  ring-bell-function 'flash-mode-line)
     
-	(setq visible-bell nil
-	      ring-bell-function 'flash-mode-line)
-        
-	(defun flash-mode-line ()
-	  (invert-face 'mode-line)
-	  (run-with-timer 0.1 nil #'invert-face 'mode-line))
+    (defun flash-mode-line ()
+      (invert-face 'mode-line)
+      (run-with-timer 0.1 nil #'invert-face 'mode-line))
 
 
 ### Frames
 
-1.  Fringes
 
-	(cuss indicate-empty-lines t
-	  "Show an indicator on the left fringe of empty lines past the
-	end of the buffer.")
-	(cuss indicate-buffer-boundaries 'right
-	  "Indicate the beginning and end of the buffer and whether it
-	  scrolls off-window in the right fringe.")
+#### Fringes
 
-2.  Minibuffer
+    (cuss indicate-empty-lines t
+      "Show an indicator on the left fringe of empty lines past the
+    end of the buffer.")
+    (cuss indicate-buffer-boundaries 'right
+      "Indicate the beginning and end of the buffer and whether it
+      scrolls off-window in the right fringe.")
 
-	(cuss minibuffer-prompt-properties
-	    '(read-only t cursor-intangible t face minibuffer-prompt)
-	  "Keep the cursor away from the minibuffer prompt.")
 
-3.  Tabs
+#### Minibuffer
 
-	(cuss tab-bar-tab-name-function
-	    #'tab-bar-tab-name-current-with-count
-	  "Show the tab name as the name of the current buffer, plus a
-	  count of the windows in the tab.")
-        
-	(cuss tab-bar-show 1
-	  "Show the tab bar, when there's more than one tab.")
+    (cuss minibuffer-prompt-properties
+	'(read-only t cursor-intangible t face minibuffer-prompt)
+      "Keep the cursor away from the minibuffer prompt.")
+
+
+#### Tabs
+
+    (cuss tab-bar-tab-name-function
+	#'tab-bar-tab-name-current-with-count
+      "Show the tab name as the name of the current buffer, plus a
+      count of the windows in the tab.")
+    
+    (cuss tab-bar-show 1
+      "Show the tab bar, when there's more than one tab.")
 
 
 ### Windows
 
-1.  Winner mode
 
-	(when (fboundp 'winner-mode)
-	  (winner-mode +1))
+#### Winner mode
 
-2.  Switch windows
+    (when (fboundp 'winner-mode)
+      (winner-mode +1))
 
-	(global-set-key (kbd "M-o") #'other-window)
+
+#### Switch windows
+
+    (global-set-key (kbd "M-o") #'other-window)
 
 
 ### Buffers
 
-1.  Uniquify buffers
 
-	(require 'uniquify)
-	(cuss uniquify-buffer-name-style 'forward
-	  "Uniquify buffers' names by going up the path trees until they
-	become unique.")
+#### Uniquify buffers
 
-2.  Startup buffers
+    (require 'uniquify)
+    (cuss uniquify-buffer-name-style 'forward
+      "Uniquify buffers' names by going up the path trees until they
+    become unique.")
 
-	(cuss inhibit-startup-screen t
-	  "Don't show Emacs' startup buffer.")
-        
-	(cuss initial-buffer-choice t
-	  "Start with *scratch*.")
-        
-	(cuss initial-scratch-message ""
-	  "Empty *scratch* buffer.")
 
-3.  Kill the current buffer
+#### Startup buffers
 
-	(defun acdw/kill-a-buffer (&optional prefix)
-	  "Kill a buffer based on the following rules:
-        
-	C-x k     ⇒ Kill current buffer & window
-	C-u C-x k ⇒ Kill OTHER window and its buffer
-	C-u C-u C-x C-k ⇒ Kill all other buffers and windows
-        
-	Prompt only if there are unsaved changes."
-	  (interactive "P")
-	  (pcase (or (car prefix) 0)
-	    ;; C-x k     ⇒ Kill current buffer & window
-	    (0  (kill-current-buffer)
-		(unless (one-window-p) (delete-window)))
-	    ;; C-u C-x k ⇒ Kill OTHER window and its buffer
-	    (4  (other-window 1)
-		(kill-current-buffer)
-		(unless (one-window-p) (delete-window)))
-	    ;; C-u C-u C-x C-k ⇒ Kill all other buffers and windows
-	    (16   (mapc 'kill-buffer (delq (current-buffer) (buffer-list)))
-		  (delete-other-windows))))
-        
-	(define-key ctl-x-map "k" #'acdw/kill-a-buffer)
+    (cuss inhibit-startup-screen t
+      "Don't show Emacs' startup buffer.")
     
-    1.  Remap `C-x M-k` to bring up the buffer-killing menu
+    (cuss initial-buffer-choice t
+      "Start with *scratch*.")
     
-	    (define-key ctl-x-map (kbd "M-k") #'kill-buffer)
+    (cuss initial-scratch-message ""
+      "Empty *scratch* buffer.")
 
-4.  Immortal `*scratch*` buffer
 
-	(defun immortal-scratch ()
-	  (if (eq (current-buffer) (get-buffer "*scratch*"))
-	      (progn (bury-buffer)
-		     nil)
-	    t))
-        
-	(add-hook 'kill-buffer-query-functions 'immortal-scratch)
+#### Kill the current buffer
+
+    (defun acdw/kill-a-buffer (&optional prefix)
+      "Kill a buffer based on the following rules:
+    
+    C-x k     ⇒ Kill current buffer & window
+    C-u C-x k ⇒ Kill OTHER window and its buffer
+    C-u C-u C-x C-k ⇒ Kill all other buffers and windows
+    
+    Prompt only if there are unsaved changes."
+      (interactive "P")
+      (pcase (or (car prefix) 0)
+	;; C-x k     ⇒ Kill current buffer & window
+	(0  (kill-current-buffer)
+	(unless (one-window-p) (delete-window)))
+	;; C-u C-x k ⇒ Kill OTHER window and its buffer
+	(4  (other-window 1)
+	(kill-current-buffer)
+	(unless (one-window-p) (delete-window)))
+	;; C-u C-u C-x C-k ⇒ Kill all other buffers and windows
+	(16   (mapc 'kill-buffer (delq (current-buffer) (buffer-list)))
+	  (delete-other-windows))))
+    
+    (define-key ctl-x-map "k" #'acdw/kill-a-buffer)
+
+
+##### Remap `C-x M-k` to bring up the buffer-killing menu
+
+    (define-key ctl-x-map (kbd "M-k") #'kill-buffer)
+
+
+#### Immortal `*scratch*` buffer
+
+    (defun immortal-scratch ()
+      (if (eq (current-buffer) (get-buffer "*scratch*"))
+	  (progn (bury-buffer)
+	     nil)
+	t))
+    
+    (add-hook 'kill-buffer-query-functions 'immortal-scratch)
 
 
 ### Modeline
 
-1.  Smart mode line
 
-	(straight-use-package 'smart-mode-line)
-        
-	(cuss sml/no-confirm-load-theme t
-	  "Pass the NO-CONFIRM flag to `load-theme'.")
-        
-	(sml/setup)
+#### Smart mode line
 
-2.  Rich minority
-
-    Since this *comes* with smart mode line, I’m just going to use it,
-    instead of `diminish` or another package.  I do have to write this
-    helper function, though, to add things to the whitelist.
+    (straight-use-package 'smart-mode-line)
     
-	(defun rm/whitelist-add (regexp)
-	  "Add a REGEXP to the whitelist for `rich-minority'."
-	  (if (listp 'rm--whitelist-regexps)
-	      (add-to-list 'rm--whitelist-regexps regexp)
-	    (setq rm--whitelist-regexps `(,regexp)))
-	  (setq rm-whitelist
-		(mapconcat 'identity rm--whitelist-regexps "\\|")))
-        
-	(straight-use-package 'rich-minority)
-        
-	(rm/whitelist-add "^$")
+    (cuss sml/no-confirm-load-theme t
+      "Pass the NO-CONFIRM flag to `load-theme'.")
+    
+    (sml/setup)
+
+
+#### Rich minority
+
+Since this *comes* with smart mode line, I’m just going to use it,
+instead of `diminish` or another package.  I do have to write this
+helper function, though, to add things to the whitelist.
+
+    (defun rm/whitelist-add (regexp)
+      "Add a REGEXP to the whitelist for `rich-minority'."
+      (if (listp 'rm--whitelist-regexps)
+	  (add-to-list 'rm--whitelist-regexps regexp)
+	(setq rm--whitelist-regexps `(,regexp)))
+      (setq rm-whitelist
+	(mapconcat 'identity rm--whitelist-regexps "\\|")))
+    
+    (straight-use-package 'rich-minority)
+    
+    (rm/whitelist-add "^$")
 
 
 ### Theme
 
-1.  Modus Themes
 
-	(straight-use-package 'modus-themes)
-        
-	(cuss modus-themes-slanted-constructs t
-	  "Use more slanted constructs.")
-	(cuss modus-themes-bold-constructs t
-	  "Use more bold constructs.")
-        
-	(cuss modus-themes-region 'bg-only
-	  "Only highlight the background of the selected region.")
-        
-	(cuss modus-themes-org-blocks 'grayscale
-	  "Show org-blocks with a grayscale background.")
-	(cuss modus-themes-headings
-	    '((1 . line)
-	      (t . t))
-	  "Highlight top headings with `line' style, and others by default.")
-        
-	(cuss modus-themes-scale-headings t
-	  "Scale headings by the ratios below.")
-	(cuss modus-themes-scale-1 1.1)
-	(cuss modus-themes-scale-2 1.15)
-	(cuss modus-themes-scale-3 1.21)
-	(cuss modus-themes-scale-4 1.27)
-	(cuss modus-themes-scale-5 1.33)
-        
-	(load-theme 'modus-operandi t)
+#### Modus Themes
 
-2.  Change themes based on time of day
+    (straight-use-package 'modus-themes)
+    
+    (cuss modus-themes-slanted-constructs t
+      "Use more slanted constructs.")
+    (cuss modus-themes-bold-constructs t
+      "Use more bold constructs.")
+    
+    (cuss modus-themes-region 'bg-only
+      "Only highlight the background of the selected region.")
+    
+    (cuss modus-themes-org-blocks 'grayscale
+      "Show org-blocks with a grayscale background.")
+    (cuss modus-themes-headings
+	'((1 . line)
+	  (t . t))
+      "Highlight top headings with `line' style, and others by default.")
+    
+    (cuss modus-themes-scale-headings t
+      "Scale headings by the ratios below.")
+    (cuss modus-themes-scale-1 1.1)
+    (cuss modus-themes-scale-2 1.15)
+    (cuss modus-themes-scale-3 1.21)
+    (cuss modus-themes-scale-4 1.27)
+    (cuss modus-themes-scale-5 1.33)
+    
+    (load-theme 'modus-operandi t)
 
-	(cuss calendar-latitude 30.4515)
-	(cuss calendar-longitude -91.1871)
-        
-	;; sunrise
-	(run-at-time (nth 1 (split-string (sunrise-sunset)))
-		     (* 60 60 24)
-		     (lambda ()
-		       (modus-themes-load-operandi)))
-        
-	;; sunset
-	(run-at-time (nth 4 (split-string (sunrise-sunset)))
-		     (* 60 60 24)
-		     (lambda ()
-		       (modus-themes-load-vivendi)))
+
+#### Change themes based on time of day
+
+    (cuss calendar-latitude 30.4515)
+    (cuss calendar-longitude -91.1871)
+    
+    ;; sunrise
+    (run-at-time (nth 1 (split-string (sunrise-sunset)))
+	     (* 60 60 24)
+	     (lambda ()
+	       (modus-themes-load-operandi)))
+    
+    ;; sunset
+    (run-at-time (nth 4 (split-string (sunrise-sunset)))
+	     (* 60 60 24)
+	     (lambda ()
+	       (modus-themes-load-vivendi)))
 
 
 ### Fonts
 
-1.  Define fonts
 
-	(defun set-face-from-alternatives (face fonts)
-	  (catch :return
-	    (dolist (font fonts)
-	      (when (find-font (font-spec :family (car font)))
-		(apply #'set-face-attribute `(,face
-					      nil
-					      :family (car font)
-					      ,@(cdr font)))
-		(throw :return font)))))
-        
-	(defun acdw/setup-fonts ()
-	  "Setup fonts.  This has to happen after the frame is setup for
-	the first time, so it should be added to `window-setup-hook'.  It
-	removes itself from that hook."
-	  (interactive)
-	  (when (display-graphic-p)
-	    (set-face-from-alternatives 'default
-					'(("Input Mono"
-					   :height 105)
-					  ("Go Mono"
-					   :height 100)
-					  ("Consolas"
-					   :height 100)))
-        
-	    (set-face-from-alternatives 'fixed-pitch
-					'(("Input Mono")
-					  ("Go Mono")
-					  ("Consolas")))
-        
-	    (set-face-from-alternatives 'variable-pitch
-					'(("Input Serif")
-					  ("Georgia")))
-        
-	    (remove-function after-focus-change-function #'acdw/setup-fonts)))
-        
-	(add-function :before after-focus-change-function #'acdw/setup-fonts)
+#### Define fonts
 
-2.  Custom faces
+    (defun set-face-from-alternatives (face fonts)
+      (catch :return
+	(dolist (font fonts)
+	  (when (find-font (font-spec :family (car font)))
+	(apply #'set-face-attribute `(,face
+				      nil
+				      :family (car font)
+				      ,@(cdr font)))
+	(throw :return font)))))
+    
+    (defun acdw/setup-fonts ()
+      "Setup fonts.  This has to happen after the frame is setup for
+    the first time, so it should be added to `window-setup-hook'.  It
+    removes itself from that hook."
+      (interactive)
+      (when (display-graphic-p)
+	(set-face-from-alternatives 'default
+				'(("Input Mono"
+				   :height 105)
+				  ("Go Mono"
+				   :height 100)
+				  ("Consolas"
+				   :height 100)))
+    
+	(set-face-from-alternatives 'fixed-pitch
+				'(("Input Mono")
+				  ("Go Mono")
+				  ("Consolas")))
+    
+	(set-face-from-alternatives 'variable-pitch
+				'(("Input Serif")
+				  ("Georgia")))
+    
+	(remove-function after-focus-change-function #'acdw/setup-fonts)))
+    
+    (add-function :before after-focus-change-function #'acdw/setup-fonts)
 
-	(cussface '(font-lock-comment-face
-		    ((t (:inherit (custom-comment italic variable-pitch))))))
 
-3.  Line spacing
+#### Custom faces
 
-	(cuss line-spacing 0.1
-	  "Add 10% extra space below each line.")
+    (cussface '(font-lock-comment-face
+	    ((t (:inherit (custom-comment italic variable-pitch))))))
 
-4.  Underlines
 
-	(cuss x-underline-at-descent-line t
-	  "Draw the underline at the same place as the descent line.")
+#### Line spacing
 
-5.  Unicode Fonts
+    (cuss line-spacing 0.1
+      "Add 10% extra space below each line.")
 
-	(straight-use-package 'unicode-fonts)
-	(require 'unicode-fonts)
-	(unicode-fonts-setup)
+
+#### Underlines
+
+    (cuss x-underline-at-descent-line t
+      "Draw the underline at the same place as the descent line.")
+
+
+#### Unicode Fonts
+
+    (straight-use-package 'unicode-fonts)
+    (require 'unicode-fonts)
+    (unicode-fonts-setup)
 
 
 ## Interactivity
@@ -431,83 +454,90 @@ This comes in handy when I want to garbage collect, say, or save recent files.
 
 ### Completing read
 
-1.  Shadow file names in `completing-read`.
 
-	(cuss file-name-shadow-properties '(invisible t))
-        
-	(file-name-shadow-mode +1)
+#### Shadow file names in `completing-read`.
 
-2.  Ignore case in `completing-read`
+    (cuss file-name-shadow-properties '(invisible t))
+    
+    (file-name-shadow-mode +1)
 
-	(cuss completion-ignore-case t)
-	(cuss read-buffer-completion-ignore-case t)
-	(cuss read-file-name-completion-ignore-case t)
 
-3.  Minibuffer recursivity
+#### Ignore case in `completing-read`
 
-	(cuss enable-recursive-minibuffers t)
-	(minibuffer-depth-indicate-mode +1)
+    (cuss completion-ignore-case t)
+    (cuss read-buffer-completion-ignore-case t)
+    (cuss read-file-name-completion-ignore-case t)
 
-4.  Selectrum
 
-	(straight-use-package 'selectrum)
-	(require 'selectrum)
-	(selectrum-mode +1)
+#### Minibuffer recursivity
 
-5.  Prescient
+    (cuss enable-recursive-minibuffers t)
+    (minibuffer-depth-indicate-mode +1)
 
-	(straight-use-package 'prescient)
-	(require 'prescient)
-	(prescient-persist-mode +1)
-        
-	(straight-use-package 'selectrum-prescient)
-	(require 'selectrum-prescient)
-	(selectrum-prescient-mode +1)
 
-6.  Consult
+#### Selectrum
 
-	(straight-use-package '(consult
-				:host github
-				:repo "minad/consult"))
-	(require 'consult)
-        
-	(straight-use-package '(consult-selectrum
-				:host github
-				:repo "minad/consult"))
-	(require 'consult-selectrum)
-        
-	(with-eval-after-load 'consult
-	  (define-key ctl-x-map "b" #'consult-buffer)
-	  (define-key ctl-x-map (kbd "C-r") #'consult-buffer)
-	  (define-key ctl-x-map "4b" #'consult-buffer-other-window)
-	  (define-key ctl-x-map "5b" #'consult-buffer-other-frame)
-        
-	  (define-key goto-map "o" #'consult-outline)
-	  (define-key goto-map "g" #'consult-line)
-	  (define-key goto-map (kbd "M-g") #'consult-line)
-	  (define-key goto-map "l" #'consult-line)
-	  (define-key goto-map "m" #'consult-mark)
-	  (define-key goto-map "i" #'consult-imenu)
-	  (define-key goto-map "e" #'consult-error)
-        
-	  (global-set-key (kbd "M-y") #'consult-yank-pop)
-        
-	  (define-key help-map "a" #'consult-apropos)
-        
-	  (fset 'multi-occur #'consult-multi-occur))
+    (straight-use-package 'selectrum)
+    (require 'selectrum)
+    (selectrum-mode +1)
 
-7.  Marginalia
 
-	(straight-use-package '(marginalia
-				:host github
-				:repo "minad/marginalia"
-				:branch "main"))
-        
-	(cuss marginalia-annotators
-	    '(marginalia-annotators-heavy
-	      marginalia-annotators-light))
-        
-	(marginalia-mode +1)
+#### Prescient
+
+    (straight-use-package 'prescient)
+    (require 'prescient)
+    (prescient-persist-mode +1)
+    
+    (straight-use-package 'selectrum-prescient)
+    (require 'selectrum-prescient)
+    (selectrum-prescient-mode +1)
+
+
+#### Consult
+
+    (straight-use-package '(consult
+			:host github
+			:repo "minad/consult"))
+    (require 'consult)
+    
+    (straight-use-package '(consult-selectrum
+			:host github
+			:repo "minad/consult"))
+    (require 'consult-selectrum)
+    
+    (with-eval-after-load 'consult
+      (define-key ctl-x-map "b" #'consult-buffer)
+      (define-key ctl-x-map (kbd "C-r") #'consult-buffer)
+      (define-key ctl-x-map "4b" #'consult-buffer-other-window)
+      (define-key ctl-x-map "5b" #'consult-buffer-other-frame)
+    
+      (define-key goto-map "o" #'consult-outline)
+      (define-key goto-map "g" #'consult-line)
+      (define-key goto-map (kbd "M-g") #'consult-line)
+      (define-key goto-map "l" #'consult-line)
+      (define-key goto-map "m" #'consult-mark)
+      (define-key goto-map "i" #'consult-imenu)
+      (define-key goto-map "e" #'consult-error)
+    
+      (global-set-key (kbd "M-y") #'consult-yank-pop)
+    
+      (define-key help-map "a" #'consult-apropos)
+    
+      (fset 'multi-occur #'consult-multi-occur))
+
+
+#### Marginalia
+
+    (straight-use-package '(marginalia
+			:host github
+			:repo "minad/marginalia"
+			:branch "main"))
+    
+    (cuss marginalia-annotators
+	'(marginalia-annotators-heavy
+	  marginalia-annotators-light))
+    
+    (marginalia-mode +1)
 
 
 ### Completion
@@ -664,32 +694,34 @@ from [u/TheFrenchPoulp](https://www.reddit.com/r/emacs/comments/km9by4/weekly_ti
 
 ### Encoding
 
-1.  UTF-8
 
-	(set-language-environment "UTF-8")
-	(set-terminal-coding-system 'utf-8)
-	(cuss locale-coding-system 'utf-8)
-	(set-default-coding-systems 'utf-8)
-	(set-selection-coding-system 'utf-8)
-	(prefer-coding-system 'utf-8)
+#### UTF-8
 
-2.  Convert all files to UNIX-style line endings
+    (set-language-environment "UTF-8")
+    (set-terminal-coding-system 'utf-8)
+    (cuss locale-coding-system 'utf-8)
+    (set-default-coding-systems 'utf-8)
+    (set-selection-coding-system 'utf-8)
+    (prefer-coding-system 'utf-8)
 
-    from [Emacs Wiki](https://www.emacswiki.org/emacs/EndOfLineTips).
-    
-	(defun ewiki/no-junk-please-were-unixish ()
-	  "Convert line endings to UNIX, dammit."
-	  (let ((coding-str (symbol-name buffer-file-coding-system)))
-	    (when (string-match "-\\(?:dos\\|mac\\)$" coding-str)
-	      (set-buffer-file-coding-system 'unix))))
-    
-    I add it to the `find-file-hook` *and* `before-save-hook` because I
-    don't want to ever work with anything other than UNIX line endings
-    ever again.  I just don't care.  Even Microsoft Notepad can handle
-    UNIX line endings, so I don't want to hear it.
-    
-	(add-hook 'find-file-hook #'ewiki/no-junk-please-were-unixish)
-	(add-hook 'before-save-hook #'ewiki/no-junk-please-were-unixish)
+
+#### Convert all files to UNIX-style line endings
+
+from [Emacs Wiki](https://www.emacswiki.org/emacs/EndOfLineTips).
+
+    (defun ewiki/no-junk-please-were-unixish ()
+      "Convert line endings to UNIX, dammit."
+      (let ((coding-str (symbol-name buffer-file-coding-system)))
+	(when (string-match "-\\(?:dos\\|mac\\)$" coding-str)
+	  (set-buffer-file-coding-system 'unix))))
+
+I add it to the `find-file-hook` *and* `before-save-hook` because I
+don't want to ever work with anything other than UNIX line endings
+ever again.  I just don't care.  Even Microsoft Notepad can handle
+UNIX line endings, so I don't want to hear it.
+
+    (add-hook 'find-file-hook #'ewiki/no-junk-please-were-unixish)
+    (add-hook 'before-save-hook #'ewiki/no-junk-please-were-unixish)
 
 
 ### Backups
@@ -748,38 +780,41 @@ from [u/TheFrenchPoulp](https://www.reddit.com/r/emacs/comments/km9by4/weekly_ti
 
 ### Killing & Yanking
 
-1.  Replace selection when typing
 
-	(delete-selection-mode +1)
+#### Replace selection when typing
 
-2.  Work better with the system clipboard
+    (delete-selection-mode +1)
 
-	(cuss save-interprogram-paste-before-kill t
-	  "Save existing clipboard text into the kill ring before
-	  replacing it.")
-        
-	(cuss yank-pop-change-selection t
-	  "Update the X selection when rotating the kill ring.")
+
+#### Work better with the system clipboard
+
+    (cuss save-interprogram-paste-before-kill t
+      "Save existing clipboard text into the kill ring before
+      replacing it.")
+    
+    (cuss yank-pop-change-selection t
+      "Update the X selection when rotating the kill ring.")
 
 
 ### Searching & Replacing
 
-1.  Replace with Anzu
 
-	  (straight-use-package 'anzu)
-	  (require 'anzu)
-        
-	  ;; show search count in the modeline
-	  (global-anzu-mode +1)
-        
-	  (cuss anzu-replace-to-string-separator " → "
-	    "What to separate the search from the replacement.")
-        
-	(global-set-key [remap query-replace] #'anzu-query-replace)
-	(global-set-key [remap query-replace-regexp] #'anzu-query-replace-regexp)
-        
-	(define-key isearch-mode-map [remap isearch-query-replace]  #'anzu-isearch-query-replace)
-	(define-key isearch-mode-map [remap isearch-query-replace-regexp] #'anzu-isearch-query-replace-regexp)
+#### Replace with Anzu
+
+      (straight-use-package 'anzu)
+      (require 'anzu)
+    
+      ;; show search count in the modeline
+      (global-anzu-mode +1)
+    
+      (cuss anzu-replace-to-string-separator " → "
+	"What to separate the search from the replacement.")
+    
+    (global-set-key [remap query-replace] #'anzu-query-replace)
+    (global-set-key [remap query-replace-regexp] #'anzu-query-replace-regexp)
+    
+    (define-key isearch-mode-map [remap isearch-query-replace]  #'anzu-isearch-query-replace)
+    (define-key isearch-mode-map [remap isearch-query-replace-regexp] #'anzu-isearch-query-replace-regexp)
 
 
 ### Overwrite mode
@@ -1070,172 +1105,179 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     (cuss org-directory "~/Org")
     (cuss org-ellipsis "…")
     (cuss org-catch-invisible-edits 'show)
+    
+    (cuss org-export-headline-levels 8
+      "Maximum level of headlines to export /as/ a headline.")
 
-1.  Tags
 
-	(cuss org-tags-column 0
-	  "Show tags directly after the headline.
-	This is the best-looking option with variable-pitch fonts.")
-        
-	(cussface
-	 '(org-tag
-	   ((t
-	     (:height 0.8 :weight normal :slant italic :foreground "grey40" :inherit
-		      (variable-pitch))))))
+#### Tags
+
+    (cuss org-tags-column 0
+      "Show tags directly after the headline.
+    This is the best-looking option with variable-pitch fonts.")
+    
+    (cussface
+     '(org-tag
+       ((t
+	 (:height 0.8 :weight normal :slant italic :foreground "grey40" :inherit
+	      (variable-pitch))))))
 
 
 ### General
 
-1.  [Org Return: DWIM](https://github.com/alphapapa/unpackaged.el#org-return-dwim)
 
-	(defun unpackaged/org-element-descendant-of (type element)
-	  "Return non-nil if ELEMENT is a descendant of TYPE.
-	TYPE should be an element type, like `item' or `paragraph'.
-	ELEMENT should be a list like that returned by `org-element-context'."
-	  ;; MAYBE: Use `org-element-lineage'.
-	  (when-let* ((parent (org-element-property :parent element)))
-	    (or (eq type (car parent))
-		(unpackaged/org-element-descendant-of type parent))))
-        
-	;;;###autoload
-	(defun unpackaged/org-return-dwim (&optional default)
-	  "A helpful replacement for `org-return'.  With prefix, call `org-return'.
-        
-	On headings, move point to position after entry content.  In
-	lists, insert a new item or end the list, with checkbox if
-	appropriate.  In tables, insert a new row or end the table."
-	  ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
-	  (interactive "P")
-	  (if default
-	      (org-return)
-	    (cond
-	     ;; Act depending on context around point.
-        
-	     ;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
-	     ;; followed.
-        
-	     ;; ((eq 'link (car (org-element-context)))
-	     ;;  ;; Link: Open it.
-	     ;;  (org-open-at-point-global))
-        
-	     ((org-at-heading-p)
-	      ;; Heading: Move to position after entry content.
-	      ;; NOTE: This is probably the most interesting feature of this function.
-	      (let ((heading-start (org-entry-beginning-position)))
-		(goto-char (org-entry-end-position))
-		(cond ((and (org-at-heading-p)
-			    (= heading-start (org-entry-beginning-position)))
-		       ;; Entry ends on its heading; add newline after
-		       (end-of-line)
-		       (insert "\n\n"))
-		      (t
-		       ;; Entry ends after its heading; back up
-		       (forward-line -1)
-		       (end-of-line)
-		       (when (org-at-heading-p)
-			 ;; At the same heading
-			 (forward-line)
-			 (insert "\n")
-			 (forward-line -1))
-		       ;; FIXME: looking-back is supposed to be called with more arguments.
-		       (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n"))) nil))
-			 (insert "\n"))
-		       (forward-line -1)))))
-        
-	     ((org-at-item-checkbox-p)
-	      ;; Checkbox: Insert new item with checkbox.
-	      (org-insert-todo-heading nil))
-        
-	     ((org-in-item-p)
-	      ;; Plain list.  Yes, this gets a little complicated...
-	      (let ((context (org-element-context)))
-		(if (or (eq 'plain-list (car context))  ; First item in list
-			(and (eq 'item (car context))
-			     (not (eq (org-element-property :contents-begin context)
-				      (org-element-property :contents-end context))))
-			(unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
-		    ;; Non-empty item: Add new item.
-		    (org-insert-item)
-		  ;; Empty item: Close the list.
-		  ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
-		  (delete-region (line-beginning-position) (line-end-position))
-		  (insert "\n"))))
-        
-	     ((when (fboundp 'org-inlinetask-in-task-p)
-		(org-inlinetask-in-task-p))
-	      ;; Inline task: Don't insert a new heading.
-	      (org-return))
-        
-	     ((org-at-table-p)
-	      (cond ((save-excursion
-		       (beginning-of-line)
-		       ;; See `org-table-next-field'.
-		       (cl-loop with end = (line-end-position)
-				for cell = (org-element-table-cell-parser)
-				always (equal (org-element-property :contents-begin cell)
-					      (org-element-property :contents-end cell))
-				while (re-search-forward "|" end t)))
-		     ;; Empty row: end the table.
-		     (delete-region (line-beginning-position) (line-end-position))
-		     (org-return))
-		    (t
-		     ;; Non-empty row: call `org-return'.
-		     (org-return))))
-	     (t
-	      ;; All other cases: call `org-return'.
-	      (org-return)))))
-        
-	(with-eval-after-load 'org
-	  (define-key org-mode-map (kbd "RET") #'unpackaged/org-return-dwim))
+#### [Org Return: DWIM](https://github.com/alphapapa/unpackaged.el#org-return-dwim)
 
-2.  Insert blank lines around headers
-
-    from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lines-between-headings-and-before-contents).
+    (defun unpackaged/org-element-descendant-of (type element)
+      "Return non-nil if ELEMENT is a descendant of TYPE.
+    TYPE should be an element type, like `item' or `paragraph'.
+    ELEMENT should be a list like that returned by `org-element-context'."
+      ;; MAYBE: Use `org-element-lineage'.
+      (when-let* ((parent (org-element-property :parent element)))
+	(or (eq type (car parent))
+	(unpackaged/org-element-descendant-of type parent))))
     
-	;;;###autoload
-	(defun unpackaged/org-fix-blank-lines (&optional prefix)
-	  "Ensure that blank lines exist between headings and between headings and their contents.
-	With prefix, operate on whole buffer. Ensures that blank lines
-	exist after each headings's drawers."
-	  (interactive "P")
-	  (org-map-entries (lambda ()
-			     (org-with-wide-buffer
-			      ;; `org-map-entries' narrows the buffer, which prevents us
-			      ;; from seeing newlines before the current heading, so we
-			      ;; do this part widened.
-			      (while (not (looking-back "\n\n" nil))
-				;; Insert blank lines before heading.
-				(insert "\n")))
-			     (let ((end (org-entry-end-position)))
-			       ;; Insert blank lines before entry content
-			       (forward-line)
-			       (while (and (org-at-planning-p)
-					   (< (point) (point-max)))
-				 ;; Skip planning lines
-				 (forward-line))
-			       (while (re-search-forward org-drawer-regexp end t)
-				 ;; Skip drawers. You might think that `org-at-drawer-p'
-				 ;; would suffice, but for some reason it doesn't work
-				 ;; correctly when operating on hidden text.  This
-				 ;; works, taken from `org-agenda-get-some-entry-text'.
-				 (re-search-forward "^[ \t]*:END:.*\n?" end t)
-				 (goto-char (match-end 0)))
-			       (unless (or (= (point) (point-max))
-					   (org-at-heading-p)
-					   (looking-at-p "\n"))
-				 (insert "\n"))))
-			   t (if prefix
-				 nil
-			       'tree)))
+    ;;;###autoload
+    (defun unpackaged/org-return-dwim (&optional default)
+      "A helpful replacement for `org-return'.  With prefix, call `org-return'.
     
-    1.  Add a before-save-hook
+    On headings, move point to position after entry content.  In
+    lists, insert a new item or end the list, with checkbox if
+    appropriate.  In tables, insert a new row or end the table."
+      ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
+      (interactive "P")
+      (if default
+	  (org-return)
+	(cond
+	 ;; Act depending on context around point.
     
-	    (defun cribbed/org-mode-fix-blank-lines ()
-	      (when (eq major-mode 'org-mode)
-		(let ((current-prefix-arg 4)) ; Emulate C-u
-		  (call-interactively 'unpackaged/org-fix-blank-lines))))
+	 ;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
+	 ;; followed.
+    
+	 ;; ((eq 'link (car (org-element-context)))
+	 ;;  ;; Link: Open it.
+	 ;;  (org-open-at-point-global))
+    
+	 ((org-at-heading-p)
+	  ;; Heading: Move to position after entry content.
+	  ;; NOTE: This is probably the most interesting feature of this function.
+	  (let ((heading-start (org-entry-beginning-position)))
+	(goto-char (org-entry-end-position))
+	(cond ((and (org-at-heading-p)
+		    (= heading-start (org-entry-beginning-position)))
+	       ;; Entry ends on its heading; add newline after
+	       (end-of-line)
+	       (insert "\n\n"))
+	      (t
+	       ;; Entry ends after its heading; back up
+	       (forward-line -1)
+	       (end-of-line)
+	       (when (org-at-heading-p)
+		 ;; At the same heading
+		 (forward-line)
+		 (insert "\n")
+		 (forward-line -1))
+	       ;; FIXME: looking-back is supposed to be called with more arguments.
+	       (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n"))) nil))
+		 (insert "\n"))
+	       (forward-line -1)))))
+    
+	 ((org-at-item-checkbox-p)
+	  ;; Checkbox: Insert new item with checkbox.
+	  (org-insert-todo-heading nil))
+    
+	 ((org-in-item-p)
+	  ;; Plain list.  Yes, this gets a little complicated...
+	  (let ((context (org-element-context)))
+	(if (or (eq 'plain-list (car context))  ; First item in list
+		(and (eq 'item (car context))
+		     (not (eq (org-element-property :contents-begin context)
+			      (org-element-property :contents-end context))))
+		(unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
+	    ;; Non-empty item: Add new item.
+	    (org-insert-item)
+	  ;; Empty item: Close the list.
+	  ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
+	  (delete-region (line-beginning-position) (line-end-position))
+	  (insert "\n"))))
+    
+	 ((when (fboundp 'org-inlinetask-in-task-p)
+	(org-inlinetask-in-task-p))
+	  ;; Inline task: Don't insert a new heading.
+	  (org-return))
+    
+	 ((org-at-table-p)
+	  (cond ((save-excursion
+	       (beginning-of-line)
+	       ;; See `org-table-next-field'.
+	       (cl-loop with end = (line-end-position)
+			for cell = (org-element-table-cell-parser)
+			always (equal (org-element-property :contents-begin cell)
+				      (org-element-property :contents-end cell))
+			while (re-search-forward "|" end t)))
+	     ;; Empty row: end the table.
+	     (delete-region (line-beginning-position) (line-end-position))
+	     (org-return))
+	    (t
+	     ;; Non-empty row: call `org-return'.
+	     (org-return))))
+	 (t
+	  ;; All other cases: call `org-return'.
+	  (org-return)))))
+    
+    (with-eval-after-load 'org
+      (define-key org-mode-map (kbd "RET") #'unpackaged/org-return-dwim))
 
-	    (add-hook 'before-save-hook #'cribbed/org-mode-fix-blank-lines)
+
+#### Insert blank lines around headers
+
+from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lines-between-headings-and-before-contents).
+
+    ;;;###autoload
+    (defun unpackaged/org-fix-blank-lines (&optional prefix)
+      "Ensure that blank lines exist between headings and between headings and their contents.
+    With prefix, operate on whole buffer. Ensures that blank lines
+    exist after each headings's drawers."
+      (interactive "P")
+      (org-map-entries (lambda ()
+		     (org-with-wide-buffer
+		      ;; `org-map-entries' narrows the buffer, which prevents us
+		      ;; from seeing newlines before the current heading, so we
+		      ;; do this part widened.
+		      (while (not (looking-back "\n\n" nil))
+			;; Insert blank lines before heading.
+			(insert "\n")))
+		     (let ((end (org-entry-end-position)))
+		       ;; Insert blank lines before entry content
+		       (forward-line)
+		       (while (and (org-at-planning-p)
+				   (< (point) (point-max)))
+			 ;; Skip planning lines
+			 (forward-line))
+		       (while (re-search-forward org-drawer-regexp end t)
+			 ;; Skip drawers. You might think that `org-at-drawer-p'
+			 ;; would suffice, but for some reason it doesn't work
+			 ;; correctly when operating on hidden text.  This
+			 ;; works, taken from `org-agenda-get-some-entry-text'.
+			 (re-search-forward "^[ \t]*:END:.*\n?" end t)
+			 (goto-char (match-end 0)))
+		       (unless (or (= (point) (point-max))
+				   (org-at-heading-p)
+				   (looking-at-p "\n"))
+			 (insert "\n"))))
+		   t (if prefix
+			 nil
+		       'tree)))
+
+
+##### Add a before-save-hook
+
+    (defun cribbed/org-mode-fix-blank-lines ()
+      (when (eq major-mode 'org-mode)
+	(let ((current-prefix-arg 4)) ; Emulate C-u
+	  (call-interactively 'unpackaged/org-fix-blank-lines))))
+    
+    (add-hook 'before-save-hook #'cribbed/org-mode-fix-blank-lines)
 
 
 ### Org Agenda
@@ -1326,13 +1368,13 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 
 ### early-init.el
 
-      ;; early-init.el -*- no-byte-compile: t; -*-
+    ;; early-init.el -*- no-byte-compile: t; -*-
     
-      ;; I use `straight.el' instead of `package.el'.
-    ;;  (setq package-enable-at-startup nil)
+    ;; I use `straight.el' instead of `package.el'.
+    (setq package-enable-at-startup nil)
     
-      ;; Don't resize the frame when loading fonts
-      (setq frame-inhibit-implied-resize t)
+    ;; Don't resize the frame when loading fonts
+    (setq frame-inhibit-implied-resize t)
 
 
 ## Ease tangling and loading of Emacs' init
