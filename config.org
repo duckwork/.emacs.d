@@ -1006,6 +1006,18 @@ For right now, I’m /just/ using Anzu – I don’t like parts of =isearch= but
 	repeatedly entering the prefix argument.")
     #+end_src
 
+*** Whitespace
+
+    #+begin_src emacs-lisp
+      (cuss whitespace-style
+	  '(empty ;; remove blank lines at the beginning and end of buffers
+	    indentation ;; clean up indentation
+	    space-before-tab ;; fix mixed spaces and tabs
+	    space-after-tab))
+
+      (add-hook 'before-save-hook #'whitespace-cleanup)
+    #+end_src
+
 * Programming
 
 ** Parentheses
