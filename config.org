@@ -1261,7 +1261,8 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 *** Basics
 
 #+BEGIN_SRC emacs-lisp
-  (straight-use-package 'org)
+  (straight-use-package '(org
+			  :repo "https://code.orgmode.org/bzg/org-mode.git"))
 
   (with-eval-after-load 'org
     (require 'org-tempo)
