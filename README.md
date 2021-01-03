@@ -1317,19 +1317,22 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 	   (conf-org (concat conf ".org")))
       (unless (and (file-newer-than-file-p conf-el conf-org)
 	       (load conf 'no-error))
+	;; A plain require here just loads the older `org' in Emacs' install dir.  We
+	;; need to add the newer one to the `load-path', hopefully that's all.
+	(add-to-list 'load-path (expand-file-name "straight/build/org/"))
 	(require 'org)
 	(org-babel-load-file conf-org)))
 
 
 ### early-init.el
 
-    ;; early-init.el -*- no-byte-compile: t; -*-
+      ;; early-init.el -*- no-byte-compile: t; -*-
     
-    ;; I use `straight.el' instead of `package.el'.
-    (setq package-enable-at-startup nil)
+      ;; I use `straight.el' instead of `package.el'.
+    ;;  (setq package-enable-at-startup nil)
     
-    ;; Don't resize the frame when loading fonts
-    (setq frame-inhibit-implied-resize t)
+      ;; Don't resize the frame when loading fonts
+      (setq frame-inhibit-implied-resize t)
 
 
 ## Ease tangling and loading of Emacs' init
