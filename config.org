@@ -10,6 +10,14 @@
 
 * Basics
 
+** Disclaimer
+
+   #+begin_src emacs-lisp :comments no :tangle config.el
+     ;; config.el -*- lexical-binding: t -*-
+     ;; This file is automatically tangled from config.org.
+     ;; Hand edits will be overwritten!
+   #+end_src
+
 ** About me
 
 #+BEGIN_SRC emacs-lisp
