@@ -799,12 +799,19 @@ from [[https://www.reddit.com/r/emacs/comments/km9by4/weekly_tipstricketc_thread
   (recentf-mode +1)
 
   ;; save recentf list when focusing away
-  (defun acdw/save-recentf-when-nonfocused ()
-    "Save `recentf-file' when out of focus."
-    (acdw/when-unfocused #'recentf-save-list))
+  (defun acdw/maybe-save-recentf ()
+    "Save `recentf-file' when out of focus, but only if we haven't
+  in five minutes."
+    (defvar recentf-last-save (time-convert nil 'integer)
+      "How long it's been since we last saved the recentf list.")
+
+    (when (> (time-convert (time-since recentf-last-save) 'integer)
+	     (* 60 5))
+      (setq recentf-last-save (time-convert nil 'integer))
+      (acdw/when-unfocused #'recentf-save-list)))
 
   (add-function :after after-focus-change-function
-		#'acdw/save-recentf-when-nonfocused)
+		#'acdw/maybe-save-recentf)
 #+END_SRC
 
 ** Undo
