@@ -1234,6 +1234,26 @@ This has to be done /before/ loading the package.  It's included in =visual-fill
 
 * Applications
 
+** Dired
+
+*** Expand subtrees
+
+    
+   #+BEGIN_SRC emacs-lisp
+     (straight-use-package 'dired-subtree)
+
+     (with-eval-after-load 'dired
+       (define-key dired-mode-map "i" #'dired-subtree-toggle))
+   #+end_src
+
+*** Collapse singleton directories
+
+    #+BEGIN_SRC emacs-lisp
+      (straight-use-package 'dired-collapse)
+
+      (add-hook 'dired-mode-hook #'dired-collapse-mode)
+    #+end_src
+
 ** Org mode
 
 I’ve put org mode under Applications, as opposed to Writing, because it’s  more generally-applicable than that.
