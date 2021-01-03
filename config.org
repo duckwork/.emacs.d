@@ -199,18 +199,15 @@ This comes in handy when I want to garbage collect, say, or save recent files.
 
 **** The Bell
 
-#+BEGIN_SRC emacs-lisp
-(defun acdw/ring-bell-function ()
-  "Ring the bell."
-  (let ((orig-face (face-foreground 'mode-line)))
-    (set-face-foreground 'mode-line "#F2804F")
-    (run-with-idle-timer
-     0.1 nil
-     (lambda (fg)
-       (set-face-foreground 'mode-line fg))
-     orig-face)))
+from [[https://www.emacswiki.org/emacs/AlarmBell#h5o-3][EmacsWiki]].
 
-(cuss ring-bell-function #'acdw/ring-bell-function)
+#+BEGIN_SRC emacs-lisp
+  (setq visible-bell nil
+	ring-bell-function 'flash-mode-line)
+
+  (defun flash-mode-line ()
+    (invert-face 'mode-line)
+    (run-with-timer 0.1 nil #'invert-face 'mode-line))
 #+END_SRC
 
 *** Frames
