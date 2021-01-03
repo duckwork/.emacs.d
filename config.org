@@ -313,6 +313,51 @@ Commented for now because I really need to figure out the keybindings I want to 
   (global-set-key (kbd "<C-S-right>")  'buf-move-right)
 #+end_src
 
+**** Kill the current buffer 
+
+     #+begin_src emacs-lisp
+       (defun acdw/kill-a-buffer (&optional prefix)
+	 "Kill a buffer based on the following rules:
+
+       C-x k     ⇒ Kill current buffer & window
+       C-u C-x k ⇒ Kill OTHER window and its buffer
+       C-u C-u C-x C-k ⇒ Kill all other buffers and windows
+
+       Prompt only if there are unsaved changes."
+	 (interactive "P")
+	 (pcase (or (car prefix) 0)
+	   ;; C-x k     ⇒ Kill current buffer & window
+	   (0  (kill-current-buffer)
+	       (unless (one-window-p) (delete-window)))
+	   ;; C-u C-x k ⇒ Kill OTHER window and its buffer
+	   (4  (other-window 1)
+	       (kill-current-buffer)
+	       (unless (one-window-p) (delete-window)))
+	   ;; C-u C-u C-x C-k ⇒ Kill all other buffers and windows
+	   (16   (mapc 'kill-buffer (delq (current-buffer) (buffer-list)))
+		 (delete-other-windows))))
+
+       (define-key ctl-x-map "k" #'acdw/kill-a-buffer)
+     #+end_src
+
+***** Remap =C-x M-k= to bring up the buffer-killing menu
+
+      #+begin_src emacs-lisp
+	(define-key ctl-x-map (kbd "M-k") #'kill-buffer)
+      #+end_src
+
+**** Immortal =*scratch*= buffer
+
+     #+begin_src emacs-lisp
+       (defun immortal-scratch ()
+	 (if (eq (current-buffer) (get-buffer "*scratch*"))
+	     (progn (bury-buffer)
+		    nil)
+	   t))
+
+       (add-hook 'kill-buffer-query-functions 'immortal-scratch)
+     #+end_src
+
 *** Modeline
 
 **** Smart mode line
