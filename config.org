@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-03 08:49:40 acdw>
+#+Time-stamp: <2021-01-03 14:46:41 acdw>
 
 * Basics
 
@@ -1517,6 +1517,22 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 
   (define-key beancount-mode-map (kbd "M-n") #'outline-next-visible-heading)
   (define-key beancount-mode-map (kbd "M-p") #'outline-previous-visible-heading)
+#+end_src
+
+** PDF Tools
+
+I’m only enabling this at home for now, since it requires building stuff.
+
+#+begin_src emacs-lisp
+  (defun acdw/disable-visual-fill-column-mode ()
+    "Disable `visual-fill-column-mode'."
+    (visual-fill-column-mode -1))
+
+  (when (memq system-type '(gnu/linux))
+    (straight-use-package 'pdf-tools)
+    (pdf-loader-install)
+
+    (add-hook 'pdf-view-mode-hook #'acdw/disable-visual-fill-column-mode))
 #+end_src
 
 * Appendices
