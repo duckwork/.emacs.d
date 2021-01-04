@@ -1163,6 +1163,42 @@ For right now, I’m /just/ using Anzu – I don’t like parts of =isearch= but
 (global-aggressive-indent-mode +1)
 #+END_SRC
 
+** Completion
+
+   #+begin_src emacs-lisp
+     (straight-use-package 'company)
+
+     (add-hook 'prog-mode-hook #'company-mode)
+
+     (cuss company-idle-delay 0.1
+       "Show company sooner.")
+     (cuss company-minimum-prefix-length 3
+       "Don't try to complete short words.")
+
+     (with-eval-after-load 'company
+       (define-key company-active-map (kbd "C-n")
+	 (lambda () (interactive) (company-complete-common-or-cycle +1)))
+       (define-key company-active-map (kbd "C-p")
+	 (lambda () (interactive) (company-complete-common-or-cycle -1))))
+   #+end_src
+
+*** Give it a frame and better help
+
+    #+begin_src emacs-lisp
+      (straight-use-package 'company-posframe)
+
+      (with-eval-after-load 'company
+	(company-posframe-mode +1))
+    #+end_src
+
+*** Prescient integration
+
+    #+begin_src emacs-lisp
+      (straight-use-package 'company-prescient)
+
+      (add-hook 'company-mode-hook #'company-prescient-mode)
+    #+end_src
+
 ** Language-specific packages
 
 *** Emacs lisp
@@ -1536,6 +1572,15 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
   (define-key beancount-mode-map (kbd "M-n") #'outline-next-visible-heading)
   (define-key beancount-mode-map (kbd "M-p") #'outline-previous-visible-heading)
 #+end_src
+
+*** Company integration with company-ledger
+
+    #+begin_src emacs-lisp
+      (straight-use-package 'company-ledger)
+
+      (with-eval-after-load 'company
+	(add-to-list 'company-backends 'company-ledger))
+    #+end_src
 
 ** PDF Tools
 
