@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-04 13:39:13 acdw>
+#+Time-stamp: <2021-01-04 14:20:09 acdw>
 
 * Basics
 
@@ -274,6 +274,13 @@ end of the buffer.")
 #+BEGIN_SRC emacs-lisp
 (global-set-key (kbd "M-o") #'other-window)
 #+END_SRC
+
+**** Pop-up windows
+
+     #+BEGIN_SRC emacs-lisp
+       (straight-use-package 'popwin)
+       (popwin-mode +1)
+     #+end_src
 
 *** Buffers
 
