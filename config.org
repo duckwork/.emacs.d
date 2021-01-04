@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-03 14:46:41 acdw>
+#+Time-stamp: <2021-01-04 13:39:13 acdw>
 
 * Basics
 
@@ -137,6 +137,24 @@ This comes in handy when I want to garbage collect, say, or save recent files.
 	(if (seq-every-p #'null (mapcar #'frame-focus-state (frame-list)))
 	    (apply func args)))
     #+end_src
+
+*** Determine where I am
+
+I use Emacs at home, with Linux, and at work, with Windows.
+
+#+begin_src emacs-lisp
+  (defmacro at-work (&rest commands)
+    "Only do COMMANDS when at work."
+    (declare (indent defun))
+    `(when (memq system-type '(ms-dos windows-nt))
+       ,@commands))
+
+  (defmacro at-home (&rest commands)
+    "Only do COMMANDS when at home."
+    (declare (indent defun))
+    `(when (memq system-type '(gnu gnu/linux gnu/kfreebsd))
+       ,@commands))
+#+end_src
 
 ** Clean =.emacs.d=
 
@@ -1528,7 +1546,7 @@ I’m only enabling this at home for now, since it requires building stuff.
     "Disable `visual-fill-column-mode'."
     (visual-fill-column-mode -1))
 
-  (when (memq system-type '(gnu/linux))
+  (at-home
     (straight-use-package 'pdf-tools)
     (pdf-loader-install)
 
