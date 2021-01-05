@@ -5,3 +5,5 @@
 
 ;; Don't resize the frame when loading fonts
 (setq frame-inhibit-implied-resize t)
+;; Resize frame by pixels
+(setq frame-resize-pixelwise t)

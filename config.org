@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-05 09:28:00 acdw>
+#+Time-stamp: <2021-01-05 11:52:00 acdw>
 
 * Basics
 
@@ -979,6 +979,12 @@ from [[https://www.reddit.com/r/emacs/comments/km9by4/weekly_tipstricketc_thread
   "Update the X selection when rotating the kill ring.")
 #+END_SRC
 
+**** Don’t append the same thing twice to the kill-ring
+
+     #+BEGIN_SRC emacs-lisp
+       (cuss kill-do-not-save-duplicates t)
+     #+end_src
+
 *** Searching & Replacing
 
 **** COMMENT Search with CtrlF
@@ -1690,6 +1696,8 @@ I’m only enabling this at home for now, since it requires building stuff.
 
   ;; Don't resize the frame when loading fonts
   (setq frame-inhibit-implied-resize t)
+  ;; Resize frame by pixels
+  (setq frame-resize-pixelwise t)
 #+end_src
 
 ** Ease tangling and loading of Emacs' init
