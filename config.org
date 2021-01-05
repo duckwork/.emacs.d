@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-05 11:52:00 acdw>
+#+Time-stamp: <2021-01-05 17:16:15 acdw>
 
 * Basics
 
@@ -1674,6 +1674,79 @@ I’m only enabling this at home for now, since it requires building stuff.
 
       (define-key acdw/map "m" #'acdw/mu4e-or-warn)
     #+end_src
+
+** Smolweb
+
+*** Elpher
+
+   #+begin_src emacs-lisp
+     (straight-use-package '(elpher
+			     :repo "git://thelambdalab.xyz/elpher.git"))
+
+     (with-eval-after-load 'no-littering
+       (cuss elpher-certificate-directory
+	   (no-littering-expand-var-file-name "elpher-certificates/")))
+
+     (cuss elpher-ipv4-always t)
+
+     (cussface '(elpher-gemini-heading1
+		 ((t (:inherit (modus-theme-heading-1))))))
+     (cussface '(elpher-gemini-heading2
+		 ((t (:inherit (modus-theme-heading-2))))))
+     (cussface '(elpher-gemini-heading3
+		 ((t (:inherit (modus-theme-heading-3))))))
+
+     (defun elpher:eww-browse-url (original url &optional new-window)
+       "Handle gemini/gopher links with eww."
+       (cond ((string-match-p "\\`\\(gemini\\|gopher\\)://" url)
+	      (require 'elpher)
+	      (elpher-go url))
+	     (t (funcall original url new-window))))
+     (advice-add 'eww-browse-url :around 'elpher:eww-browse-url)
+
+     (with-eval-after-load 'elpher
+       (define-key elpher-mode-map "n" #'elpher-next-link)
+       (define-key elpher-mode-map "p" #'elpher-prev-link)
+       (define-key elpher-mode-map "o" #'elpher-follow-current-link)
+       (define-key elpher-mode-map "G" #'elpher-go-current))
+
+     (add-hook 'elpher-mode-hook #'visual-fill-column-mode)
+
+     (define-key acdw/map "e" #'elpher-bookmarks)
+   #+end_src
+
+*** Gemini-mode
+
+    #+begin_src emacs-lisp
+      (straight-use-package '(gemini-mode
+			      :repo "https://git.carcosa.net/jmcbray/gemini.el.git"))
+
+      (add-to-list 'auto-mode-alist
+		   '("\\.\\(gemini\\|gmi\\)\\'" . gemini-mode))
+
+      (cussface '(gemini-heading-face-1
+		  ((t (:inherit (elpher-gemini-heading1))))))
+      (cussface '(gemini-heading-face2
+		  ((t (:inherit (elpher-gemini-heading2))))))
+      (cussface '(gemini-heading-face3
+		  ((t (:inherit (elpher-gemini-heading3))))))
+
+      (defun acdw/setup-gemini-mode ()
+	(visual-fill-column-mode +1)
+	(variable-pitch-mode -1))
+
+      (add-hook 'gemini-mode-hook #'acdw/setup-gemini-mode)
+    #+end_src
+
+*** Gemini-write
+
+    #+begin_src emacs-lisp
+      (straight-use-package '(gemini-write
+			      :repo "https://alexschroeder.ch/cgit/gemini-write"))
+
+      ;; TODO : add tokens ... somehow
+    #+end_src
+
 * Appendices
 
 ** Emacs' files
