@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-04 14:20:09 acdw>
+#+Time-stamp: <2021-01-05 09:28:00 acdw>
 
 * Basics
 
@@ -1646,6 +1646,79 @@ I’m only enabling this at home for now, since it requires building stuff.
        (text-scale-increase +1))
 
      (add-hook 'nov-mode-hook #'acdw/setup-nov-mode)
+   #+end_src
+
+** Email
+
+   #+begin_src emacs-lisp
+     (when (executable-find "mu")
+
+       (add-to-list 'load-path
+		    "/usr/share/emacs/site-lisp/mu4e")
+       (require 'mu4e)
+
+       (cuss mail-user-agent 'mu4e-user-agent)
+
+       (cuss mu4e-headers-skip-duplicates t)
+       (cuss mu4e-view-show-images t)
+       (cuss mu4e-view-show-addresses t)
+       (cuss mu4e-compose-format-flowed t)
+       (cuss mu4e-change-filenames-when-moving t)
+       (cuss mu4e-attachments-dir "~/Downloads")
+
+       (cuss mu4e-maildir "~/.mail/fastmail")
+       (cuss mu4e-refile-folder "/Archive")
+       (cuss mu4e-sent-folder "/Sent")
+       (cuss mu4e-drafts-folder "/Drafts")
+       (cuss mu4e-trash-folder "/Trash")
+
+       (fset 'my-move-to-trash "mTrash")
+       (define-key mu4e-headers-mode-map (kbd "d") 'my-move-to-trash)
+       (define-key mu4e-view-mode-map (kbd "d") 'my-move-to-trash)
+
+       (cuss message-send-mail-function 'smtpmail-send-it)
+       (cuss smtpmail-default-smtp-server "smtp.fastmail.com")
+       (cuss smtpmail-smtp-server "smtp.fastmail.com")
+       (cuss smtpmail-stream-type 'ssl)
+       (cuss smtpmail-smtp-service 465)
+       (cuss smtpmail-local-domain "acdw.net")
+       (cuss mu4e-compose-signature
+	   "Best,\nCase\n")
+
+       ;;  (cuss mu4e-get-mail-command "mbsync -a")
+       ;; (cuss mu4e-update-interval 300)
+
+       (cuss mu4e-completing-read-function 'completing-read)
+       (cuss message-kill-buffer-on-exit t)
+       (cuss mu4e-confirm-quit nil)
+
+       (cuss mu4e-bookmarks
+	   '((
+	      :name "Unread"
+	      :query
+	      "flag:unread AND NOT flag:trashed AND NOT maildir:/Spam"
+	      :key ?u)
+	     (
+	      :name "Today"
+	      :query "date:today..now and not maildir:/Spam"
+	      :key ?t)
+	     (
+	      :name "This week"
+	      :query "date:7d..now and not maildir:/Spam"
+	      :hide-unread t
+	      :key ?w)))
+
+       (cuss mu4e-headers-fields
+	   '((:human-date . 12)
+	     (:flags . 6)
+	     (:mailing-list . 10)
+	     (:from-or-to . 22)
+	     (:subject)))
+
+       (defun acdw/setup-mu4e-view-mode ()
+	 (visual-fill-column-mode +1))
+
+       (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode))
    #+end_src
 
 * Appendices
