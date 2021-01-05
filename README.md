@@ -123,6 +123,23 @@ This comes in handy when I want to garbage collect, say, or save recent files.
 	  (apply func args)))
 
 
+### Determine where I am
+
+I use Emacs at home, with Linux, and at work, with Windows.
+
+    (defmacro at-work (&rest commands)
+      "Only do COMMANDS when at work."
+      (declare (indent defun))
+      `(when (memq system-type '(ms-dos windows-nt))
+	 ,@commands))
+    
+    (defmacro at-home (&rest commands)
+      "Only do COMMANDS when at home."
+      (declare (indent defun))
+      `(when (memq system-type '(gnu gnu/linux gnu/kfreebsd))
+	 ,@commands))
+
+
 ## Clean `.emacs.d`
 
     (straight-use-package 'no-littering)
@@ -231,6 +248,12 @@ from [EmacsWiki](https://www.emacswiki.org/emacs/AlarmBell#h5o-3).
 #### Switch windows
 
     (global-set-key (kbd "M-o") #'other-window)
+
+
+#### Pop-up windows
+
+    (straight-use-package 'popwin)
+    (popwin-mode +1)
 
 
 ### Buffers
@@ -796,6 +819,11 @@ UNIX line endings, so I don't want to hear it.
       "Update the X selection when rotating the kill ring.")
 
 
+#### Don’t append the same thing twice to the kill-ring
+
+    (cuss kill-do-not-save-duplicates t)
+
+
 ### Searching & Replacing
 
 
@@ -850,98 +878,10 @@ UNIX line endings, so I don't want to hear it.
 
 ## Prettify symbols
 
-
-### A bit from Rasmus
-
-from [Rasmus Roulund](https://pank.eu/blog/pretty-babel-src-blocks.html#coderef-symbol), via [Musa Al-hassy](https://alhassy.github.io/emacs.d/index.html#Making-Block-Delimiters-Less-Intrusive).
-
-    (defvar-local rasmus/org-at-src-begin -1
-      "Variable that holds whether last position was a ")
-    
-    (defvar rasmus/ob-header-symbol ?☰
-      "Symbol used for babel headers")
-    
-    (defun rasmus/org-prettify-src--update ()
-      (let ((case-fold-search t)
-	(re "^[ \t]*#\\+begin_src[ \t]+[^ \f\t\n\r\v]+[ \t]*")
-	found)
-	(save-excursion
-	  (goto-char (point-min))
-	  (while (re-search-forward re nil t)
-	(goto-char (match-end 0))
-	(let ((args (org-trim
-		     (buffer-substring-no-properties (point)
-						     (line-end-position)))))
-	  (when (org-string-nw-p args)
-	    (let ((new-cell (cons args rasmus/ob-header-symbol)))
-	      (cl-pushnew new-cell prettify-symbols-alist :test #'equal)
-	      (cl-pushnew new-cell found :test #'equal)))))
-	  (setq prettify-symbols-alist
-	    (cl-set-difference prettify-symbols-alist
-			       (cl-set-difference
-				(cl-remove-if-not
-				 (lambda (elm)
-				   (eq (cdr elm) rasmus/ob-header-symbol))
-				 prettify-symbols-alist)
-				found :test #'equal)))
-	  ;; Clean up old font-lock-keywords.
-	  (font-lock-remove-keywords nil prettify-symbols--keywords)
-	  (setq prettify-symbols--keywords (prettify-symbols--make-keywords))
-	  (font-lock-add-keywords nil prettify-symbols--keywords)
-	  (while (re-search-forward re nil t)
-	(font-lock-flush (line-beginning-position) (line-end-position))))))
-    
-    (defun rasmus/org-prettify-src ()
-      "Hide src options via `prettify-symbols-mode'.
-    
-      `prettify-symbols-mode' is used because it has uncollpasing. It's
-      may not be efficient."
-      (let* ((case-fold-search t)
-	 (at-src-block (save-excursion
-			 (beginning-of-line)
-			 (looking-at "^[ \t]*#\\+begin_src[ \t]+[^ \f\t\n\r\v]+[ \t]*"))))
-	;; Test if we moved out of a block.
-	(when (or (and rasmus/org-at-src-begin
-		   (not at-src-block))
-	      ;; File was just opened.
-	      (eq rasmus/org-at-src-begin -1))
-	  (rasmus/org-prettify-src--update))
-	;; Remove composition if at line; doesn't work properly.
-	;; (when at-src-block
-	;;   (with-silent-modifications
-	;;     (remove-text-properties (match-end 0)
-	;;                             (1+ (line-end-position))
-	;;                             '(composition))))
-	(setq rasmus/org-at-src-begin at-src-block)))
-    
-    (defun rasmus/org-prettify-symbols ()
-      (mapc (apply-partially 'add-to-list 'prettify-symbols-alist)
-	(cl-reduce 'append
-		   (mapcar (lambda (x) (list x (cons (upcase (car x)) (cdr x))))
-			   `(("#+begin_src" . ?✎) ;; ➤ 🖝 ➟ ➤ ✎
-			     ("#+end_src"   . ?⏹) ;; □
-			     ("#+header:" . ,rasmus/ob-header-symbol)
-			     ("#+begin_quote" . ?»)
-			     ("#+end_quote" . ?«)))))
-      (turn-on-prettify-symbols-mode)
-      (add-hook 'post-command-hook 'rasmus/org-prettify-src t t))
-
-
-### Regular prettify-symbols-mode
-
     (cuss prettify-symbols-unprettify-at-point 'right-edge
       "Unprettify a symbol when inside it or next to it.")
     
-    (defun acdw/org-mode-prettify ()
-      "Prettify `org-mode'."
-      (append '(("[ ]" . ?□) ("[X]" . ?☑) ("[-]" . ?◐)
-	    ("#begin_src" . ?🖬) ("#BEGIN_SRC" . ?🖬)
-	    ("#end_src" . ?■) ("#END_SRC" . ?■))
-	  prettify-symbols-alist))
-    
-    (add-hook 'org-mode-hook #'acdw/org-mode-prettify)
-    
-    (global-prettify-symbols-mode +1)
+    (add-hook 'prog-mode-hook #'prettify-symbols-mode)
 
 
 ## Parentheses
@@ -970,6 +910,39 @@ from [Rasmus Roulund](https://pank.eu/blog/pretty-babel-src-blocks.html#coderef-
     (straight-use-package 'aggressive-indent)
     
     (global-aggressive-indent-mode +1)
+
+
+## Completion
+
+    (straight-use-package 'company)
+    
+    (add-hook 'prog-mode-hook #'company-mode)
+    
+    (cuss company-idle-delay 0.1
+      "Show company sooner.")
+    (cuss company-minimum-prefix-length 3
+      "Don't try to complete short words.")
+    
+    (with-eval-after-load 'company
+      (define-key company-active-map (kbd "C-n")
+	(lambda () (interactive) (company-complete-common-or-cycle +1)))
+      (define-key company-active-map (kbd "C-p")
+	(lambda () (interactive) (company-complete-common-or-cycle -1))))
+
+
+### Give it a frame and better help
+
+    (straight-use-package 'company-posframe)
+    
+    (with-eval-after-load 'company
+      (company-posframe-mode +1))
+
+
+### Prescient integration
+
+    (straight-use-package 'company-prescient)
+    
+    (add-hook 'company-mode-hook #'company-prescient-mode)
 
 
 ## Language-specific packages
@@ -1047,6 +1020,12 @@ This has to be done *before* loading the package.  It's included in `visual-fill
 	       #'org-in-src-block-p))
 
 
+### Show `^L` as a horizontal line
+
+    (straight-use-package 'form-feed)
+    (global-form-feed-mode +1)
+
+
 ## Word count
 
     (straight-use-package 'wc-mode)
@@ -1060,6 +1039,12 @@ This has to be done *before* loading the package.  It's included in `visual-fill
 
 
 ## Dired
+
+
+### Basic customization
+
+    ;; highlight the current line in dired.
+    (add-hook 'dired-mode-hook #'hl-line-mode)
 
 
 ### Expand subtrees
@@ -1105,6 +1090,8 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     (cuss org-directory "~/Org")
     (cuss org-ellipsis "…")
     (cuss org-catch-invisible-edits 'show)
+    (cuss org-special-ctrl-a/e t)
+    (cuss org-special-ctrl-k t)
     
     (cuss org-export-headline-levels 8
       "Maximum level of headlines to export /as/ a headline.")
@@ -1121,6 +1108,19 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
        ((t
 	 (:height 0.8 :weight normal :slant italic :foreground "grey40" :inherit
 	      (variable-pitch))))))
+
+
+#### Prettify
+
+    (defun acdw/org-mode-prettify ()
+      "Prettify `org-mode'."
+      (dolist (cell '(("[ ]" . ?□) ("[X]" . ?☑) ("[-]" . ?◐)
+		  ("#+begin_src" . ?✎) ("#+BEGIN_SRC" . ?✎)
+		  ("#+end_src" . ?■) ("#+END_SRC" . ?■)))
+	(add-to-list 'prettify-symbols-alist cell :append))
+      (prettify-symbols-mode +1))
+    
+    (add-hook 'org-mode-hook #'acdw/org-mode-prettify)
 
 
 ### General
@@ -1295,6 +1295,9 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     (cuss org-todo-keywords
 	'((sequence "RECUR(r)" "TODO(t)" "|" "DONE(d)")
 	  (sequence "|" "CANCELLED(c)")))
+    
+    (cuss org-agenda-skip-scheduled-if-done t)
+    (cuss org-agenda-skip-deadline-if-done t)
 
 
 ### TODO Capture
@@ -1317,6 +1320,15 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     (define-key acdw/map "g" #'magit-status)
 
 
+### Git file modes
+
+    (dolist (feat '(gitattributes-mode
+		gitconfig-mode
+		gitignore-mode))
+      (straight-use-package feat)
+      (require feat))
+
+
 ## Beancount mode
 
     (straight-use-package '(beancount-mode
@@ -1335,6 +1347,119 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     
     (define-key beancount-mode-map (kbd "M-n") #'outline-next-visible-heading)
     (define-key beancount-mode-map (kbd "M-p") #'outline-previous-visible-heading)
+
+
+### Company integration with company-ledger
+
+    (straight-use-package 'company-ledger)
+    
+    (with-eval-after-load 'company
+      (add-to-list 'company-backends 'company-ledger))
+
+
+## PDF Tools
+
+I’m only enabling this at home for now, since it requires building stuff.
+
+    (defun acdw/disable-visual-fill-column-mode ()
+      "Disable `visual-fill-column-mode'."
+      (visual-fill-column-mode -1))
+    
+    (at-home
+      (straight-use-package 'pdf-tools)
+      (pdf-loader-install)
+    
+      (add-hook 'pdf-view-mode-hook #'acdw/disable-visual-fill-column-mode))
+
+
+## E-book tools
+
+    (straight-use-package 'nov)
+    
+    (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
+    
+    (cuss nov-text-width t
+      "Disable text filling -- `visual-fill-column-mode' takes care
+      of that.")
+    
+    (defun acdw/setup-nov-mode ()
+      (visual-fill-column-mode +1)
+      (setq visual-fill-column-center-text t)
+      (text-scale-increase +1))
+    
+    (add-hook 'nov-mode-hook #'acdw/setup-nov-mode)
+
+
+## Email
+
+    (when (executable-find "mu")
+    
+      (add-to-list 'load-path
+	       "/usr/share/emacs/site-lisp/mu4e")
+      (require 'mu4e)
+    
+      (cuss mail-user-agent 'mu4e-user-agent)
+    
+      (cuss mu4e-headers-skip-duplicates t)
+      (cuss mu4e-view-show-images t)
+      (cuss mu4e-view-show-addresses t)
+      (cuss mu4e-compose-format-flowed t)
+      (cuss mu4e-change-filenames-when-moving t)
+      (cuss mu4e-attachments-dir "~/Downloads")
+    
+      (cuss mu4e-maildir "~/.mail/fastmail")
+      (cuss mu4e-refile-folder "/Archive")
+      (cuss mu4e-sent-folder "/Sent")
+      (cuss mu4e-drafts-folder "/Drafts")
+      (cuss mu4e-trash-folder "/Trash")
+    
+      (fset 'my-move-to-trash "mTrash")
+      (define-key mu4e-headers-mode-map (kbd "d") 'my-move-to-trash)
+      (define-key mu4e-view-mode-map (kbd "d") 'my-move-to-trash)
+    
+      (cuss message-send-mail-function 'smtpmail-send-it)
+      (cuss smtpmail-default-smtp-server "smtp.fastmail.com")
+      (cuss smtpmail-smtp-server "smtp.fastmail.com")
+      (cuss smtpmail-stream-type 'ssl)
+      (cuss smtpmail-smtp-service 465)
+      (cuss smtpmail-local-domain "acdw.net")
+      (cuss mu4e-compose-signature
+	  "Best,\nCase\n")
+    
+      ;;  (cuss mu4e-get-mail-command "mbsync -a")
+      ;; (cuss mu4e-update-interval 300)
+    
+      (cuss mu4e-completing-read-function 'completing-read)
+      (cuss message-kill-buffer-on-exit t)
+      (cuss mu4e-confirm-quit nil)
+    
+      (cuss mu4e-bookmarks
+	  '((
+	 :name "Unread"
+	 :query
+	 "flag:unread AND NOT flag:trashed AND NOT maildir:/Spam"
+	 :key ?u)
+	(
+	 :name "Today"
+	 :query "date:today..now and not maildir:/Spam"
+	 :key ?t)
+	(
+	 :name "This week"
+	 :query "date:7d..now and not maildir:/Spam"
+	 :hide-unread t
+	 :key ?w)))
+    
+      (cuss mu4e-headers-fields
+	  '((:human-date . 12)
+	(:flags . 6)
+	(:mailing-list . 10)
+	(:from-or-to . 22)
+	(:subject)))
+    
+      (defun acdw/setup-mu4e-view-mode ()
+	(visual-fill-column-mode +1))
+    
+      (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode))
 
 
 # Appendices
@@ -1375,6 +1500,8 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     
     ;; Don't resize the frame when loading fonts
     (setq frame-inhibit-implied-resize t)
+    ;; Resize frame by pixels
+    (setq frame-resize-pixelwise t)
 
 
 ## Ease tangling and loading of Emacs' init
