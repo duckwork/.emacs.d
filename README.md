@@ -1434,20 +1434,17 @@ I’m only enabling this at home for now, since it requires building stuff.
       (cuss mu4e-confirm-quit nil)
     
       (cuss mu4e-bookmarks
-	  '((
-	 :name "Unread"
-	 :query
-	 "flag:unread AND NOT flag:trashed AND NOT maildir:/Spam"
-	 :key ?u)
-	(
-	 :name "Today"
-	 :query "date:today..now and not maildir:/Spam"
-	 :key ?t)
-	(
-	 :name "This week"
-	 :query "date:7d..now and not maildir:/Spam"
-	 :hide-unread t
-	 :key ?w)))
+	  '((:name "Unread"
+	       :query
+	       "flag:unread AND NOT flag:trashed AND NOT maildir:/Spam"
+	       :key ?u)
+	(:name "Today"
+	       :query "date:today..now and not and not flag:trashed maildir:/Spam"
+	       :key ?t)
+	(:name "This week"
+	       :query "date:7d..now and not maildir:/Spam and not flag:trashed"
+	       :hide-unread t
+	       :key ?w)))
     
       (cuss mu4e-headers-fields
 	  '((:human-date . 12)
@@ -1456,10 +1453,99 @@ I’m only enabling this at home for now, since it requires building stuff.
 	(:from-or-to . 22)
 	(:subject)))
     
+      (cuss mu4e-maildir-shortcuts
+	  `(("/INBOX" . ?i)
+	(,mu4e-refile-folder . ?a)
+	(,mu4e-sent-folder . ?s)
+	(,mu4e-drafts-folder . ?d)
+	(,mu4e-trash-folder . ?t)))
+    
       (defun acdw/setup-mu4e-view-mode ()
 	(visual-fill-column-mode +1))
     
       (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode))
+
+
+### Add a keybinding
+
+    (defun acdw/mu4e-or-warn ()
+      "If `mu4e' is around, run it, or tell the user it isn't."
+      (interactive)
+      (if (featurep 'mu4e)
+	  (mu4e)
+	(warn "Mu4e isn't available :/.")))
+    
+    (define-key acdw/map "m" #'acdw/mu4e-or-warn)
+
+
+## Smolweb
+
+
+### Elpher
+
+    (straight-use-package '(elpher
+			:repo "git://thelambdalab.xyz/elpher.git"))
+    
+    (with-eval-after-load 'no-littering
+      (cuss elpher-certificate-directory
+	  (no-littering-expand-var-file-name "elpher-certificates/")))
+    
+    (cuss elpher-ipv4-always t)
+    
+    (cussface '(elpher-gemini-heading1
+	    ((t (:inherit (modus-theme-heading-1))))))
+    (cussface '(elpher-gemini-heading2
+	    ((t (:inherit (modus-theme-heading-2))))))
+    (cussface '(elpher-gemini-heading3
+	    ((t (:inherit (modus-theme-heading-3))))))
+    
+    (defun elpher:eww-browse-url (original url &optional new-window)
+      "Handle gemini/gopher links with eww."
+      (cond ((string-match-p "\\`\\(gemini\\|gopher\\)://" url)
+	 (require 'elpher)
+	 (elpher-go url))
+	(t (funcall original url new-window))))
+    (advice-add 'eww-browse-url :around 'elpher:eww-browse-url)
+    
+    (with-eval-after-load 'elpher
+      (define-key elpher-mode-map "n" #'elpher-next-link)
+      (define-key elpher-mode-map "p" #'elpher-prev-link)
+      (define-key elpher-mode-map "o" #'elpher-follow-current-link)
+      (define-key elpher-mode-map "G" #'elpher-go-current))
+    
+    (add-hook 'elpher-mode-hook #'visual-fill-column-mode)
+    
+    (bind-key acdw/map "e" #'elpher)
+
+
+### Gemini-mode
+
+    (straight-use-package '(gemini-mode
+			:repo "https://git.carcosa.net/jmcbray/gemini.el.git"))
+    
+    (add-to-list 'auto-mode-alist
+	     '("\\.\\(gemini\\|gmi\\)\\'" . gemini-mode))
+    
+    (cussface '(gemini-heading-face-1
+	    ((t (:inherit (elpher-gemini-heading1))))))
+    (cussface '(gemini-heading-face2
+	    ((t (:inherit (elpher-gemini-heading2))))))
+    (cussface '(gemini-heading-face3
+	    ((t (:inherit (elpher-gemini-heading3))))))
+    
+    (defun acdw/setup-gemini-mode ()
+      (visual-fill-column-mode +1)
+      (variable-pitch-mode -1))
+    
+    (add-hook 'gemini-mode-hook #'acdw/setup-gemini-mode)
+
+
+### Gemini-write
+
+    (straight-use-package '(gemini-write
+			:repo "https://alexschroeder.ch/cgit/gemini-write"))
+    
+    ;; TODO : add tokens ... somehow
 
 
 # Appendices
