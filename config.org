@@ -1629,6 +1629,25 @@ I’m only enabling this at home for now, since it requires building stuff.
     (add-hook 'pdf-view-mode-hook #'acdw/disable-visual-fill-column-mode))
 #+end_src
 
+** E-book tools
+
+   #+begin_src emacs-lisp
+     (straight-use-package 'nov)
+
+     (add-to-list 'auto-mode-alist '("\\.epub\\'" . nov-mode))
+
+     (cuss nov-text-width t
+       "Disable text filling -- `visual-fill-column-mode' takes care
+       of that.")
+
+     (defun acdw/setup-nov-mode ()
+       (visual-fill-column-mode +1)
+       (setq visual-fill-column-center-text t)
+       (text-scale-increase +1))
+
+     (add-hook 'nov-mode-hook #'acdw/setup-nov-mode)
+   #+end_src
+
 * Appendices
 
 ** Emacs' files
