@@ -1268,6 +1268,8 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
   (cuss org-directory "~/Org")
   (cuss org-ellipsis "…")
   (cuss org-catch-invisible-edits 'show)
+  (cuss org-special-ctrl-a/e t)
+  (cuss org-special-ctrl-k t)
 
   (cuss org-export-headline-levels 8
     "Maximum level of headlines to export /as/ a headline.")
@@ -1286,6 +1288,20 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
        (:height 0.8 :weight normal :slant italic :foreground "grey40" :inherit
 		(variable-pitch))))))
 #+end_src
+
+**** Prettify
+
+     #+begin_src emacs-lisp
+       (defun acdw/org-mode-prettify ()
+	 "Prettify `org-mode'."
+	 (dolist (cell '(("[ ]" . ?□) ("[X]" . ?☑) ("[-]" . ?◐)
+			 ("#+begin_src" . ?✎) ("#+BEGIN_SRC" . ?✎)
+			 ("#+end_src" . ?■) ("#+END_SRC" . ?■)))
+	   (add-to-list 'prettify-symbols-alist cell :append))
+	 (prettify-symbols-mode +1))
+
+       (add-hook 'org-mode-hook #'acdw/org-mode-prettify)
+     #+end_src
 
 *** General
 
@@ -1462,6 +1478,9 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
   (cuss org-todo-keywords
       '((sequence "RECUR(r)" "TODO(t)" "|" "DONE(d)")
 	(sequence "|" "CANCELLED(c)")))
+
+  (cuss org-agenda-skip-scheduled-if-done t)
+  (cuss org-agenda-skip-deadline-if-done t)
 #+END_SRC
 
 *** TODO Capture
