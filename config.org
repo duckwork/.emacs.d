@@ -1573,6 +1573,16 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
   (define-key acdw/map "g" #'magit-status)
 #+end_src
 
+*** Git file modes
+
+    #+begin_src emacs-lisp
+      (dolist (feat '(gitattributes-mode
+		      gitconfig-mode
+		      gitignore-mode))
+	(straight-use-package feat)
+	(require feat))
+    #+end_src
+
 ** Beancount mode
 
 #+begin_src emacs-lisp
