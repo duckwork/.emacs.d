@@ -1282,6 +1282,13 @@ This has to be done /before/ loading the package.  It's included in =visual-fill
 		 #'org-in-src-block-p))
 #+END_SRC
 
+*** Show =^L= as a horizontal line
+
+    #+begin_src emacs-lisp
+      (straight-use-package 'form-feed)
+      (global-form-feed-mode +1)
+    #+end_src
+
 ** Word count
 
 #+BEGIN_SRC emacs-lisp
