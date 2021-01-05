@@ -1649,12 +1649,31 @@ I’m only enabling this at home for now, since it requires building stuff.
 	     (:from-or-to . 22)
 	     (:subject)))
 
+       (cuss mu4e-maildir-shortcuts
+	   `(("/INBOX" . ?i)
+	     (,mu4e-refile-folder . ?a)
+	     (,mu4e-sent-folder . ?s)
+	     (,mu4e-drafts-folder . ?d)
+	     (,mu4e-trash-folder . ?t)))
+
        (defun acdw/setup-mu4e-view-mode ()
 	 (visual-fill-column-mode +1))
 
        (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode))
    #+end_src
 
+*** Add a keybinding
+
+    #+begin_src emacs-lisp
+      (defun acdw/mu4e-or-warn ()
+	"If `mu4e' is around, run it, or tell the user it isn't."
+	(interactive)
+	(if (featurep 'mu4e)
+	    (mu4e)
+	  (warn "Mu4e isn't available :/.")))
+
+      (define-key acdw/map "m" #'acdw/mu4e-or-warn)
+    #+end_src
 * Appendices
 
 ** Emacs' files
