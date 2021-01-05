@@ -1303,6 +1303,13 @@ This has to be done /before/ loading the package.  It's included in =visual-fill
 
 ** Dired
 
+*** Basic customization
+
+    #+BEGIN_SRC emacs-lisp
+      ;; highlight the current line in dired.
+      (add-hook 'dired-mode-hook #'hl-line-mode)
+    #+end_src
+
 *** Expand subtrees
 
     
