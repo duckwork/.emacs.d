@@ -1168,6 +1168,15 @@ For right now, I’m /just/ using Anzu – I don’t like parts of =isearch= but
   "Don't truncate printed expressions by level.")
 #+END_SRC
 
+*** INI
+
+    #+BEGIN_SRC emacs-lisp
+      (straight-use-package 'ini-mode)
+
+      (add-to-list 'auto-mode-alist
+		   '("\\.ini\\'" . ini-mode))
+    #+end_src
+
 * Writing
 
 ** Visual fill column
