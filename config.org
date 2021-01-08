@@ -1686,7 +1686,7 @@ I’m only enabling this at home for now, since it requires building stuff.
 	     (:flags . 6)
 	     (:mailing-list . 10)
 	     (:from-or-to . 22)
-	     (:subject)))
+	     (:thread-subject)))
 
        (cuss mu4e-maildir-shortcuts
 	   `(("/INBOX" . ?i)
@@ -1694,6 +1694,11 @@ I’m only enabling this at home for now, since it requires building stuff.
 	     (,mu4e-sent-folder . ?s)
 	     (,mu4e-drafts-folder . ?d)
 	     (,mu4e-trash-folder . ?t)))
+
+       (defun acdw/setup-mu4e-headers-mode ()
+	 (visual-line-mode -1))
+
+       (add-hook 'mu4e-headers-mode #'acdw/setup-mu4e-headers-mode)
 
        (defun acdw/setup-mu4e-view-mode ()
 	 (visual-fill-column-mode +1))
