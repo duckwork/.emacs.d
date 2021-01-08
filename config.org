@@ -1664,9 +1664,6 @@ I’m only enabling this at home for now, since it requires building stuff.
        (cuss mu4e-compose-signature
 	   "Best,\nCase\n")
 
-       ;;  (cuss mu4e-get-mail-command "mbsync -a")
-       ;; (cuss mu4e-update-interval 300)
-
        (cuss mu4e-completing-read-function 'completing-read)
        (cuss message-kill-buffer-on-exit t)
        (cuss mu4e-confirm-quit nil)
@@ -1701,7 +1698,14 @@ I’m only enabling this at home for now, since it requires building stuff.
        (defun acdw/setup-mu4e-view-mode ()
 	 (visual-fill-column-mode +1))
 
-       (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode))
+       (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode)
+
+       (cuss mu4e-get-mail-command (cond ((executable-find "mbsync")
+					  "mbsync -a"))
+	 "The command to update mail with.")
+       (cuss mu4e-update-interval 300
+	 "Update automatically every 5 minutes.")
+       (mu4e +1))
    #+end_src
 
 *** Add a keybinding
