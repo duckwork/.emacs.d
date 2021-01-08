@@ -787,6 +787,37 @@ UNIX line endings, so I don't want to hear it.
     (cuss require-final-newline t)
 
 
+### Edit files with `sudo`
+
+    (straight-use-package 'sudo-edit)
+    
+    (with-eval-after-load 'sudo-edit
+      (global-set-key acdw/map (kbd "C-r") #'sudo-edit))
+
+
+#### Don’t add `/sudo:` files to `recentf`, though
+
+I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://github.com/ncaq/recentf-remove-sudo-tramp-prefix/) – it’s a small enough package that I can just include it completely here.
+
+    (defun recentf-remove-sudo-tramp-prefix (path)
+      "Remove sudo from PATH."
+      (require 'tramp)
+      (if (tramp-tramp-file-p path)
+	  (let ((tx (tramp-dissect-file-name path)))
+	(if (string-equal "sudo" (tramp-file-name-method tx))
+	    (tramp-file-name-localname tx)
+	  path))
+	path))
+    
+    (defun recentf-remove-sudo-tramp-prefix-from-recentf-list ()
+      (require 'recentf)
+      (setq recentf-list
+	(mapcar #'recentf-remove-sudo-tramp-prefix recentf-list)))
+    
+    (advice-add 'recentf-cleanup
+	    :before #'recentf-remove-sudo-tramp-prefix-from-recentf-list)
+
+
 ## Text editing
 
 
@@ -954,6 +985,14 @@ UNIX line endings, so I don't want to hear it.
       "Don't truncate printed expressions by length.")
     (cuss eval-expression-print-level nil
       "Don't truncate printed expressions by level.")
+
+
+### INI
+
+    (straight-use-package 'ini-mode)
+    
+    (add-to-list 'auto-mode-alist
+	     '("\\.ini\\'" . ini-mode))
 
 
 # Writing
@@ -1426,9 +1465,6 @@ I’m only enabling this at home for now, since it requires building stuff.
       (cuss mu4e-compose-signature
 	  "Best,\nCase\n")
     
-      ;;  (cuss mu4e-get-mail-command "mbsync -a")
-      ;; (cuss mu4e-update-interval 300)
-    
       (cuss mu4e-completing-read-function 'completing-read)
       (cuss message-kill-buffer-on-exit t)
       (cuss mu4e-confirm-quit nil)
@@ -1451,7 +1487,7 @@ I’m only enabling this at home for now, since it requires building stuff.
 	(:flags . 6)
 	(:mailing-list . 10)
 	(:from-or-to . 22)
-	(:subject)))
+	(:thread-subject)))
     
       (cuss mu4e-maildir-shortcuts
 	  `(("/INBOX" . ?i)
@@ -1460,10 +1496,22 @@ I’m only enabling this at home for now, since it requires building stuff.
 	(,mu4e-drafts-folder . ?d)
 	(,mu4e-trash-folder . ?t)))
     
+      (defun acdw/setup-mu4e-headers-mode ()
+	(visual-line-mode -1))
+    
+      (add-hook 'mu4e-headers-mode #'acdw/setup-mu4e-headers-mode)
+    
       (defun acdw/setup-mu4e-view-mode ()
 	(visual-fill-column-mode +1))
     
-      (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode))
+      (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode)
+    
+      (cuss mu4e-get-mail-command (cond ((executable-find "mbsync")
+				     "mbsync -a"))
+	"The command to update mail with.")
+      (cuss mu4e-update-interval 300
+	"Update automatically every 5 minutes.")
+      (mu4e +1))
 
 
 ### Add a keybinding
@@ -1481,6 +1529,17 @@ I’m only enabling this at home for now, since it requires building stuff.
 ## Smolweb
 
 
+### A common function to make a cohesive smolweb experience
+
+    (defun acdw/setup-smolweb ()
+      "Configure emacs to view the smolweb."
+      (setq visual-fill-column-center-text t)
+      (visual-fill-column-mode +1)
+      (visual-line-mode +1)
+      (variable-pitch-mode -1)
+      (text-scale-increase +1))
+
+
 ### Elpher
 
     (straight-use-package '(elpher
@@ -1493,11 +1552,11 @@ I’m only enabling this at home for now, since it requires building stuff.
     (cuss elpher-ipv4-always t)
     
     (cussface '(elpher-gemini-heading1
-	    ((t (:inherit (modus-theme-heading-1))))))
+	    ((t (:inherit (modus-theme-heading-1 variable-pitch))))))
     (cussface '(elpher-gemini-heading2
-	    ((t (:inherit (modus-theme-heading-2))))))
+	    ((t (:inherit (modus-theme-heading-2 variable-pitch))))))
     (cussface '(elpher-gemini-heading3
-	    ((t (:inherit (modus-theme-heading-3))))))
+	    ((t (:inherit (modus-theme-heading-3 variable-pitch))))))
     
     (defun elpher:eww-browse-url (original url &optional new-window)
       "Handle gemini/gopher links with eww."
@@ -1513,9 +1572,10 @@ I’m only enabling this at home for now, since it requires building stuff.
       (define-key elpher-mode-map "o" #'elpher-follow-current-link)
       (define-key elpher-mode-map "G" #'elpher-go-current))
     
-    (add-hook 'elpher-mode-hook #'visual-fill-column-mode)
+    (add-hook 'elpher-mode-hook #'acdw/setup-smolweb)
     
-    (bind-key acdw/map "e" #'elpher)
+    (autoload 'elpher-bookmarks "elpher")
+    (define-key acdw/map "e" #'elpher-bookmarks)
 
 
 ### Gemini-mode
@@ -1533,17 +1593,14 @@ I’m only enabling this at home for now, since it requires building stuff.
     (cussface '(gemini-heading-face3
 	    ((t (:inherit (elpher-gemini-heading3))))))
     
-    (defun acdw/setup-gemini-mode ()
-      (visual-fill-column-mode +1)
-      (variable-pitch-mode -1))
-    
-    (add-hook 'gemini-mode-hook #'acdw/setup-gemini-mode)
+    (add-hook 'gemini-mode-hook #'acdw/setup-smolweb)
 
 
 ### Gemini-write
 
     (straight-use-package '(gemini-write
 			:repo "https://alexschroeder.ch/cgit/gemini-write"))
+    (require 'gemini-write)
     
     ;; TODO : add tokens ... somehow
 
