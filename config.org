@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-05 17:16:15 acdw>
+#+Time-stamp: <2021-01-07 19:41:59 acdw>
 
 * Basics
 
@@ -1728,6 +1728,18 @@ I’m only enabling this at home for now, since it requires building stuff.
 
 ** Smolweb
 
+*** A common function to make a cohesive smolweb experience
+
+    #+begin_src emacs-lisp
+      (defun acdw/setup-smolweb ()
+	"Configure emacs to view the smolweb."
+	(setq visual-fill-column-center-text t)
+	(visual-fill-column-mode +1)
+	(visual-line-mode +1)
+	(variable-pitch-mode -1)
+	(text-scale-increase +1))
+    #+end_src
+
 *** Elpher
 
    #+begin_src emacs-lisp
@@ -1741,11 +1753,11 @@ I’m only enabling this at home for now, since it requires building stuff.
      (cuss elpher-ipv4-always t)
 
      (cussface '(elpher-gemini-heading1
-		 ((t (:inherit (modus-theme-heading-1))))))
+		 ((t (:inherit (modus-theme-heading-1 variable-pitch))))))
      (cussface '(elpher-gemini-heading2
-		 ((t (:inherit (modus-theme-heading-2))))))
+		 ((t (:inherit (modus-theme-heading-2 variable-pitch))))))
      (cussface '(elpher-gemini-heading3
-		 ((t (:inherit (modus-theme-heading-3))))))
+		 ((t (:inherit (modus-theme-heading-3 variable-pitch))))))
 
      (defun elpher:eww-browse-url (original url &optional new-window)
        "Handle gemini/gopher links with eww."
@@ -1761,8 +1773,9 @@ I’m only enabling this at home for now, since it requires building stuff.
        (define-key elpher-mode-map "o" #'elpher-follow-current-link)
        (define-key elpher-mode-map "G" #'elpher-go-current))
 
-     (add-hook 'elpher-mode-hook #'visual-fill-column-mode)
+     (add-hook 'elpher-mode-hook #'acdw/setup-smolweb)
 
+     (autoload 'elpher-bookmarks "elpher")
      (define-key acdw/map "e" #'elpher-bookmarks)
    #+end_src
 
@@ -1782,11 +1795,7 @@ I’m only enabling this at home for now, since it requires building stuff.
       (cussface '(gemini-heading-face3
 		  ((t (:inherit (elpher-gemini-heading3))))))
 
-      (defun acdw/setup-gemini-mode ()
-	(visual-fill-column-mode +1)
-	(variable-pitch-mode -1))
-
-      (add-hook 'gemini-mode-hook #'acdw/setup-gemini-mode)
+      (add-hook 'gemini-mode-hook #'acdw/setup-smolweb)
     #+end_src
 
 *** Gemini-write
@@ -1794,6 +1803,7 @@ I’m only enabling this at home for now, since it requires building stuff.
     #+begin_src emacs-lisp
       (straight-use-package '(gemini-write
 			      :repo "https://alexschroeder.ch/cgit/gemini-write"))
+      (require 'gemini-write)
 
       ;; TODO : add tokens ... somehow
     #+end_src
