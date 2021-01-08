@@ -1,3 +1,5 @@
+
+
 # Basics
 
 
@@ -11,7 +13,7 @@
 ## About me
 
     (setq user-full-name "Case Duckworth"
-	  user-mail-address "acdw@acdw.net")
+          user-mail-address "acdw@acdw.net")
 
 
 ## Correct `exec-path`
@@ -20,25 +22,25 @@ Straight depends on Git, so I need to tell Emacs where different paths are.
 
     (let ((win-downloads "c:/Users/aduckworth/Downloads"))
       (dolist (path (list
-		 ;; Linux
-		 (expand-file-name "bin"
-				   user-emacs-directory)
-		 (expand-file-name "~/bin")
-		 (expand-file-name "~/.local/bin")
-		 (expand-file-name "~/Scripts")
-		 ;; Windows
-		 (expand-file-name "emacs/bin"
-				   win-downloads)
-		 (expand-file-name "m/usr/bin"
-				   win-downloads)
-		 (expand-file-name "m/mingw64/bin"
-				   win-downloads)
-		 (expand-file-name "PortableGit/bin"
-				   win-downloads)
-		 (expand-file-name "PortableGit/usr/bin"
-				   win-downloads)))
-	(when (file-exists-p path)
-	  (add-to-list 'exec-path path))))
+    		 ;; Linux
+    		 (expand-file-name "bin"
+    				   user-emacs-directory)
+    		 (expand-file-name "~/bin")
+    		 (expand-file-name "~/.local/bin")
+    		 (expand-file-name "~/Scripts")
+    		 ;; Windows
+    		 (expand-file-name "emacs/bin"
+    				   win-downloads)
+    		 (expand-file-name "m/usr/bin"
+    				   win-downloads)
+    		 (expand-file-name "m/mingw64/bin"
+    				   win-downloads)
+    		 (expand-file-name "PortableGit/bin"
+    				   win-downloads)
+    		 (expand-file-name "PortableGit/usr/bin"
+    				   win-downloads)))
+        (when (file-exists-p path)
+          (add-to-list 'exec-path path))))
 
 
 ## Package management
@@ -53,21 +55,21 @@ bootstrap code from straight's repo in a function.
       "Bootstrap straight.el."
       (defvar bootstrap-version)
       (let ((bootstrap-file
-	 (expand-file-name
-	  "straight/repos/straight.el/bootstrap.el"
-	  user-emacs-directory))
-	(bootstrap-version 5))
-	(unless (file-exists-p bootstrap-file)
-	  (with-current-buffer
-	  (url-retrieve-synchronously
-	   (concat
-	    "https://raw.githubusercontent.com/"
-	    "raxod502/straight.el/"
-	    "develop/install.el")
-	   'silent 'inhibit-cookies)
-	(goto-char (point-max))
-	(eval-print-last-sexp)))
-	(load bootstrap-file nil 'nomessage)))
+    	 (expand-file-name
+    	  "straight/repos/straight.el/bootstrap.el"
+    	  user-emacs-directory))
+    	(bootstrap-version 5))
+        (unless (file-exists-p bootstrap-file)
+          (with-current-buffer
+    	  (url-retrieve-synchronously
+    	   (concat
+    	    "https://raw.githubusercontent.com/"
+    	    "raxod502/straight.el/"
+    	    "develop/install.el")
+    	   'silent 'inhibit-cookies)
+    	(goto-char (point-max))
+    	(eval-print-last-sexp)))
+        (load bootstrap-file nil 'nomessage)))
 
 Now, I'll *try* running it regular-style, ignoring the errors.  If it
 doesn't work, I'll call git directly and clone the repo myself.
@@ -75,11 +77,11 @@ doesn't work, I'll call git directly and clone the repo myself.
     (unless (ignore-errors (acdw/bootstrap-straight))
       (message "%s" "Straight.el didn't bootstrap correctly.  Cloning directly...")
       (call-process "git" nil
-		(get-buffer-create "*bootstrap-straight-messages*") nil
-		"clone"
-		"https://github.com/raxod502/straight.el"
-		(expand-file-name "straight/repos/straight.el"
-				  user-emacs-directory))
+    		(get-buffer-create "*bootstrap-straight-messages*") nil
+    		"clone"
+    		"https://github.com/raxod502/straight.el"
+    		(expand-file-name "straight/repos/straight.el"
+    				  user-emacs-directory))
       (acdw/bootstrap-straight))
 
 
@@ -91,9 +93,9 @@ doesn't work, I'll call git directly and clone the repo myself.
     (defmacro cuss (var val &optional docstring)
       "Basically, `:custom' from `use-package', but without `use-package'."
       (declare (doc-string 3)
-	   (indent 2))
+    	   (indent 2))
       `(funcall (or (get ',var 'custom-set) #'set-default)
-	    ',var ,val))
+    	    ',var ,val))
 
 
 ### Emulate use-package’s `:custom-face`, but better
@@ -120,7 +122,7 @@ This comes in handy when I want to garbage collect, say, or save recent files.
     (defun acdw/when-unfocused (func &rest args)
       "Run FUNC with ARGS only if all frames are out of focus."
       (if (seq-every-p #'null (mapcar #'frame-focus-state (frame-list)))
-	  (apply func args)))
+          (apply func args)))
 
 
 ### Determine where I am
@@ -131,13 +133,13 @@ I use Emacs at home, with Linux, and at work, with Windows.
       "Only do COMMANDS when at work."
       (declare (indent defun))
       `(when (memq system-type '(ms-dos windows-nt))
-	 ,@commands))
+         ,@commands))
     
     (defmacro at-home (&rest commands)
       "Only do COMMANDS when at home."
       (declare (indent defun))
       `(when (memq system-type '(gnu gnu/linux gnu/kfreebsd))
-	 ,@commands))
+         ,@commands))
 
 
 ## Clean `.emacs.d`
@@ -198,7 +200,7 @@ I use Emacs at home, with Linux, and at work, with Windows.
 from [EmacsWiki](https://www.emacswiki.org/emacs/AlarmBell#h5o-3).
 
     (setq visible-bell nil
-	  ring-bell-function 'flash-mode-line)
+          ring-bell-function 'flash-mode-line)
     
     (defun flash-mode-line ()
       (invert-face 'mode-line)
@@ -221,14 +223,14 @@ from [EmacsWiki](https://www.emacswiki.org/emacs/AlarmBell#h5o-3).
 #### Minibuffer
 
     (cuss minibuffer-prompt-properties
-	'(read-only t cursor-intangible t face minibuffer-prompt)
+        '(read-only t cursor-intangible t face minibuffer-prompt)
       "Keep the cursor away from the minibuffer prompt.")
 
 
 #### Tabs
 
     (cuss tab-bar-tab-name-function
-	#'tab-bar-tab-name-current-with-count
+        #'tab-bar-tab-name-current-with-count
       "Show the tab name as the name of the current buffer, plus a
       count of the windows in the tab.")
     
@@ -291,16 +293,16 @@ from [EmacsWiki](https://www.emacswiki.org/emacs/AlarmBell#h5o-3).
     Prompt only if there are unsaved changes."
       (interactive "P")
       (pcase (or (car prefix) 0)
-	;; C-x k     ⇒ Kill current buffer & window
-	(0  (kill-current-buffer)
-	(unless (one-window-p) (delete-window)))
-	;; C-u C-x k ⇒ Kill OTHER window and its buffer
-	(4  (other-window 1)
-	(kill-current-buffer)
-	(unless (one-window-p) (delete-window)))
-	;; C-u C-u C-x C-k ⇒ Kill all other buffers and windows
-	(16   (mapc 'kill-buffer (delq (current-buffer) (buffer-list)))
-	  (delete-other-windows))))
+        ;; C-x k     ⇒ Kill current buffer & window
+        (0  (kill-current-buffer)
+    	(unless (one-window-p) (delete-window)))
+        ;; C-u C-x k ⇒ Kill OTHER window and its buffer
+        (4  (other-window 1)
+    	(kill-current-buffer)
+    	(unless (one-window-p) (delete-window)))
+        ;; C-u C-u C-x C-k ⇒ Kill all other buffers and windows
+        (16   (mapc 'kill-buffer (delq (current-buffer) (buffer-list)))
+    	  (delete-other-windows))))
     
     (define-key ctl-x-map "k" #'acdw/kill-a-buffer)
 
@@ -314,9 +316,9 @@ from [EmacsWiki](https://www.emacswiki.org/emacs/AlarmBell#h5o-3).
 
     (defun immortal-scratch ()
       (if (eq (current-buffer) (get-buffer "*scratch*"))
-	  (progn (bury-buffer)
-	     nil)
-	t))
+          (progn (bury-buffer)
+    	     nil)
+        t))
     
     (add-hook 'kill-buffer-query-functions 'immortal-scratch)
 
@@ -343,10 +345,10 @@ helper function, though, to add things to the whitelist.
     (defun rm/whitelist-add (regexp)
       "Add a REGEXP to the whitelist for `rich-minority'."
       (if (listp 'rm--whitelist-regexps)
-	  (add-to-list 'rm--whitelist-regexps regexp)
-	(setq rm--whitelist-regexps `(,regexp)))
+          (add-to-list 'rm--whitelist-regexps regexp)
+        (setq rm--whitelist-regexps `(,regexp)))
       (setq rm-whitelist
-	(mapconcat 'identity rm--whitelist-regexps "\\|")))
+    	(mapconcat 'identity rm--whitelist-regexps "\\|")))
     
     (straight-use-package 'rich-minority)
     
@@ -371,8 +373,8 @@ helper function, though, to add things to the whitelist.
     (cuss modus-themes-org-blocks 'grayscale
       "Show org-blocks with a grayscale background.")
     (cuss modus-themes-headings
-	'((1 . line)
-	  (t . t))
+        '((1 . line)
+          (t . t))
       "Highlight top headings with `line' style, and others by default.")
     
     (cuss modus-themes-scale-headings t
@@ -393,15 +395,15 @@ helper function, though, to add things to the whitelist.
     
     ;; sunrise
     (run-at-time (nth 1 (split-string (sunrise-sunset)))
-	     (* 60 60 24)
-	     (lambda ()
-	       (modus-themes-load-operandi)))
+    	     (* 60 60 24)
+    	     (lambda ()
+    	       (modus-themes-load-operandi)))
     
     ;; sunset
     (run-at-time (nth 4 (split-string (sunrise-sunset)))
-	     (* 60 60 24)
-	     (lambda ()
-	       (modus-themes-load-vivendi)))
+    	     (* 60 60 24)
+    	     (lambda ()
+    	       (modus-themes-load-vivendi)))
 
 
 ### Fonts
@@ -411,13 +413,13 @@ helper function, though, to add things to the whitelist.
 
     (defun set-face-from-alternatives (face fonts)
       (catch :return
-	(dolist (font fonts)
-	  (when (find-font (font-spec :family (car font)))
-	(apply #'set-face-attribute `(,face
-				      nil
-				      :family (car font)
-				      ,@(cdr font)))
-	(throw :return font)))))
+        (dolist (font fonts)
+          (when (find-font (font-spec :family (car font)))
+    	(apply #'set-face-attribute `(,face
+    				      nil
+    				      :family (car font)
+    				      ,@(cdr font)))
+    	(throw :return font)))))
     
     (defun acdw/setup-fonts ()
       "Setup fonts.  This has to happen after the frame is setup for
@@ -425,24 +427,24 @@ helper function, though, to add things to the whitelist.
     removes itself from that hook."
       (interactive)
       (when (display-graphic-p)
-	(set-face-from-alternatives 'default
-				'(("Input Mono"
-				   :height 105)
-				  ("Go Mono"
-				   :height 100)
-				  ("Consolas"
-				   :height 100)))
+        (set-face-from-alternatives 'default
+    				'(("Input Mono"
+    				   :height 105)
+    				  ("Go Mono"
+    				   :height 100)
+    				  ("Consolas"
+    				   :height 100)))
     
-	(set-face-from-alternatives 'fixed-pitch
-				'(("Input Mono")
-				  ("Go Mono")
-				  ("Consolas")))
+        (set-face-from-alternatives 'fixed-pitch
+    				'(("Input Mono")
+    				  ("Go Mono")
+    				  ("Consolas")))
     
-	(set-face-from-alternatives 'variable-pitch
-				'(("Input Serif")
-				  ("Georgia")))
+        (set-face-from-alternatives 'variable-pitch
+    				'(("Input Serif")
+    				  ("Georgia")))
     
-	(remove-function after-focus-change-function #'acdw/setup-fonts)))
+        (remove-function after-focus-change-function #'acdw/setup-fonts)))
     
     (add-function :before after-focus-change-function #'acdw/setup-fonts)
 
@@ -450,7 +452,7 @@ helper function, though, to add things to the whitelist.
 #### Custom faces
 
     (cussface '(font-lock-comment-face
-	    ((t (:inherit (custom-comment italic variable-pitch))))))
+    	    ((t (:inherit (custom-comment italic variable-pitch))))))
 
 
 #### Line spacing
@@ -519,13 +521,13 @@ helper function, though, to add things to the whitelist.
 #### Consult
 
     (straight-use-package '(consult
-			:host github
-			:repo "minad/consult"))
+    			:host github
+    			:repo "minad/consult"))
     (require 'consult)
     
     (straight-use-package '(consult-selectrum
-			:host github
-			:repo "minad/consult"))
+    			:host github
+    			:repo "minad/consult"))
     (require 'consult-selectrum)
     
     (with-eval-after-load 'consult
@@ -552,13 +554,13 @@ helper function, though, to add things to the whitelist.
 #### Marginalia
 
     (straight-use-package '(marginalia
-			:host github
-			:repo "minad/marginalia"
-			:branch "main"))
+    			:host github
+    			:repo "minad/marginalia"
+    			:branch "main"))
     
     (cuss marginalia-annotators
-	'(marginalia-annotators-heavy
-	  marginalia-annotators-light))
+        '(marginalia-annotators-heavy
+          marginalia-annotators-light))
     
     (marginalia-mode +1)
 
@@ -576,10 +578,10 @@ helper function, though, to add things to the whitelist.
     (defun dotfiles--gc-on-last-frame-out-of-focus ()
       "GC if all frames are inactive."
       (if (seq-every-p #'null (mapcar #'frame-focus-state (frame-list)))
-	  (garbage-collect)))
+          (garbage-collect)))
     
     (add-function :after after-focus-change-function
-	      #'dotfiles--gc-on-last-frame-out-of-focus)
+    	      #'dotfiles--gc-on-last-frame-out-of-focus)
 
 
 ## Keyboard
@@ -594,11 +596,11 @@ helper function, though, to add things to the whitelist.
 
     (defvar acdw/map
       (let ((map (make-sparse-keymap))
-	(c-z (global-key-binding "\C-z")))
-	(global-unset-key "\C-z")
-	(define-key global-map "\C-z" map)
-	(define-key map "\C-z" c-z)
-	map))
+    	(c-z (global-key-binding "\C-z")))
+        (global-unset-key "\C-z")
+        (define-key global-map "\C-z" map)
+        (define-key map "\C-z" c-z)
+        map))
     
     (run-hooks 'acdw/map-defined-hook)
 
@@ -622,7 +624,7 @@ from [u/TheFrenchPoulp](https://www.reddit.com/r/emacs/comments/km9by4/weekly_ti
       "Like `mwheel-scroll' but preserve screen position.
     See `scroll-preserve-screen-position'."
       (let ((scroll-preserve-screen-position :always))
-	(apply original arguments)))
+        (apply original arguments)))
 
 
 ## Persistence
@@ -633,9 +635,9 @@ from [u/TheFrenchPoulp](https://www.reddit.com/r/emacs/comments/km9by4/weekly_ti
     (require 'savehist)
     
     (cuss savehist-additional-variables
-	'(kill-ring
-	  search-ring
-	  regexp-search-ring)
+        '(kill-ring
+          search-ring
+          regexp-search-ring)
       "Other variables to save alongside the minibuffer history.")
     
     (cuss history-length t
@@ -677,15 +679,15 @@ from [u/TheFrenchPoulp](https://www.reddit.com/r/emacs/comments/km9by4/weekly_ti
       "Save `recentf-file' when out of focus, but only if we haven't
     in five minutes."
       (defvar recentf-last-save (time-convert nil 'integer)
-	"How long it's been since we last saved the recentf list.")
+        "How long it's been since we last saved the recentf list.")
     
       (when (> (time-convert (time-since recentf-last-save) 'integer)
-	   (* 60 5))
-	(setq recentf-last-save (time-convert nil 'integer))
-	(acdw/when-unfocused #'recentf-save-list)))
+    	   (* 60 5))
+        (setq recentf-last-save (time-convert nil 'integer))
+        (acdw/when-unfocused #'recentf-save-list)))
     
     (add-function :after after-focus-change-function
-	      #'acdw/maybe-save-recentf)
+    	      #'acdw/maybe-save-recentf)
 
 
 ## Undo
@@ -700,14 +702,14 @@ from [u/TheFrenchPoulp](https://www.reddit.com/r/emacs/comments/km9by4/weekly_ti
     (require 'undo-fu-session)
     
     (cuss undo-fu-session-incompatible-files
-	'("/COMMIT_EDITMSG\\'"
-	  "/git-rebase-todo\\'")
+        '("/COMMIT_EDITMSG\\'"
+          "/git-rebase-todo\\'")
       "A list of files that are incompatible with the concept of undo sessions.")
     
     (with-eval-after-load 'no-littering
       (let ((dir (no-littering-expand-var-file-name "undos")))
-	(make-directory dir 'parents)
-	(cuss undo-fu-session-directory dir)))
+        (make-directory dir 'parents)
+        (cuss undo-fu-session-directory dir)))
     
     (global-undo-fu-session-mode +1)
 
@@ -735,8 +737,8 @@ from [Emacs Wiki](https://www.emacswiki.org/emacs/EndOfLineTips).
     (defun ewiki/no-junk-please-were-unixish ()
       "Convert line endings to UNIX, dammit."
       (let ((coding-str (symbol-name buffer-file-coding-system)))
-	(when (string-match "-\\(?:dos\\|mac\\)$" coding-str)
-	  (set-buffer-file-coding-system 'unix))))
+        (when (string-match "-\\(?:dos\\|mac\\)$" coding-str)
+          (set-buffer-file-coding-system 'unix))))
 
 I add it to the `find-file-hook` *and* `before-save-hook` because I
 don't want to ever work with anything other than UNIX line endings
@@ -756,20 +758,35 @@ UNIX line endings, so I don't want to hear it.
     
     (with-eval-after-load 'no-littering
       (let ((dir (no-littering-expand-var-file-name "backup")))
-	(make-directory dir 'parents)
-	(cuss backup-directory-alist
-	`((".*" . ,dir)))))
+        (make-directory dir 'parents)
+        (cuss backup-directory-alist
+    	`((".*" . ,dir)))))
 
 
 ### Auto-saves
 
     (with-eval-after-load 'no-littering
       (let ((dir (no-littering-expand-var-file-name "autosaves")))
-	(make-directory dir 'parents)
-	(cuss auto-save-file-name-transforms
-	`((".*" ,dir t))))
+        (make-directory dir 'parents)
+        (cuss auto-save-file-name-transforms
+    	`((".*" ,dir t))))
     
-      (auto-save-visited-mode +1))
+      (auto-save-mode +1))
+
+
+### Super-save
+
+Because I like *overkill*, or at least … over-*saving*.
+
+    (straight-use-package 'super-save)
+    
+    (cuss super-save-remote-files nil
+      "Don't super-save remote files.")
+    
+    (cuss super-save-exclude '(".gpg")
+      "Ignore these files when saving.")
+    
+    (super-save-mode +1)
 
 
 ### Auto-revert buffers to files on disk
@@ -803,19 +820,19 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
       "Remove sudo from PATH."
       (require 'tramp)
       (if (tramp-tramp-file-p path)
-	  (let ((tx (tramp-dissect-file-name path)))
-	(if (string-equal "sudo" (tramp-file-name-method tx))
-	    (tramp-file-name-localname tx)
-	  path))
-	path))
+          (let ((tx (tramp-dissect-file-name path)))
+    	(if (string-equal "sudo" (tramp-file-name-method tx))
+    	    (tramp-file-name-localname tx)
+    	  path))
+        path))
     
     (defun recentf-remove-sudo-tramp-prefix-from-recentf-list ()
       (require 'recentf)
       (setq recentf-list
-	(mapcar #'recentf-remove-sudo-tramp-prefix recentf-list)))
+    	(mapcar #'recentf-remove-sudo-tramp-prefix recentf-list)))
     
     (advice-add 'recentf-cleanup
-	    :before #'recentf-remove-sudo-tramp-prefix-from-recentf-list)
+    	    :before #'recentf-remove-sudo-tramp-prefix-from-recentf-list)
 
 
 ## Text editing
@@ -867,7 +884,7 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
       (global-anzu-mode +1)
     
       (cuss anzu-replace-to-string-separator " → "
-	"What to separate the search from the replacement.")
+        "What to separate the search from the replacement.")
     
     (global-set-key [remap query-replace] #'anzu-query-replace)
     (global-set-key [remap query-replace-regexp] #'anzu-query-replace-regexp)
@@ -896,12 +913,16 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
 ### Whitespace
 
     (cuss whitespace-style
-	'(empty ;; remove blank lines at the beginning and end of buffers
-	  indentation ;; clean up indentation
-	  space-before-tab ;; fix mixed spaces and tabs
-	  space-after-tab))
+        '(empty ;; remove blank lines at the beginning and end of buffers
+          indentation ;; clean up indentation
+          space-before-tab ;; fix mixed spaces and tabs
+          space-after-tab))
     
-    (add-hook 'before-save-hook #'whitespace-cleanup)
+    (defun acdw/whitespace-cleanup-maybe ()
+      "Only cleanup whitespace when out-of-focus."
+      (acdw/when-unfocused #'whitespace-cleanup))
+    
+    (add-hook 'before-save-hook #'acdw/whitespace-cleanup-maybe)
 
 
 # Programming
@@ -956,9 +977,9 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
     
     (with-eval-after-load 'company
       (define-key company-active-map (kbd "C-n")
-	(lambda () (interactive) (company-complete-common-or-cycle +1)))
+        (lambda () (interactive) (company-complete-common-or-cycle +1)))
       (define-key company-active-map (kbd "C-p")
-	(lambda () (interactive) (company-complete-common-or-cycle -1))))
+        (lambda () (interactive) (company-complete-common-or-cycle -1))))
 
 
 ### Give it a frame and better help
@@ -992,7 +1013,7 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
     (straight-use-package 'ini-mode)
     
     (add-to-list 'auto-mode-alist
-	     '("\\.ini\\'" . ini-mode))
+    	     '("\\.ini\\'" . ini-mode))
 
 
 # Writing
@@ -1007,20 +1028,20 @@ This has to be done *before* loading the package.  It's included in `visual-fill
 
     (dolist (margin '(right-margin left-margin))
       (dolist (button '(mouse-1 mouse-2 mouse-3))
-	(global-set-key (vector margin button)
-		    (global-key-binding (vector button)))))
+        (global-set-key (vector margin button)
+    		    (global-key-binding (vector button)))))
     
     (mouse-wheel-mode +1)
     
     (when (bound-and-true-p mouse-wheel-mode)
       (dolist (margin '(right-margin left-margin))
-	(dolist (event '(mouse-wheel-down-event
-		     mouse-wheel-up-event
-		     wheel-down
-		     wheel-up
-		     mouse-4
-		     mouse-5))
-	  (global-set-key (vector margin event) #'mwheel-scroll))))
+        (dolist (event '(mouse-wheel-down-event
+    		     mouse-wheel-up-event
+    		     wheel-down
+    		     wheel-up
+    		     mouse-4
+    		     mouse-5))
+          (global-set-key (vector margin event) #'mwheel-scroll))))
 
 
 ### Load the package
@@ -1034,7 +1055,7 @@ This has to be done *before* loading the package.  It's included in `visual-fill
       "Width of fill-column, and thus, visual-fill-column.")
     
     (advice-add 'text-scale-adjust
-	    :after #'visual-fill-column-adjust)
+    	    :after #'visual-fill-column-adjust)
     
     (global-visual-fill-column-mode +1)
 
@@ -1056,7 +1077,7 @@ This has to be done *before* loading the package.  It's included in `visual-fill
     ;; Disable `typo-mode' when inside an Org source block
     (with-eval-after-load 'typo
       (add-to-list 'typo-disable-electricity-functions
-	       #'org-in-src-block-p))
+    	       #'org-in-src-block-p))
 
 
 ### Show `^L` as a horizontal line
@@ -1109,7 +1130,7 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 ### Basics
 
     (straight-use-package '(org
-			:repo "https://code.orgmode.org/bzg/org-mode.git"))
+    			:repo "https://code.orgmode.org/bzg/org-mode.git"))
     
     (with-eval-after-load 'org
       (require 'org-tempo)
@@ -1145,8 +1166,8 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     (cussface
      '(org-tag
        ((t
-	 (:height 0.8 :weight normal :slant italic :foreground "grey40" :inherit
-	      (variable-pitch))))))
+         (:height 0.8 :weight normal :slant italic :foreground "grey40" :inherit
+    	      (variable-pitch))))))
 
 
 #### Prettify
@@ -1154,9 +1175,9 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     (defun acdw/org-mode-prettify ()
       "Prettify `org-mode'."
       (dolist (cell '(("[ ]" . ?□) ("[X]" . ?☑) ("[-]" . ?◐)
-		  ("#+begin_src" . ?✎) ("#+BEGIN_SRC" . ?✎)
-		  ("#+end_src" . ?■) ("#+END_SRC" . ?■)))
-	(add-to-list 'prettify-symbols-alist cell :append))
+    		  ("#+begin_src" . ?✎) ("#+BEGIN_SRC" . ?✎)
+    		  ("#+end_src" . ?■) ("#+END_SRC" . ?■)))
+        (add-to-list 'prettify-symbols-alist cell :append))
       (prettify-symbols-mode +1))
     
     (add-hook 'org-mode-hook #'acdw/org-mode-prettify)
@@ -1173,8 +1194,8 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     ELEMENT should be a list like that returned by `org-element-context'."
       ;; MAYBE: Use `org-element-lineage'.
       (when-let* ((parent (org-element-property :parent element)))
-	(or (eq type (car parent))
-	(unpackaged/org-element-descendant-of type parent))))
+        (or (eq type (car parent))
+    	(unpackaged/org-element-descendant-of type parent))))
     
     ;;;###autoload
     (defun unpackaged/org-return-dwim (&optional default)
@@ -1186,83 +1207,83 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
       ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
       (interactive "P")
       (if default
-	  (org-return)
-	(cond
-	 ;; Act depending on context around point.
+          (org-return)
+        (cond
+         ;; Act depending on context around point.
     
-	 ;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
-	 ;; followed.
+         ;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
+         ;; followed.
     
-	 ;; ((eq 'link (car (org-element-context)))
-	 ;;  ;; Link: Open it.
-	 ;;  (org-open-at-point-global))
+         ;; ((eq 'link (car (org-element-context)))
+         ;;  ;; Link: Open it.
+         ;;  (org-open-at-point-global))
     
-	 ((org-at-heading-p)
-	  ;; Heading: Move to position after entry content.
-	  ;; NOTE: This is probably the most interesting feature of this function.
-	  (let ((heading-start (org-entry-beginning-position)))
-	(goto-char (org-entry-end-position))
-	(cond ((and (org-at-heading-p)
-		    (= heading-start (org-entry-beginning-position)))
-	       ;; Entry ends on its heading; add newline after
-	       (end-of-line)
-	       (insert "\n\n"))
-	      (t
-	       ;; Entry ends after its heading; back up
-	       (forward-line -1)
-	       (end-of-line)
-	       (when (org-at-heading-p)
-		 ;; At the same heading
-		 (forward-line)
-		 (insert "\n")
-		 (forward-line -1))
-	       ;; FIXME: looking-back is supposed to be called with more arguments.
-	       (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n"))) nil))
-		 (insert "\n"))
-	       (forward-line -1)))))
+         ((org-at-heading-p)
+          ;; Heading: Move to position after entry content.
+          ;; NOTE: This is probably the most interesting feature of this function.
+          (let ((heading-start (org-entry-beginning-position)))
+    	(goto-char (org-entry-end-position))
+    	(cond ((and (org-at-heading-p)
+    		    (= heading-start (org-entry-beginning-position)))
+    	       ;; Entry ends on its heading; add newline after
+    	       (end-of-line)
+    	       (insert "\n\n"))
+    	      (t
+    	       ;; Entry ends after its heading; back up
+    	       (forward-line -1)
+    	       (end-of-line)
+    	       (when (org-at-heading-p)
+    		 ;; At the same heading
+    		 (forward-line)
+    		 (insert "\n")
+    		 (forward-line -1))
+    	       ;; FIXME: looking-back is supposed to be called with more arguments.
+    	       (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n"))) nil))
+    		 (insert "\n"))
+    	       (forward-line -1)))))
     
-	 ((org-at-item-checkbox-p)
-	  ;; Checkbox: Insert new item with checkbox.
-	  (org-insert-todo-heading nil))
+         ((org-at-item-checkbox-p)
+          ;; Checkbox: Insert new item with checkbox.
+          (org-insert-todo-heading nil))
     
-	 ((org-in-item-p)
-	  ;; Plain list.  Yes, this gets a little complicated...
-	  (let ((context (org-element-context)))
-	(if (or (eq 'plain-list (car context))  ; First item in list
-		(and (eq 'item (car context))
-		     (not (eq (org-element-property :contents-begin context)
-			      (org-element-property :contents-end context))))
-		(unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
-	    ;; Non-empty item: Add new item.
-	    (org-insert-item)
-	  ;; Empty item: Close the list.
-	  ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
-	  (delete-region (line-beginning-position) (line-end-position))
-	  (insert "\n"))))
+         ((org-in-item-p)
+          ;; Plain list.  Yes, this gets a little complicated...
+          (let ((context (org-element-context)))
+    	(if (or (eq 'plain-list (car context))  ; First item in list
+    		(and (eq 'item (car context))
+    		     (not (eq (org-element-property :contents-begin context)
+    			      (org-element-property :contents-end context))))
+    		(unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
+    	    ;; Non-empty item: Add new item.
+    	    (org-insert-item)
+    	  ;; Empty item: Close the list.
+    	  ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
+    	  (delete-region (line-beginning-position) (line-end-position))
+    	  (insert "\n"))))
     
-	 ((when (fboundp 'org-inlinetask-in-task-p)
-	(org-inlinetask-in-task-p))
-	  ;; Inline task: Don't insert a new heading.
-	  (org-return))
+         ((when (fboundp 'org-inlinetask-in-task-p)
+    	(org-inlinetask-in-task-p))
+          ;; Inline task: Don't insert a new heading.
+          (org-return))
     
-	 ((org-at-table-p)
-	  (cond ((save-excursion
-	       (beginning-of-line)
-	       ;; See `org-table-next-field'.
-	       (cl-loop with end = (line-end-position)
-			for cell = (org-element-table-cell-parser)
-			always (equal (org-element-property :contents-begin cell)
-				      (org-element-property :contents-end cell))
-			while (re-search-forward "|" end t)))
-	     ;; Empty row: end the table.
-	     (delete-region (line-beginning-position) (line-end-position))
-	     (org-return))
-	    (t
-	     ;; Non-empty row: call `org-return'.
-	     (org-return))))
-	 (t
-	  ;; All other cases: call `org-return'.
-	  (org-return)))))
+         ((org-at-table-p)
+          (cond ((save-excursion
+    	       (beginning-of-line)
+    	       ;; See `org-table-next-field'.
+    	       (cl-loop with end = (line-end-position)
+    			for cell = (org-element-table-cell-parser)
+    			always (equal (org-element-property :contents-begin cell)
+    				      (org-element-property :contents-end cell))
+    			while (re-search-forward "|" end t)))
+    	     ;; Empty row: end the table.
+    	     (delete-region (line-beginning-position) (line-end-position))
+    	     (org-return))
+    	    (t
+    	     ;; Non-empty row: call `org-return'.
+    	     (org-return))))
+         (t
+          ;; All other cases: call `org-return'.
+          (org-return)))))
     
     (with-eval-after-load 'org
       (define-key org-mode-map (kbd "RET") #'unpackaged/org-return-dwim))
@@ -1279,42 +1300,42 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     exist after each headings's drawers."
       (interactive "P")
       (org-map-entries (lambda ()
-		     (org-with-wide-buffer
-		      ;; `org-map-entries' narrows the buffer, which prevents us
-		      ;; from seeing newlines before the current heading, so we
-		      ;; do this part widened.
-		      (while (not (looking-back "\n\n" nil))
-			;; Insert blank lines before heading.
-			(insert "\n")))
-		     (let ((end (org-entry-end-position)))
-		       ;; Insert blank lines before entry content
-		       (forward-line)
-		       (while (and (org-at-planning-p)
-				   (< (point) (point-max)))
-			 ;; Skip planning lines
-			 (forward-line))
-		       (while (re-search-forward org-drawer-regexp end t)
-			 ;; Skip drawers. You might think that `org-at-drawer-p'
-			 ;; would suffice, but for some reason it doesn't work
-			 ;; correctly when operating on hidden text.  This
-			 ;; works, taken from `org-agenda-get-some-entry-text'.
-			 (re-search-forward "^[ \t]*:END:.*\n?" end t)
-			 (goto-char (match-end 0)))
-		       (unless (or (= (point) (point-max))
-				   (org-at-heading-p)
-				   (looking-at-p "\n"))
-			 (insert "\n"))))
-		   t (if prefix
-			 nil
-		       'tree)))
+    		     (org-with-wide-buffer
+    		      ;; `org-map-entries' narrows the buffer, which prevents us
+    		      ;; from seeing newlines before the current heading, so we
+    		      ;; do this part widened.
+    		      (while (not (looking-back "\n\n" nil))
+    			;; Insert blank lines before heading.
+    			(insert "\n")))
+    		     (let ((end (org-entry-end-position)))
+    		       ;; Insert blank lines before entry content
+    		       (forward-line)
+    		       (while (and (org-at-planning-p)
+    				   (< (point) (point-max)))
+    			 ;; Skip planning lines
+    			 (forward-line))
+    		       (while (re-search-forward org-drawer-regexp end t)
+    			 ;; Skip drawers. You might think that `org-at-drawer-p'
+    			 ;; would suffice, but for some reason it doesn't work
+    			 ;; correctly when operating on hidden text.  This
+    			 ;; works, taken from `org-agenda-get-some-entry-text'.
+    			 (re-search-forward "^[ \t]*:END:.*\n?" end t)
+    			 (goto-char (match-end 0)))
+    		       (unless (or (= (point) (point-max))
+    				   (org-at-heading-p)
+    				   (looking-at-p "\n"))
+    			 (insert "\n"))))
+    		   t (if prefix
+    			 nil
+    		       'tree)))
 
 
 ##### Add a before-save-hook
 
     (defun cribbed/org-mode-fix-blank-lines ()
       (when (eq major-mode 'org-mode)
-	(let ((current-prefix-arg 4)) ; Emulate C-u
-	  (call-interactively 'unpackaged/org-fix-blank-lines))))
+        (let ((current-prefix-arg 4)) ; Emulate C-u
+          (call-interactively 'unpackaged/org-fix-blank-lines))))
     
     (add-hook 'before-save-hook #'cribbed/org-mode-fix-blank-lines)
 
@@ -1322,18 +1343,18 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
 ### Org Agenda
 
     (cuss org-agenda-files
-	(let ((list))
-	  (dolist (file '(;; add more files to this list
-		      "home.org"
-		      "work.org")
-		    list)
-	(push (expand-file-name file org-directory) list))))
+        (let ((list))
+          (dolist (file '(;; add more files to this list
+    		      "home.org"
+    		      "work.org")
+    		    list)
+    	(push (expand-file-name file org-directory) list))))
     
     (define-key acdw/map (kbd "C-a") #'org-agenda)
     
     (cuss org-todo-keywords
-	'((sequence "RECUR(r)" "TODO(t)" "|" "DONE(d)")
-	  (sequence "|" "CANCELLED(c)")))
+        '((sequence "RECUR(r)" "TODO(t)" "|" "DONE(d)")
+          (sequence "|" "CANCELLED(c)")))
     
     (cuss org-agenda-skip-scheduled-if-done t)
     (cuss org-agenda-skip-deadline-if-done t)
@@ -1345,8 +1366,8 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
 ### Include Org links in source code
 
     (straight-use-package '(org-link-minor-mode
-			:host github
-			:repo "seanohalpin/org-link-minor-mode"))
+    			:host github
+    			:repo "seanohalpin/org-link-minor-mode"))
     
     ;; enable in elisp buffers
     (add-hook 'emacs-lisp-mode-hook #'org-link-minor-mode)
@@ -1362,8 +1383,8 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
 ### Git file modes
 
     (dolist (feat '(gitattributes-mode
-		gitconfig-mode
-		gitignore-mode))
+    		gitconfig-mode
+    		gitignore-mode))
       (straight-use-package feat)
       (require feat))
 
@@ -1371,8 +1392,8 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
 ## Beancount mode
 
     (straight-use-package '(beancount-mode
-			:host github
-			:repo "beancount/beancount-mode"))
+    			:host github
+    			:repo "beancount/beancount-mode"))
     (require 'beancount)
     
     (add-to-list 'auto-mode-alist '("\\.beancount\\'" . beancount-mode))
@@ -1434,7 +1455,7 @@ I’m only enabling this at home for now, since it requires building stuff.
     (when (executable-find "mu")
     
       (add-to-list 'load-path
-	       "/usr/share/emacs/site-lisp/mu4e")
+    	       "/usr/share/emacs/site-lisp/mu4e")
       (require 'mu4e)
     
       (cuss mail-user-agent 'mu4e-user-agent)
@@ -1463,54 +1484,54 @@ I’m only enabling this at home for now, since it requires building stuff.
       (cuss smtpmail-smtp-service 465)
       (cuss smtpmail-local-domain "acdw.net")
       (cuss mu4e-compose-signature
-	  "Best,\nCase\n")
+          "Best,\nCase\n")
     
       (cuss mu4e-completing-read-function 'completing-read)
       (cuss message-kill-buffer-on-exit t)
       (cuss mu4e-confirm-quit nil)
     
       (cuss mu4e-bookmarks
-	  '((:name "Unread"
-	       :query
-	       "flag:unread AND NOT flag:trashed AND NOT maildir:/Spam"
-	       :key ?u)
-	(:name "Today"
-	       :query "date:today..now and not and not flag:trashed maildir:/Spam"
-	       :key ?t)
-	(:name "This week"
-	       :query "date:7d..now and not maildir:/Spam and not flag:trashed"
-	       :hide-unread t
-	       :key ?w)))
+          '((:name "Unread"
+    	       :query
+    	       "flag:unread AND NOT flag:trashed AND NOT maildir:/Spam"
+    	       :key ?u)
+    	(:name "Today"
+    	       :query "date:today..now and not and not flag:trashed maildir:/Spam"
+    	       :key ?t)
+    	(:name "This week"
+    	       :query "date:7d..now and not maildir:/Spam and not flag:trashed"
+    	       :hide-unread t
+    	       :key ?w)))
     
       (cuss mu4e-headers-fields
-	  '((:human-date . 12)
-	(:flags . 6)
-	(:mailing-list . 10)
-	(:from-or-to . 22)
-	(:thread-subject)))
+          '((:human-date . 12)
+    	(:flags . 6)
+    	(:mailing-list . 10)
+    	(:from-or-to . 22)
+    	(:thread-subject)))
     
       (cuss mu4e-maildir-shortcuts
-	  `(("/INBOX" . ?i)
-	(,mu4e-refile-folder . ?a)
-	(,mu4e-sent-folder . ?s)
-	(,mu4e-drafts-folder . ?d)
-	(,mu4e-trash-folder . ?t)))
+          `(("/INBOX" . ?i)
+    	(,mu4e-refile-folder . ?a)
+    	(,mu4e-sent-folder . ?s)
+    	(,mu4e-drafts-folder . ?d)
+    	(,mu4e-trash-folder . ?t)))
     
       (defun acdw/setup-mu4e-headers-mode ()
-	(visual-line-mode -1))
+        (visual-line-mode -1))
     
       (add-hook 'mu4e-headers-mode #'acdw/setup-mu4e-headers-mode)
     
       (defun acdw/setup-mu4e-view-mode ()
-	(visual-fill-column-mode +1))
+        (visual-fill-column-mode +1))
     
       (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode)
     
       (cuss mu4e-get-mail-command (cond ((executable-find "mbsync")
-				     "mbsync -a"))
-	"The command to update mail with.")
+    				     "mbsync -a"))
+        "The command to update mail with.")
       (cuss mu4e-update-interval 300
-	"Update automatically every 5 minutes.")
+        "Update automatically every 5 minutes.")
       (mu4e +1))
 
 
@@ -1520,8 +1541,8 @@ I’m only enabling this at home for now, since it requires building stuff.
       "If `mu4e' is around, run it, or tell the user it isn't."
       (interactive)
       (if (featurep 'mu4e)
-	  (mu4e)
-	(warn "Mu4e isn't available :/.")))
+          (mu4e)
+        (warn "Mu4e isn't available :/.")))
     
     (define-key acdw/map "m" #'acdw/mu4e-or-warn)
 
@@ -1543,27 +1564,27 @@ I’m only enabling this at home for now, since it requires building stuff.
 ### Elpher
 
     (straight-use-package '(elpher
-			:repo "git://thelambdalab.xyz/elpher.git"))
+    			:repo "git://thelambdalab.xyz/elpher.git"))
     
     (with-eval-after-load 'no-littering
       (cuss elpher-certificate-directory
-	  (no-littering-expand-var-file-name "elpher-certificates/")))
+          (no-littering-expand-var-file-name "elpher-certificates/")))
     
     (cuss elpher-ipv4-always t)
     
     (cussface '(elpher-gemini-heading1
-	    ((t (:inherit (modus-theme-heading-1 variable-pitch))))))
+    	    ((t (:inherit (modus-theme-heading-1 variable-pitch))))))
     (cussface '(elpher-gemini-heading2
-	    ((t (:inherit (modus-theme-heading-2 variable-pitch))))))
+    	    ((t (:inherit (modus-theme-heading-2 variable-pitch))))))
     (cussface '(elpher-gemini-heading3
-	    ((t (:inherit (modus-theme-heading-3 variable-pitch))))))
+    	    ((t (:inherit (modus-theme-heading-3 variable-pitch))))))
     
     (defun elpher:eww-browse-url (original url &optional new-window)
       "Handle gemini/gopher links with eww."
       (cond ((string-match-p "\\`\\(gemini\\|gopher\\)://" url)
-	 (require 'elpher)
-	 (elpher-go url))
-	(t (funcall original url new-window))))
+    	 (require 'elpher)
+    	 (elpher-go url))
+    	(t (funcall original url new-window))))
     (advice-add 'eww-browse-url :around 'elpher:eww-browse-url)
     
     (with-eval-after-load 'elpher
@@ -1581,17 +1602,17 @@ I’m only enabling this at home for now, since it requires building stuff.
 ### Gemini-mode
 
     (straight-use-package '(gemini-mode
-			:repo "https://git.carcosa.net/jmcbray/gemini.el.git"))
+    			:repo "https://git.carcosa.net/jmcbray/gemini.el.git"))
     
     (add-to-list 'auto-mode-alist
-	     '("\\.\\(gemini\\|gmi\\)\\'" . gemini-mode))
+    	     '("\\.\\(gemini\\|gmi\\)\\'" . gemini-mode))
     
     (cussface '(gemini-heading-face-1
-	    ((t (:inherit (elpher-gemini-heading1))))))
+    	    ((t (:inherit (elpher-gemini-heading1))))))
     (cussface '(gemini-heading-face2
-	    ((t (:inherit (elpher-gemini-heading2))))))
+    	    ((t (:inherit (elpher-gemini-heading2))))))
     (cussface '(gemini-heading-face3
-	    ((t (:inherit (elpher-gemini-heading3))))))
+    	    ((t (:inherit (elpher-gemini-heading3))))))
     
     (add-hook 'gemini-mode-hook #'acdw/setup-smolweb)
 
@@ -1599,7 +1620,7 @@ I’m only enabling this at home for now, since it requires building stuff.
 ### Gemini-write
 
     (straight-use-package '(gemini-write
-			:repo "https://alexschroeder.ch/cgit/gemini-write"))
+    			:repo "https://alexschroeder.ch/cgit/gemini-write"))
     (require 'gemini-write)
     
     ;; TODO : add tokens ... somehow
@@ -1618,20 +1639,20 @@ I’m only enabling this at home for now, since it requires building stuff.
     (setq load-prefer-newer t)
     
     (let* (;; Speed up init
-	   (gc-cons-threshold most-positive-fixnum)
-	   (file-name-handler-alist nil)
-	   ;; Config file names
-	   (conf (expand-file-name "config"
-			       user-emacs-directory))
-	   (conf-el (concat conf ".el"))
-	   (conf-org (concat conf ".org")))
+           (gc-cons-threshold most-positive-fixnum)
+           (file-name-handler-alist nil)
+           ;; Config file names
+           (conf (expand-file-name "config"
+    			       user-emacs-directory))
+           (conf-el (concat conf ".el"))
+           (conf-org (concat conf ".org")))
       (unless (and (file-newer-than-file-p conf-el conf-org)
-	       (load conf 'no-error))
-	;; A plain require here just loads the older `org' in Emacs' install dir.  We
-	;; need to add the newer one to the `load-path', hopefully that's all.
-	(add-to-list 'load-path (expand-file-name "straight/build/org/"))
-	(require 'org)
-	(org-babel-load-file conf-org)))
+    	       (load conf 'no-error))
+        ;; A plain require here just loads the older `org' in Emacs' install dir.  We
+        ;; need to add the newer one to the `load-path', hopefully that's all.
+        (add-to-list 'load-path (expand-file-name "straight/build/org/"))
+        (require 'org)
+        (org-babel-load-file conf-org)))
 
 
 ### early-init.el
@@ -1654,29 +1675,29 @@ I’m only enabling this at home for now, since it requires building stuff.
     Then, load the byte-compilations unless passed with a prefix argument."
       (interactive "P")
       (let ((config (expand-file-name "config.org" user-emacs-directory)))
-	(save-mark-and-excursion
-	  (with-current-buffer (find-file config)
-	(let ((prog-mode-hook nil))
-	  ;; generate the readme
-	  (when (file-newer-than-file-p config (expand-file-name
-						"README.md"
-						user-emacs-directory))
-	    (message "%s" "Exporting README.md...")
-	    (require 'ox-md)
-	    (with-demoted-errors "Problem exporting README.md: %S"
-	      (org-md-export-to-markdown)))
-	  ;; tangle config.org
-	  (when (file-newer-than-file-p config (expand-file-name
-						"config.el"
-						user-emacs-directory))
-	    (message "%s" "Tangling config.org...")
-	    (require 'org)
-	    (let ((inits (org-babel-tangle)))
-	      ;; byte-compile resulting files
-	      (message "%s" "Byte-compiling...")
-	      (dolist (f inits)
-		(when (string-match "\\.el\\'" f)
-		  (byte-compile-file f (not disable-load)))))))))))
+        (save-mark-and-excursion
+          (with-current-buffer (find-file config)
+    	(let ((prog-mode-hook nil))
+    	  ;; generate the readme
+    	  (when (file-newer-than-file-p config (expand-file-name
+    						"README.md"
+    						user-emacs-directory))
+    	    (message "%s" "Exporting README.md...")
+    	    (require 'ox-md)
+    	    (with-demoted-errors "Problem exporting README.md: %S"
+    	      (org-md-export-to-markdown)))
+    	  ;; tangle config.org
+    	  (when (file-newer-than-file-p config (expand-file-name
+    						"config.el"
+    						user-emacs-directory))
+    	    (message "%s" "Tangling config.org...")
+    	    (require 'org)
+    	    (let ((inits (org-babel-tangle)))
+    	      ;; byte-compile resulting files
+    	      (message "%s" "Byte-compiling...")
+    	      (dolist (f inits)
+    		(when (string-match "\\.el\\'" f)
+    		  (byte-compile-file f (not disable-load)))))))))))
 
 
 ## Ancillary scripts
@@ -1692,8 +1713,8 @@ installing with either `ln -s bin/emacsdc $HOME/.local/bin/`, or
 adding `$HOME/.local/bin` to your `$PATH`.
 
     if ! emacsclient -nc "$@" 2>/dev/null; then
-	emacs --daemon
-	emacsclient -nc "$@"
+        emacs --daemon
+        emacsclient -nc "$@"
     fi
 
 
@@ -1746,3 +1767,4 @@ It's highly likely that the WTFPL is completely incompatible with the
 GPL, for what should be fairly obvious reasons.  To that, I say:
 
 **SUE ME, RMS!**
+
