@@ -945,6 +945,39 @@ from [[https://www.reddit.com/r/emacs/comments/km9by4/weekly_tipstricketc_thread
 (cuss require-final-newline t)
 #+END_SRC
 
+*** Edit files with =sudo=
+
+    #+BEGIN_SRC emacs-lisp
+      (straight-use-package 'sudo-edit)
+
+      (with-eval-after-load 'sudo-edit
+	(global-set-key acdw/map (kbd "C-r") #'sudo-edit))
+    #+end_src
+
+**** Don’t add =/sudo:= files to =recentf=, though
+
+I’ve pretty much cribbed this from [[https://github.com/ncaq/recentf-remove-sudo-tramp-prefix/][recentf-remove-sudo-tramp-prefix]] – it’s a small enough package that I can just include it completely here.
+
+#+BEGIN_SRC emacs-lisp
+  (defun recentf-remove-sudo-tramp-prefix (path)
+    "Remove sudo from PATH."
+    (require 'tramp)
+    (if (tramp-tramp-file-p path)
+	(let ((tx (tramp-dissect-file-name path)))
+	  (if (string-equal "sudo" (tramp-file-name-method tx))
+	      (tramp-file-name-localname tx)
+	    path))
+      path))
+
+  (defun recentf-remove-sudo-tramp-prefix-from-recentf-list ()
+    (require 'recentf)
+    (setq recentf-list
+	  (mapcar #'recentf-remove-sudo-tramp-prefix recentf-list)))
+
+  (advice-add 'recentf-cleanup
+	      :before #'recentf-remove-sudo-tramp-prefix-from-recentf-list)
+#+end_src
+
 ** Text editing
 
 *** Operate visually on lines
