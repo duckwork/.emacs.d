@@ -918,14 +918,30 @@ from [[https://www.reddit.com/r/emacs/comments/km9by4/weekly_tipstricketc_thread
 *** Auto-saves
 
 #+BEGIN_SRC emacs-lisp
-(with-eval-after-load 'no-littering
-  (let ((dir (no-littering-expand-var-file-name "autosaves")))
-    (make-directory dir 'parents)
-    (cuss auto-save-file-name-transforms
-	`((".*" ,dir t))))
+  (with-eval-after-load 'no-littering
+    (let ((dir (no-littering-expand-var-file-name "autosaves")))
+      (make-directory dir 'parents)
+      (cuss auto-save-file-name-transforms
+	  `((".*" ,dir t))))
 
-  (auto-save-visited-mode +1))
+    (auto-save-mode +1))
 #+END_SRC
+
+*** Super-save
+
+Because I like /overkill/, or at least … over-/saving/.
+
+#+BEGIN_SRC emacs-lisp
+  (straight-use-package 'super-save)
+
+  (cuss super-save-remote-files nil
+    "Don't super-save remote files.")
+
+  (cuss super-save-exclude '(".gpg")
+    "Ignore these files when saving.")
+
+  (super-save-mode +1)
+#+end_src
 
 *** Auto-revert buffers to files on disk
 
