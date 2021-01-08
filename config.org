@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-07 19:41:59 acdw>
+#+Time-stamp: <2021-01-08 08:46:01 acdw>
 
 * Basics
 
@@ -1094,7 +1094,11 @@ For right now, I’m /just/ using Anzu – I don’t like parts of =isearch= but
 	    space-before-tab ;; fix mixed spaces and tabs
 	    space-after-tab))
 
-      (add-hook 'before-save-hook #'whitespace-cleanup)
+      (defun acdw/whitespace-cleanup-maybe ()
+	"Only cleanup whitespace when out-of-focus."
+	(acdw/when-unfocused #'whitespace-cleanup))
+
+      (add-hook 'before-save-hook #'acdw/whitespace-cleanup-maybe)
     #+end_src
 
 * Programming
