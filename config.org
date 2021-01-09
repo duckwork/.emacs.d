@@ -1304,6 +1304,12 @@ This has to be done /before/ loading the package.  It's included in =visual-fill
     #+BEGIN_SRC emacs-lisp
       ;; highlight the current line in dired.
       (add-hook 'dired-mode-hook #'hl-line-mode)
+
+      (cuss dired-recursive-copies 'always
+	"Always recursively copy.")
+
+      (cuss dired-listing-switches "-alh"
+	"Show All items, Listed out, with Human-readable sizes.")
     #+end_src
 
 *** Expand subtrees
@@ -1323,6 +1329,20 @@ This has to be done /before/ loading the package.  It's included in =visual-fill
 
       (add-hook 'dired-mode-hook #'dired-collapse-mode)
     #+end_src
+
+*** Kill dired buffers
+
+from [[https://github.com/munen/emacs.d/][munen]].
+
+#+BEGIN_SRC emacs-lisp
+  (defun kill-dired-buffers ()
+    "Kill all open dired buffers."
+    (interactive)
+    (mapc (lambda (buffer)
+	    (when (eq 'dired-mode (buffer-local-value 'major-mode buffer))
+	      (kill-buffer buffer)))
+	  (buffer-list)))
+#+end_src
 
 ** Org mode
 
