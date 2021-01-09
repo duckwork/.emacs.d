@@ -1004,6 +1004,13 @@ I’ve pretty much cribbed this from [[https://github.com/ncaq/recentf-remove-su
 (global-visual-line-mode +1)
 #+END_SRC
 
+*** View long lines like filled lines in the beginning
+
+    #+BEGIN_SRC emacs-lisp
+      (straight-use-package 'adaptive-wrap)
+      (adaptive-wrap-prefix-mode +1)
+    #+end_src
+
 *** Stay snappy with long-lined files
 
 #+BEGIN_SRC emacs-lisp
