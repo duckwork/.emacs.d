@@ -332,6 +332,7 @@ from [EmacsWiki](https://www.emacswiki.org/emacs/AlarmBell#h5o-3).
     
     (cuss sml/no-confirm-load-theme t
       "Pass the NO-CONFIRM flag to `load-theme'.")
+    (cuss sml/theme 'respectful)
     
     (sml/setup)
 
@@ -411,15 +412,14 @@ helper function, though, to add things to the whitelist.
 
 #### Define fonts
 
-    (defun set-face-from-alternatives (face fonts)
+    (defun set-face-from-alternatives (face frame &rest fontspecs)
+      "Set FACE on FRAME from first available spec from FONTSPECS.
+    FACE and FRAME work the same as with `set-face-attribute.'"
       (catch :return
-        (dolist (font fonts)
-          (when (find-font (font-spec :family (car font)))
-    	(apply #'set-face-attribute `(,face
-    				      nil
-    				      :family (car font)
-    				      ,@(cdr font)))
-    	(throw :return font)))))
+        (dolist (spec fontspecs)
+          (when-let ((found (find-font (apply #'font-spec spec))))
+    	(set-face-attribute face frame :font found)
+    	(throw :return found)))))
     
     (defun acdw/setup-fonts ()
       "Setup fonts.  This has to happen after the frame is setup for
@@ -427,24 +427,27 @@ helper function, though, to add things to the whitelist.
     removes itself from that hook."
       (interactive)
       (when (display-graphic-p)
-        (set-face-from-alternatives 'default
-    				'(("Input Mono"
-    				   :height 105)
-    				  ("Go Mono"
-    				   :height 100)
-    				  ("Consolas"
-    				   :height 100)))
+        (dolist (face '(default fixed-pitch))
+          ;; fixed-pitch /is/ the default
+          (set-face-from-alternatives face nil
+    				  '(:family "Input Mono"
+    					    :weight normal
+    					    :height 110)
+    				  '(:family "Go Mono"
+    					    :weight normal
+    					    :height 100)
+    				  '(:family "Consolas"
+    					    :weight normal
+    					    :height 100)))
+        ;; variable-pitch is different
+        (set-face-from-alternatives 'variable-pitch nil
+    				'(:family "Input Sans"
+    					  :weight normal)
+    				'(:family "Georgia"
+    					  :weight normal)))
     
-        (set-face-from-alternatives 'fixed-pitch
-    				'(("Input Mono")
-    				  ("Go Mono")
-    				  ("Consolas")))
-    
-        (set-face-from-alternatives 'variable-pitch
-    				'(("Input Serif")
-    				  ("Georgia")))
-    
-        (remove-function after-focus-change-function #'acdw/setup-fonts)))
+      ;; remove myself from the hook
+      (remove-function after-focus-change-function #'acdw/setup-fonts))
     
     (add-function :before after-focus-change-function #'acdw/setup-fonts)
 
@@ -843,6 +846,12 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
     (global-visual-line-mode +1)
 
 
+### View long lines like filled lines in the beginning
+
+    (straight-use-package 'adaptive-wrap)
+    (adaptive-wrap-prefix-mode +1)
+
+
 ### Stay snappy with long-lined files
 
     (when (fboundp 'global-so-long-mode)
@@ -1008,6 +1017,12 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
       "Don't truncate printed expressions by level.")
 
 
+### Janet
+
+    (straight-use-package 'janet-mode)
+    (require 'janet-mode)
+
+
 ### INI
 
     (straight-use-package 'ini-mode)
@@ -1105,6 +1120,12 @@ This has to be done *before* loading the package.  It's included in `visual-fill
 
     ;; highlight the current line in dired.
     (add-hook 'dired-mode-hook #'hl-line-mode)
+    
+    (cuss dired-recursive-copies 'always
+      "Always recursively copy.")
+    
+    (cuss dired-listing-switches "-alh"
+      "Show All items, Listed out, with Human-readable sizes.")
 
 
 ### Expand subtrees
@@ -1120,6 +1141,19 @@ This has to be done *before* loading the package.  It's included in `visual-fill
     (straight-use-package 'dired-collapse)
     
     (add-hook 'dired-mode-hook #'dired-collapse-mode)
+
+
+### Kill dired buffers
+
+from [munen](https://github.com/munen/emacs.d/).
+
+    (defun kill-dired-buffers ()
+      "Kill all open dired buffers."
+      (interactive)
+      (mapc (lambda (buffer)
+    	  (when (eq 'dired-mode (buffer-local-value 'major-mode buffer))
+    	    (kill-buffer buffer)))
+    	(buffer-list)))
 
 
 ## Org mode
@@ -1358,6 +1392,8 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     
     (cuss org-agenda-skip-scheduled-if-done t)
     (cuss org-agenda-skip-deadline-if-done t)
+    (cuss org-deadline-warning-days 4
+      "Warn of a deadline beginning four days before.")
 
 
 ### TODO Capture
@@ -1496,10 +1532,12 @@ I’m only enabling this at home for now, since it requires building stuff.
     	       "flag:unread AND NOT flag:trashed AND NOT maildir:/Spam"
     	       :key ?u)
     	(:name "Today"
-    	       :query "date:today..now and not and not flag:trashed maildir:/Spam"
+    	       :query 
+    	       "date:today..now and not flag:trashed and not maildir:/Spam"
     	       :key ?t)
     	(:name "This week"
-    	       :query "date:7d..now and not maildir:/Spam and not flag:trashed"
+    	       :query
+    	       "date:7d..now and not maildir:/Spam and not flag:trashed"
     	       :hide-unread t
     	       :key ?w)))
     
@@ -1523,9 +1561,11 @@ I’m only enabling this at home for now, since it requires building stuff.
       (add-hook 'mu4e-headers-mode #'acdw/setup-mu4e-headers-mode)
     
       (defun acdw/setup-mu4e-view-mode ()
+        (setq visual-fill-column-center-text t)
         (visual-fill-column-mode +1))
     
       (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode)
+      (add-hook 'mu4e-compose-mode-hook #'acdw/setup-mu4e-view-mode)
     
       (cuss mu4e-get-mail-command (cond ((executable-find "mbsync")
     				     "mbsync -a"))
@@ -1626,6 +1666,60 @@ I’m only enabling this at home for now, since it requires building stuff.
     ;; TODO : add tokens ... somehow
 
 
+## RSS
+
+
+### elfeed
+
+    (straight-use-package 'elfeed)
+    (require 'elfeed)
+    (define-key acdw/map "w" 'elfeed)
+    
+    (cuss elfeed-use-curl (executable-find "curl"))
+    (cuss elfeed-curl-extra-arguments '("--insecure")
+      "Extra arguments for curl.")
+    (elfeed-set-timeout (* 60 3))
+    
+    (defun acdw/setup-elfeed-show ()
+      (setq visual-fill-column-center-text t)
+      (visual-fill-column-mode +1))
+    
+    (add-hook 'elfeed-show-mode-hook #'acdw/setup-elfeed-show)
+
+
+### elfeed-protocol
+
+    (straight-use-package 'elfeed-protocol)
+    (require 'elfeed-protocol)
+    
+    (cuss elfeed-protocol-ttrss-maxsize 200)
+    
+    (cuss elfeed-feeds (list
+    		    (list "ttrss+https://acdw@rss.tildeverse.org"
+    			  :use-authinfo t)))
+    
+    (setq elfeed-log-level 'debug)
+    
+    (elfeed-protocol-enable)
+
+
+# System integration
+
+
+## Linux
+
+
+### Exec path from shell
+
+    (at-home
+      (straight-use-package 'exec-path-from-shell)
+      (defvar acdw/exec-path-from-shell-initialized nil
+        "Stores whether we've initialized or not.")
+      (unless acdw/exec-path-from-shell-initialized
+        (exec-path-from-shell-initialize)
+        (setq acdw/exec-path-from-shell-initialized (current-time))))
+
+
 # Appendices
 
 
@@ -1648,9 +1742,11 @@ I’m only enabling this at home for now, since it requires building stuff.
            (conf-org (concat conf ".org")))
       (unless (and (file-newer-than-file-p conf-el conf-org)
     	       (load conf 'no-error))
-        ;; A plain require here just loads the older `org' in Emacs' install dir.  We
-        ;; need to add the newer one to the `load-path', hopefully that's all.
-        (add-to-list 'load-path (expand-file-name "straight/build/org/"))
+        ;; A plain require here just loads the older `org'
+        ;; in Emacs' install dir.  We need to add the newer
+        ;; one to the `load-path', hopefully that's all.
+        (add-to-list 'load-path (expand-file-name "straight/build/org"
+    					      user-emacs-directory))
         (require 'org)
         (org-babel-load-file conf-org)))
 
@@ -1691,6 +1787,8 @@ I’m only enabling this at home for now, since it requires building stuff.
     						"config.el"
     						user-emacs-directory))
     	    (message "%s" "Tangling config.org...")
+    	    (add-to-list 'load-path (expand-file-name "straight/build/org/"
+    						      user-emacs-directory))
     	    (require 'org)
     	    (let ((inits (org-babel-tangle)))
     	      ;; byte-compile resulting files
