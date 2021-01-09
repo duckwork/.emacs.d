@@ -387,12 +387,13 @@ Commented for now because I really need to figure out the keybindings I want to 
 **** Smart mode line
 
  #+BEGIN_SRC emacs-lisp
- (straight-use-package 'smart-mode-line)
+   (straight-use-package 'smart-mode-line)
 
- (cuss sml/no-confirm-load-theme t
-   "Pass the NO-CONFIRM flag to `load-theme'.")
+   (cuss sml/no-confirm-load-theme t
+     "Pass the NO-CONFIRM flag to `load-theme'.")
+   (cuss sml/theme 'respectful)
 
- (sml/setup)
+   (sml/setup)
  #+END_SRC
 
 **** Rich minority
