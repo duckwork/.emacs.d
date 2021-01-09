@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-08 08:46:01 acdw>
+#+Time-stamp: <2021-01-08 23:30:14 acdw>
 
 * Basics
 
@@ -1865,6 +1865,22 @@ I’m only enabling this at home for now, since it requires building stuff.
       (require 'gemini-write)
 
       ;; TODO : add tokens ... somehow
+    #+end_src
+
+* System integration
+
+** Linux
+
+*** Exec path from shell
+
+    #+begin_src emacs-lisp
+      (at-home
+	(straight-use-package 'exec-path-from-shell)
+	(defvar acdw/exec-path-from-shell-initialized nil
+	  "Stores whether we've initialized or not.")
+	(unless acdw/exec-path-from-shell-initialized
+	  (exec-path-from-shell-initialize)
+	  (setq acdw/exec-path-from-shell-initialized (current-time))))
     #+end_src
 
 * Appendices
