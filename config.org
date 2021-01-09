@@ -1585,6 +1585,8 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 
   (cuss org-agenda-skip-scheduled-if-done t)
   (cuss org-agenda-skip-deadline-if-done t)
+  (cuss org-deadline-warning-days 4
+    "Warn of a deadline beginning four days before.")
 #+END_SRC
 
 *** TODO Capture
