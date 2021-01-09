@@ -391,7 +391,6 @@ Commented for now because I really need to figure out the keybindings I want to 
 
    (cuss sml/no-confirm-load-theme t
      "Pass the NO-CONFIRM flag to `load-theme'.")
-   (cuss sml/theme 'respectful)
 
    (sml/setup)
  #+END_SRC
