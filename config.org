@@ -1110,6 +1110,14 @@ For right now, I’m /just/ using Anzu – I don’t like parts of =isearch= but
       (add-hook 'before-save-hook #'acdw/whitespace-cleanup-maybe)
     #+end_src
 
+*** Expand region
+
+    #+begin_src emacs-lisp
+      (straight-use-package 'expand-region)
+
+      (global-set-key (kbd "C-=") #'er/expand-region)
+    #+end_src
+
 * Programming
 
 ** Prettify symbols
