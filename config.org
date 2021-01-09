@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-09 09:38:21 acdw>
+#+Time-stamp: <2021-01-09 14:40:57 acdw>
 
 * Basics
 
@@ -1948,7 +1948,8 @@ I’m only enabling this at home for now, since it requires building stuff.
 		   (load conf 'no-error))
 	;; A plain require here just loads the older `org' in Emacs' install dir.  We
 	;; need to add the newer one to the `load-path', hopefully that's all.
-	(add-to-list 'load-path (expand-file-name "straight/build/org/"))
+	(add-to-list 'load-path (expand-file-name "straight/build/org/"
+						  user-emacs-directory))
 	(require 'org)
 	(org-babel-load-file conf-org)))
   #+END_SRC
@@ -1991,6 +1992,8 @@ I’m only enabling this at home for now, since it requires building stuff.
 						   "config.el"
 						   user-emacs-directory))
 	       (message "%s" "Tangling config.org...")
+	       (add-to-list 'load-path (expand-file-name "straight/build/org/"
+							 user-emacs-directory))
 	       (require 'org)
 	       (let ((inits (org-babel-tangle)))
 		 ;; byte-compile resulting files
