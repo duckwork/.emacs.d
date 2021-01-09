@@ -1871,6 +1871,44 @@ I’m only enabling this at home for now, since it requires building stuff.
       ;; TODO : add tokens ... somehow
     #+end_src
 
+** RSS
+
+*** elfeed
+
+    #+begin_src emacs-lisp
+      (straight-use-package 'elfeed)
+      (require 'elfeed)
+      (define-key acdw/map "w" 'elfeed)
+
+      (cuss elfeed-use-curl (executable-find "curl"))
+      (cuss elfeed-curl-extra-arguments '("--insecure")
+	"Extra arguments for curl.")
+      (elfeed-set-timeout (* 60 3))
+
+      (defun acdw/setup-elfeed-show ()
+	(setq visual-fill-column-center-text t)
+	(visual-fill-column-mode +1))
+
+      (add-hook 'elfeed-show-mode-hook #'acdw/setup-elfeed-show)
+    #+end_src
+
+*** elfeed-protocol
+
+    #+begin_src emacs-lisp
+      (straight-use-package 'elfeed-protocol)
+      (require 'elfeed-protocol)
+
+      (cuss elfeed-protocol-ttrss-maxsize 200)
+
+      (cuss elfeed-feeds (list
+			  (list "ttrss+https://acdw@rss.tildeverse.org"
+				:use-authinfo t)))
+
+      (setq elfeed-log-level 'debug)
+
+      (elfeed-protocol-enable)
+    #+end_src
+
 * System integration
 
 ** Linux
