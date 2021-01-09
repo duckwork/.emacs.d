@@ -12,8 +12,10 @@
        (conf-org (concat conf ".org")))
   (unless (and (file-newer-than-file-p conf-el conf-org)
 	       (load conf 'no-error))
-    ;; A plain require here just loads the older `org' in Emacs' install dir.  We
-    ;; need to add the newer one to the `load-path', hopefully that's all.
-    (add-to-list 'load-path (expand-file-name "straight/build/org/"))
+    ;; A plain require here just loads the older `org'
+    ;; in Emacs' install dir.  We need to add the newer
+    ;; one to the `load-path', hopefully that's all.
+    (add-to-list 'load-path (expand-file-name "straight/build/org"
+					      user-emacs-directory))
     (require 'org)
     (org-babel-load-file conf-org)))
