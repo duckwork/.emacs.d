@@ -1197,6 +1197,13 @@ For right now, I’m /just/ using Anzu – I don’t like parts of =isearch= but
   "Don't truncate printed expressions by level.")
 #+END_SRC
 
+*** Janet
+
+    #+BEGIN_SRC emacs-lisp
+      (straight-use-package 'janet-mode)
+      (require 'janet-mode)
+    #+end_src
+
 *** INI
 
     #+BEGIN_SRC emacs-lisp
