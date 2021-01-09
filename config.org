@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-08 23:30:14 acdw>
+#+Time-stamp: <2021-01-09 09:38:21 acdw>
 
 * Basics
 
@@ -1765,6 +1765,7 @@ I’m only enabling this at home for now, since it requires building stuff.
 	 (visual-fill-column-mode +1))
 
        (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode)
+       (add-hook 'mu4e-compose-mode-hook #'acdw/setup-mu4e-view-mode)
 
        (cuss mu4e-get-mail-command (cond ((executable-find "mbsync")
 					  "mbsync -a"))
