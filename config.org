@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-09 14:44:35 acdw>
+#+Time-stamp: <2021-01-09 17:35:42 acdw>
 
 * Basics
 
@@ -1210,6 +1210,10 @@ For right now, I’m /just/ using Anzu – I don’t like parts of =isearch= but
     #+BEGIN_SRC emacs-lisp
       (straight-use-package 'janet-mode)
       (require 'janet-mode)
+
+      (straight-use-package 'inf-janet-mode)
+
+      (add-hook 'janet-mode-hook #'inf-janet-minor-mode)
     #+end_src
 
 *** INI

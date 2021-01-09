@@ -332,7 +332,6 @@ from [EmacsWiki](https://www.emacswiki.org/emacs/AlarmBell#h5o-3).
     
     (cuss sml/no-confirm-load-theme t
       "Pass the NO-CONFIRM flag to `load-theme'.")
-    (cuss sml/theme 'respectful)
     
     (sml/setup)
 
@@ -398,13 +397,16 @@ helper function, though, to add things to the whitelist.
     (run-at-time (nth 1 (split-string (sunrise-sunset)))
     	     (* 60 60 24)
     	     (lambda ()
+    	       (sml/apply-theme 'light)
     	       (modus-themes-load-operandi)))
     
     ;; sunset
     (run-at-time (nth 4 (split-string (sunrise-sunset)))
     	     (* 60 60 24)
     	     (lambda ()
-    	       (modus-themes-load-vivendi)))
+    	       (sml/apply-theme 'dark)
+    	       (modus-themes-load-vivendi)
+    	       (sml/setup)))
 
 
 ### Fonts
@@ -934,6 +936,13 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
     (add-hook 'before-save-hook #'acdw/whitespace-cleanup-maybe)
 
 
+### Expand region
+
+    (straight-use-package 'expand-region)
+    
+    (global-set-key (kbd "C-=") #'er/expand-region)
+
+
 # Programming
 
 
@@ -1021,6 +1030,10 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
 
     (straight-use-package 'janet-mode)
     (require 'janet-mode)
+    
+    (straight-use-package 'inf-janet-mode)
+    
+    (add-hook 'janet-mode-hook #'inf-janet-minor-mode)
 
 
 ### INI
