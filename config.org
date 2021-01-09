@@ -472,15 +472,14 @@ Commented for now because I really need to figure out the keybindings I want to 
 **** Define fonts
 
 #+BEGIN_SRC emacs-lisp
-  (defun set-face-from-alternatives (face fonts)
+  (defun set-face-from-alternatives (face frame &rest fontspecs)
+    "Set FACE on FRAME from first available spec from FONTSPECS.
+  FACE and FRAME work the same as with `set-face-attribute.'"
     (catch :return
-      (dolist (font fonts)
-	(when (find-font (font-spec :family (car font)))
-	  (apply #'set-face-attribute `(,face
-					nil
-					:family (car font)
-					,@(cdr font)))
-	  (throw :return font)))))
+      (dolist (spec fontspecs)
+	(when-let ((found (find-font (apply #'font-spec spec))))
+	  (set-face-attribute face frame :font found)
+	  (throw :return found)))))
 
   (defun acdw/setup-fonts ()
     "Setup fonts.  This has to happen after the frame is setup for
@@ -488,24 +487,27 @@ Commented for now because I really need to figure out the keybindings I want to 
   removes itself from that hook."
     (interactive)
     (when (display-graphic-p)
-      (set-face-from-alternatives 'default
-				  '(("Input Mono"
-				     :height 105)
-				    ("Go Mono"
-				     :height 100)
-				    ("Consolas"
-				     :height 100)))
+      (dolist (face '(default fixed-pitch))
+	;; fixed-pitch /is/ the default
+	(set-face-from-alternatives face nil
+				    '(:family "Input Mono"
+					      :weight normal
+					      :height 110)
+				    '(:family "Go Mono"
+					      :weight normal
+					      :height 100)
+				    '(:family "Consolas"
+					      :weight normal
+					      :height 100)))
+      ;; variable-pitch is different
+      (set-face-from-alternatives 'variable-pitch nil
+				  '(:family "Input Sans"
+					    :weight normal)
+				  '(:family "Georgia"
+					    :weight normal)))
 
-      (set-face-from-alternatives 'fixed-pitch
-				  '(("Input Mono")
-				    ("Go Mono")
-				    ("Consolas")))
-
-      (set-face-from-alternatives 'variable-pitch
-				  '(("Input Serif")
-				    ("Georgia")))
-
-      (remove-function after-focus-change-function #'acdw/setup-fonts)))
+    ;; remove myself from the hook
+    (remove-function after-focus-change-function #'acdw/setup-fonts))
 
   (add-function :before after-focus-change-function #'acdw/setup-fonts)
 #+END_SRC
