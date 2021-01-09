@@ -1759,6 +1759,7 @@ I’m only enabling this at home for now, since it requires building stuff.
        (add-hook 'mu4e-headers-mode #'acdw/setup-mu4e-headers-mode)
 
        (defun acdw/setup-mu4e-view-mode ()
+	 (setq visual-fill-column-center-text t)
 	 (visual-fill-column-mode +1))
 
        (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode)
