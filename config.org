@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-09 17:35:42 acdw>
+#+Time-stamp: <2021-01-10 21:37:08 acdw>
 
 * Basics
 
@@ -1224,6 +1224,14 @@ For right now, I’m /just/ using Anzu – I don’t like parts of =isearch= but
       (add-to-list 'auto-mode-alist
 		   '("\\.ini\\'" . ini-mode))
     #+end_src
+
+*** PHP
+
+see also [[https://sasanidas.gitlab.io/f-site/php-development/][this post by Fermin M]], it looks really useful.
+
+#+BEGIN_SRC emacs-lisp
+  (straight-use-package 'php-mode)
+#+end_src
 
 * Writing
 

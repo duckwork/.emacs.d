@@ -397,16 +397,13 @@ helper function, though, to add things to the whitelist.
     (run-at-time (nth 1 (split-string (sunrise-sunset)))
     	     (* 60 60 24)
     	     (lambda ()
-    	       (sml/apply-theme 'light)
     	       (modus-themes-load-operandi)))
     
     ;; sunset
     (run-at-time (nth 4 (split-string (sunrise-sunset)))
     	     (* 60 60 24)
     	     (lambda ()
-    	       (sml/apply-theme 'dark)
-    	       (modus-themes-load-vivendi)
-    	       (sml/setup)))
+    	       (modus-themes-load-vivendi)))
 
 
 ### Fonts
@@ -1042,6 +1039,13 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
     
     (add-to-list 'auto-mode-alist
     	     '("\\.ini\\'" . ini-mode))
+
+
+### PHP
+
+see also [this post by Fermin M](https://sasanidas.gitlab.io/f-site/php-development/), it looks really useful.
+
+    (straight-use-package 'php-mode)
 
 
 # Writing
