@@ -393,17 +393,27 @@ helper function, though, to add things to the whitelist.
     (cuss calendar-latitude 30.4515)
     (cuss calendar-longitude -91.1871)
     
-    ;; sunrise
-    (run-at-time (nth 1 (split-string (sunrise-sunset)))
-    	     (* 60 60 24)
-    	     (lambda ()
-    	       (modus-themes-load-operandi)))
+    (defun acdw/run-with-sun (sunrise-command sunset-command)
+      "Run commands at sunrise and sunset."
+      (let* ((times-regex (rx (* nonl)
+    			  (: (any ?s ?S) "unrise") " "
+    			  (group (repeat 1 2 digit) ":"
+    				 (repeat 1 2 digit)
+    				 (: (any ?a ?A ?p ?P) (any ?m ?M)))
+    			  (* nonl)
+    			  (: (any ?s ?S) "unset") " "
+    			  (group (repeat 1 2 digit) ":"
+    				 (repeat 1 2 digit)
+    				 (: (any ?a ?A ?p ?P) (any ?m ?M)))
+    			  (* nonl)))
+    	 (ss (sunrise-sunset))
+    	 (m_ (string-match times-regex ss))
+    	 (sunrise-time (match-string 1 ss))
+    	 (sunset-time (match-string 2 ss)))
+        (run-at-time sunrise-time (* 60 60 24) sunrise-command)
+        (run-at-time sunset-time (* 60 60 24) sunset-command)))
     
-    ;; sunset
-    (run-at-time (nth 4 (split-string (sunrise-sunset)))
-    	     (* 60 60 24)
-    	     (lambda ()
-    	       (modus-themes-load-vivendi)))
+    (acdw/run-with-sun #'modus-themes-load-operandi #'modus-themes-load-vivendi)
 
 
 ### Fonts
@@ -430,19 +440,24 @@ helper function, though, to add things to the whitelist.
           ;; fixed-pitch /is/ the default
           (set-face-from-alternatives face nil
     				  '(:family "Input Mono"
+    					    :slant normal
     					    :weight normal
     					    :height 110)
     				  '(:family "Go Mono"
+    					    :slant normal
     					    :weight normal
     					    :height 100)
     				  '(:family "Consolas"
+    					    :slant normal
     					    :weight normal
     					    :height 100)))
         ;; variable-pitch is different
         (set-face-from-alternatives 'variable-pitch nil
     				'(:family "Input Sans"
+    					  :slant normal
     					  :weight normal)
     				'(:family "Georgia"
+    					  :slant normal
     					  :weight normal)))
     
       ;; remove myself from the hook
@@ -524,15 +539,11 @@ helper function, though, to add things to the whitelist.
 
     (straight-use-package '(consult
     			:host github
-    			:repo "minad/consult"))
+    			:repo "minad/consult"
+    			:files (:defaults "consult-pkg.el")))
     (require 'consult)
     
-    (straight-use-package '(consult-selectrum
-    			:host github
-    			:repo "minad/consult"))
-    (require 'consult-selectrum)
-    
-    (with-eval-after-load 'consult
+    (with-eval-after-load 'consult  
       (define-key ctl-x-map "b" #'consult-buffer)
       (define-key ctl-x-map (kbd "C-r") #'consult-buffer)
       (define-key ctl-x-map "4b" #'consult-buffer-other-window)
@@ -724,12 +735,20 @@ from [u/TheFrenchPoulp](https://www.reddit.com/r/emacs/comments/km9by4/weekly_ti
 
 #### UTF-8
 
-    (set-language-environment "UTF-8")
-    (set-terminal-coding-system 'utf-8)
-    (cuss locale-coding-system 'utf-8)
-    (set-default-coding-systems 'utf-8)
-    (set-selection-coding-system 'utf-8)
+from [Mastering Emacs](https://www.masteringemacs.org/article/working-coding-systems-unicode-emacs).
+
     (prefer-coding-system 'utf-8)
+    (set-default-coding-systems 'utf-8)
+    (set-terminal-coding-system 'utf-8)
+    (set-keyboard-coding-system 'utf-8)
+    ;; backwards compatibility:
+    ;; `default-buffer-file-coding-system' is deprecated in 23.2.
+    (if (boundp 'buffer-file-coding-system)
+        (setq-default buffer-file-coding-system 'utf-8)
+      (setq default-buffer-file-coding-system 'utf-8))
+    
+    ;; Treat clipboard as UTF-8 string first; compound text next, etc.
+    (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
 
 
 #### Convert all files to UNIX-style line endings
@@ -885,14 +904,14 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
 
 #### Replace with Anzu
 
-      (straight-use-package 'anzu)
-      (require 'anzu)
+    (straight-use-package 'anzu)
+    (require 'anzu)
     
-      ;; show search count in the modeline
-      (global-anzu-mode +1)
+    ;; show search count in the modeline
+    (global-anzu-mode +1)
     
-      (cuss anzu-replace-to-string-separator " → "
-        "What to separate the search from the replacement.")
+    (cuss anzu-replace-to-string-separator " → "
+      "What to separate the search from the replacement.")
     
     (global-set-key [remap query-replace] #'anzu-query-replace)
     (global-set-key [remap query-replace-regexp] #'anzu-query-replace-regexp)
@@ -1028,7 +1047,9 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
     (straight-use-package 'janet-mode)
     (require 'janet-mode)
     
-    (straight-use-package 'inf-janet-mode)
+    (straight-use-package '(inf-janet
+    			:host github
+    			:repo "velkyel/inf-janet"))
     
     (add-hook 'janet-mode-hook #'inf-janet-minor-mode)
 
@@ -1180,8 +1201,7 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
 
 ### Basics
 
-    (straight-use-package '(org
-    			:repo "https://code.orgmode.org/bzg/org-mode.git"))
+    (straight-use-package 'org)
     
     (with-eval-after-load 'org
       (require 'org-tempo)
@@ -1226,8 +1246,8 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     (defun acdw/org-mode-prettify ()
       "Prettify `org-mode'."
       (dolist (cell '(("[ ]" . ?□) ("[X]" . ?☑) ("[-]" . ?◐)
-    		  ("#+begin_src" . ?✎) ("#+BEGIN_SRC" . ?✎)
-    		  ("#+end_src" . ?■) ("#+END_SRC" . ?■)))
+    		  ("#+begin_src" . ?✎) ("#+begin_src" . ?✎)
+    		  ("#+end_src" . ?■) ("#+end_src" . ?■)))
         (add-to-list 'prettify-symbols-alist cell :append))
       (prettify-symbols-mode +1))
     
@@ -1391,6 +1411,12 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     (add-hook 'before-save-hook #'cribbed/org-mode-fix-blank-lines)
 
 
+### Org Templates (`org-tempo`)
+
+    (add-to-list 'org-structure-template-alist
+    	     '("el" . "src emacs-lisp"))
+
+
 ### Org Agenda
 
     (cuss org-agenda-files
@@ -1405,12 +1431,13 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     
     (cuss org-todo-keywords
         '((sequence "RECUR(r)" "TODO(t)" "|" "DONE(d)")
+          (sequence "APPT(a)")
           (sequence "|" "CANCELLED(c)")))
     
     (cuss org-agenda-skip-scheduled-if-done t)
     (cuss org-agenda-skip-deadline-if-done t)
-    (cuss org-deadline-warning-days 4
-      "Warn of a deadline beginning four days before.")
+    (cuss org-deadline-warning-days 0
+      "Don't warn of an impending deadline.")
 
 
 ### TODO Capture
@@ -1479,10 +1506,10 @@ I’m only enabling this at home for now, since it requires building stuff.
       (visual-fill-column-mode -1))
     
     (at-home
-      (straight-use-package 'pdf-tools)
-      (pdf-loader-install)
+     (straight-use-package 'pdf-tools)
+     (pdf-loader-install)
     
-      (add-hook 'pdf-view-mode-hook #'acdw/disable-visual-fill-column-mode))
+     (add-hook 'pdf-view-mode-hook #'acdw/disable-visual-fill-column-mode))
 
 
 ## E-book tools
@@ -1729,12 +1756,12 @@ I’m only enabling this at home for now, since it requires building stuff.
 ### Exec path from shell
 
     (at-home
-      (straight-use-package 'exec-path-from-shell)
-      (defvar acdw/exec-path-from-shell-initialized nil
-        "Stores whether we've initialized or not.")
-      (unless acdw/exec-path-from-shell-initialized
-        (exec-path-from-shell-initialize)
-        (setq acdw/exec-path-from-shell-initialized (current-time))))
+     (straight-use-package 'exec-path-from-shell)
+     (defvar acdw/exec-path-from-shell-initialized nil
+       "Stores whether we've initialized or not.")
+     (unless acdw/exec-path-from-shell-initialized
+       (exec-path-from-shell-initialize)
+       (setq acdw/exec-path-from-shell-initialized (current-time))))
 
 
 # Appendices
@@ -1820,8 +1847,6 @@ I’m only enabling this at home for now, since it requires building stuff.
 
 ### emacsdc
 
-:header-args: :tangle bin/emacsdc :tangle-mode (identity #o755)
-
 Here's a wrapper script that'll start `emacs --daemon` if there isn't
 one, and then launch `emacsclient` with the arguments.  I'd recommend
 installing with either `ln -s bin/emacsdc $HOME/.local/bin/`, or
@@ -1835,14 +1860,24 @@ adding `$HOME/.local/bin` to your `$PATH`.
 
 ### Emacs.cmd
 
-Here's a wrapper script that'll run Emacs on Windows, with a custom `$HOME`.  I have
-mine setup like this: Emacs is downloaded from [the GNU mirror](https://mirrors.tripadvisor.com/gnu/emacs/windows/emacs-27/emacs-27.1-x86_64.zip) and unzipped to
-`~/Downloads/emacs/`.  For some reason, Emacs by default sets `$HOME` to `%APPDATA%`,
-which doesn’t make a lot of sense to me.  I change it to `%USERPROFILE%`, and then run
-Emacs with the supplied arguments.
+Here's a wrapper script that'll run Emacs on Windows, with a
+custom `$HOME`.  I have mine setup like this: Emacs is downloaded
+from [the GNU mirror](https://mirrors.tripadvisor.com/gnu/emacs/windows/emacs-27/emacs-27.1-x86_64.zip) and unzipped to `~/Downloads/emacs/`.  For
+some reason, Emacs by default sets `$HOME` to `%APPDATA%`, which
+doesn’t make a lot of sense to me.  I change it to
+`%USERPROFILE%\Downloads\home`, and then run Emacs with the
+supplied arguments.
 
-    set HOME=%USERPROFILE%
-    set EMACS="%USERPROFILE%\Downloads\emacs\bin\runemacs.exe"
+As far as creating a shortcut to the Desktop, you’ll have to do
+that yourself – *apparently* Windows doesn’t have a built-in
+shortcut-creating software >:(.
+
+    REM Set variables
+    set HOME=%USERPROFILE%\Downloads\home
+    set EMACS=%USERPROFILE%\Downloads\emacs\bin\runemacs.exe
+    
+    REM Change the directory
+    chdir %HOME%
     
     REM Run "Quick Mode"
     REM "%EMACS%" -Q %*
@@ -1873,7 +1908,7 @@ following source block, for details.
     
     TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
     
-       0. You just DO WHAT THE FUCK YOU WANT TO.
+    0. You just DO WHAT THE FUCK YOU WANT TO.
 
 
 ### Note on the license
