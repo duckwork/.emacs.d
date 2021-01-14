@@ -2300,7 +2300,7 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
        (interactive "P")
        (let ((config (expand-file-name "config.org" user-emacs-directory)))
 	 (save-mark-and-excursion
-	   (with-current-buffer (find-file config)
+	   (with-current-buffer (find-file-noselect config)
 	     (let ((prog-mode-hook nil))
 	       ;; generate the readme
 	       (when (file-newer-than-file-p config (expand-file-name
