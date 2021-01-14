@@ -786,6 +786,21 @@
 	  (apply original arguments)))
     #+end_src
 
+*** Scroll much faster
+
+from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-magnitude-faster][mpereira]], from somewhere else.
+
+#+begin_src emacs-lisp
+  (cuss auto-window-vscroll nil
+    "Don't auto-adjust `window-vscroll' to view long lines.")
+
+  (cuss fast-but-imprecise-scrolling t
+    "Scroll fast, but possibly with inaccurate text rendering.")
+
+  (cuss jit-lock-defer-time 0
+    "Only defer font-locking when input is pending.")
+#+end_src
+
 ** Persistence
 
 *** Minibuffer history
