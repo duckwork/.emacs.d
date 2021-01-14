@@ -1042,7 +1042,14 @@ from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-mag
 
     #+begin_src emacs-lisp
       (straight-use-package 'adaptive-wrap)
-      (adaptive-wrap-prefix-mode +1)
+
+      (when (fboundp 'adaptive-wrap-prefix-mode)
+	(defun acdw/activate-adaptive-wrap-prefix-mode ()
+	  "Toggle `visual-line-mode' and `adaptive-wrap-prefix-mode' simultaneously."
+	  (adaptive-wrap-prefix-mode (if visual-line-mode
+					 +1
+				       -1)))
+	(add-hook 'visual-line-mode-hook #'acdw/activate-adaptive-wrap-prefix-mode))
     #+end_src
 
 *** Stay snappy with long-lined files
