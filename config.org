@@ -101,7 +101,7 @@
 *** Emulate use-package’s =:custom=
 
     #+begin_src emacs-lisp
-      (defmacro cuss (var val &optional docstring)
+      (defmacro cuss (var val &optional _docstring)
 	"Basically, `:custom' from `use-package', but without `use-package'."
 	(declare (doc-string 3)
 		 (indent 2))
@@ -468,7 +468,7 @@
 					(: (any ?a ?A ?p ?P) (any ?m ?M)))
 				 (* nonl)))
 		(ss (sunrise-sunset))
-		(m_ (string-match times-regex ss))
+		(_m (string-match times-regex ss))
 		(sunrise-time (match-string 1 ss))
 		(sunset-time (match-string 2 ss)))
 	   (run-at-time sunrise-time (* 60 60 24) sunrise-command)
@@ -906,9 +906,7 @@ from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-mag
        (set-keyboard-coding-system 'utf-8)
        ;; backwards compatibility:
        ;; `default-buffer-file-coding-system' is deprecated in 23.2.
-       (if (boundp 'buffer-file-coding-system)
-	   (setq-default buffer-file-coding-system 'utf-8)
-	 (setq default-buffer-file-coding-system 'utf-8))
+       (setq default-buffer-file-coding-system 'utf-8)
 
        ;; Treat clipboard as UTF-8 string first; compound text next, etc.
        (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
@@ -1003,7 +1001,7 @@ from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-mag
       (straight-use-package 'sudo-edit)
 
       (with-eval-after-load 'sudo-edit
-	(global-set-key acdw/map (kbd "C-r") #'sudo-edit))
+	(define-key acdw/map (kbd "C-r") #'sudo-edit))
     #+end_src
 
 **** Don’t add =/sudo:= files to =recentf=, though
