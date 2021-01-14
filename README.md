@@ -90,7 +90,7 @@ doesn't work, I'll call git directly and clone the repo myself.
 
 ### Emulate use-package’s `:custom`
 
-    (defmacro cuss (var val &optional docstring)
+    (defmacro cuss (var val &optional _docstring)
       "Basically, `:custom' from `use-package', but without `use-package'."
       (declare (doc-string 3)
     	   (indent 2))
@@ -407,7 +407,7 @@ helper function, though, to add things to the whitelist.
     				 (: (any ?a ?A ?p ?P) (any ?m ?M)))
     			  (* nonl)))
     	 (ss (sunrise-sunset))
-    	 (m_ (string-match times-regex ss))
+    	 (_m (string-match times-regex ss))
     	 (sunrise-time (match-string 1 ss))
     	 (sunset-time (match-string 2 ss)))
         (run-at-time sunrise-time (* 60 60 24) sunrise-command)
@@ -640,6 +640,20 @@ from [u/TheFrenchPoulp](https://www.reddit.com/r/emacs/comments/km9by4/weekly_ti
         (apply original arguments)))
 
 
+### Scroll much faster
+
+from [mpereira](https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-magnitude-faster), from somewhere else.
+
+    (cuss auto-window-vscroll nil
+      "Don't auto-adjust `window-vscroll' to view long lines.")
+    
+    (cuss fast-but-imprecise-scrolling t
+      "Scroll fast, but possibly with inaccurate text rendering.")
+    
+    (cuss jit-lock-defer-time 0
+      "Only defer font-locking when input is pending.")
+
+
 ## Persistence
 
 
@@ -743,9 +757,7 @@ from [Mastering Emacs](https://www.masteringemacs.org/article/working-coding-sys
     (set-keyboard-coding-system 'utf-8)
     ;; backwards compatibility:
     ;; `default-buffer-file-coding-system' is deprecated in 23.2.
-    (if (boundp 'buffer-file-coding-system)
-        (setq-default buffer-file-coding-system 'utf-8)
-      (setq default-buffer-file-coding-system 'utf-8))
+    (setq default-buffer-file-coding-system 'utf-8)
     
     ;; Treat clipboard as UTF-8 string first; compound text next, etc.
     (setq x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
@@ -830,7 +842,7 @@ Because I like *overkill*, or at least … over-*saving*.
     (straight-use-package 'sudo-edit)
     
     (with-eval-after-load 'sudo-edit
-      (global-set-key acdw/map (kbd "C-r") #'sudo-edit))
+      (define-key acdw/map (kbd "C-r") #'sudo-edit))
 
 
 #### Don’t add `/sudo:` files to `recentf`, though
@@ -867,7 +879,14 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
 ### View long lines like filled lines in the beginning
 
     (straight-use-package 'adaptive-wrap)
-    (adaptive-wrap-prefix-mode +1)
+    
+    (when (fboundp 'adaptive-wrap-prefix-mode)
+      (defun acdw/activate-adaptive-wrap-prefix-mode ()
+        "Toggle `visual-line-mode' and `adaptive-wrap-prefix-mode' simultaneously."
+        (adaptive-wrap-prefix-mode (if visual-line-mode
+    				   +1
+    				 -1)))
+      (add-hook 'visual-line-mode-hook #'acdw/activate-adaptive-wrap-prefix-mode))
 
 
 ### Stay snappy with long-lined files
@@ -1042,6 +1061,28 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
       "Don't truncate printed expressions by level.")
 
 
+#### Eros (Evaluation Result OverlayS)
+
+    (straight-use-package 'eros)
+    
+    (cuss eros-eval-result-prefix ";; => "
+      "Prefix displayed before eros overlays.")
+    
+    (eros-mode +1)
+
+
+#### Indent Elisp like Common Lisp
+
+    (setq lisp-indent-function 'common-lisp-indent-function)
+    (put 'cl-flet 'common-lisp-indent-function
+         (get 'flet 'common-lisp-indent-function))
+    (put 'cl-labels 'common-lisp-indent-function
+         (get 'labels 'common-lisp-indent-function))
+    (put 'if 'common-lisp-indent-function 2)
+    (put 'dotimes-protect 'common-lisp-indent-function
+         (get 'when 'common-lisp-indent-function))
+
+
 ### Janet
 
     (straight-use-package 'janet-mode)
@@ -1151,19 +1192,44 @@ This has to be done *before* loading the package.  It's included in `visual-fill
 # Applications
 
 
+## Web browsing
+
+    (cuss browse-url-browser-function 'browse-url-firefox)
+    (cuss browse-url-new-window-flag t
+      "Always open a new browser window.")
+    
+    ;;(cuss browse-url-generic-program "firefox")
+    (cuss browse-url-firefox-new-window-is-tab t
+      "Or a new tab, in Firefox.")
+    
+    ;; we need to add Firefox to `exec-path' on Windows
+    (at-work
+      (add-to-list 'exec-path "c:/Program Files/Mozilla Firefox"))
+
+
 ## Dired
 
 
 ### Basic customization
 
+    (defun acdw/setup-dired-mode ()
+      (hl-line-mode)
+      (dired-hide-details-mode))
+    
     ;; highlight the current line in dired.
-    (add-hook 'dired-mode-hook #'hl-line-mode)
+    (add-hook 'dired-mode-hook #'acdw/setup-dired-mode)
     
     (cuss dired-recursive-copies 'always
       "Always recursively copy.")
     
+    (cuss dired-recursive-deletes 'always
+      "Always recursively delete.")
+    
+    (cuss delete-by-moving-to-trash t)
+    
     (cuss dired-listing-switches "-alh"
-      "Show All items, Listed out, with Human-readable sizes.")
+      "Show (A)lmost all items, 
+    (l)isted out, with (h)uman-readable sizes.")
 
 
 ### Expand subtrees
@@ -1241,13 +1307,32 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     	      (variable-pitch))))))
 
 
+##### Align all tags in the buffer on changes
+
+from [mpereira](https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-changes).
+
+    (defun acdw/org-align-all-tags ()
+      "Align all org tags in the buffer."
+      (interactive)
+      (when (eq major-mode 'org-mode)
+        (org-align-tags t)))
+    
+    (add-hook 'org-after-tags-change-hook #'acdw/org-align-all-tags)
+
+
+#### Source blocks
+
+    (set-face-attribute 'org-block-begin-line nil
+    		    :height 0.85)
+
+
 #### Prettify
 
     (defun acdw/org-mode-prettify ()
       "Prettify `org-mode'."
-      (dolist (cell '(("[ ]" . ?□) ("[X]" . ?☑) ("[-]" . ?◐)
-    		  ("#+begin_src" . ?✎) ("#+begin_src" . ?✎)
-    		  ("#+end_src" . ?■) ("#+end_src" . ?■)))
+      (dolist (cell '(("[ ]" . ?☐) ("[X]" . ?☑) ("[-]" . ?◐)
+    		  ("#+BEGIN_SRC" . ?✎) ("#+begin_src" . ?✎)
+    		  ("#+END_SRC" . ?■) ("#+end_src" . ?■)))
         (add-to-list 'prettify-symbols-alist cell :append))
       (prettify-symbols-mode +1))
     
@@ -1413,8 +1498,9 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
 
 ### Org Templates (`org-tempo`)
 
-    (add-to-list 'org-structure-template-alist
-    	     '("el" . "src emacs-lisp"))
+    (with-eval-after-load 'org
+      (add-to-list 'org-structure-template-alist
+    	       '("el" . "src emacs-lisp")))
 
 
 ### Org Agenda
@@ -1429,6 +1515,9 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     
     (define-key acdw/map (kbd "C-a") #'org-agenda)
     
+    (cuss org-agenda-span 5
+      "Show today + N days.")
+    
     (cuss org-todo-keywords
         '((sequence "RECUR(r)" "TODO(t)" "|" "DONE(d)")
           (sequence "APPT(a)")
@@ -1438,9 +1527,100 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     (cuss org-agenda-skip-deadline-if-done t)
     (cuss org-deadline-warning-days 0
       "Don't warn of an impending deadline.")
+    
+    (cuss org-log-into-drawer "LOGBOOK"
+      "Log state changes into the LOGBOOK drawer, instead of after
+      the headline.")
+    (cuss org-log-done t
+      "Save CLOSED timestamp when done.")
 
 
-### TODO Capture
+### Capture
+
+
+#### Templates
+
+    (cuss org-default-notes-file (expand-file-name "inbox.org"
+    					       org-directory)
+      "Put unfiled notes in ~/Org/inbox.org.")
+    
+    
+    (cuss org-capture-templates
+        '(("w" "Work Todo") ;;; Work stuff
+          ("ws" "Small Business" entry
+           (file+headline "work.org" "Small Business")
+           "* TODO %?
+    :PROPERTIES:
+    :Via:
+    :Note:
+    :END:
+    :LOGBOOK:
+      - State \"TODO\"       from \"\"           %U
+    :END:" :empty-lines 1)
+          ("wc" "Career Center" entry
+           (file+headline "work.org" "Career Center")
+           "* TODO %?
+    :PROPERTIES:
+    :Via:
+    :Note:
+    :END:
+    :LOGBOOK:
+      - State \"TODO\"       from \"\"           %U
+    :END:" :empty-lines 1)
+          ("wg" "General" entry
+           (file+headline "work.org" "General")
+           "* TODO %?
+    :PROPERTIES:
+    :Via:
+    :Note:
+    :END:
+    :LOGBOOK:
+      - State \"TODO\"       from \"\"           %U
+    :END:" :empty-lines 1)
+    
+          ;;; Regular To-Dos
+          ("t" "Todo")
+          ("tt" "Todo" entry
+           (file+headline "home.org" "TODOs")
+           "* TODO %?
+    :PROPERTIES:
+    :Via:
+    :Note:
+    :END:
+    :LOGBOOK:  
+    - State \"TODO\"       from \"\"           %U
+    :END:" :empty-lines 1)
+    
+          ("td" "Todo with deadline" entry
+           (file+headline "home.org" "TODOs")
+           "* TODO %?
+    DEADLINE: %^t
+    :PROPERTIES:
+    :Via:
+    :Note:
+    :END:
+    :LOGBOOK:  
+    - State \"TODO\"       from \"\"           %U
+    :END:" :empty-lines 1)
+    
+    
+          ("g" "Gift idea" entry
+           (file+headline "home.org" "Gift ideas")
+           "* %^{Who?}
+    * %^{What?}" :empty-lines 1)
+    
+          ("d" "Diary entry" entry
+           (file+datetree "diary.org")
+           "* %?
+    Entered on %U
+    
+    " :empty-lines 1)))
+
+
+#### Keybindings
+
+    (with-eval-after-load 'org-capture
+      (define-key acdw/map (kbd "C-c") #'org-capture))
 
 
 ### Include Org links in source code
@@ -1742,9 +1922,19 @@ I’m only enabling this at home for now, since it requires building stuff.
     		    (list "ttrss+https://acdw@rss.tildeverse.org"
     			  :use-authinfo t)))
     
-    (setq elfeed-log-level 'debug)
+    ;; Uncomment this line if elfeed is giving problems.
+    ;; (setq elfeed-log-level 'debug)
     
     (elfeed-protocol-enable)
+    
+    (defun acdw/update-elfeed-protocol-feeds ()
+      "Wrap various (non-working) protocol updaters.
+    I could probably do this in a much more ... better way."
+      (interactive)
+      (elfeed-protocol-ttrss-reinit "https://rss.tildeverse.org"))
+    
+    (with-eval-after-load 'elfeed
+      (define-key elfeed-search-mode-map "G" #'acdw/update-elfeed-protocol-feeds))
 
 
 # System integration
@@ -1816,7 +2006,7 @@ I’m only enabling this at home for now, since it requires building stuff.
       (interactive "P")
       (let ((config (expand-file-name "config.org" user-emacs-directory)))
         (save-mark-and-excursion
-          (with-current-buffer (find-file config)
+          (with-current-buffer (find-file-noselect config)
     	(let ((prog-mode-hook nil))
     	  ;; generate the readme
     	  (when (file-newer-than-file-p config (expand-file-name
@@ -1917,4 +2107,9 @@ It's highly likely that the WTFPL is completely incompatible with the
 GPL, for what should be fairly obvious reasons.  To that, I say:
 
 **SUE ME, RMS!**
+
+
+## TODO Local variables
+
+One day, I’m going to add a Local Variables block to the end of this file, which will add an `after-save-hook` to auto-tangle the file after saving.  But first I need to research how best to do that asynchronously.  So.
 
