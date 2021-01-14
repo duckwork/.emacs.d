@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-12 17:49:44 aduckworth>
+#+Time-stamp: <2021-01-13 17:27:55 aduckworth>
 
 * Basics
 
@@ -2412,3 +2412,7 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
     GPL, for what should be fairly obvious reasons.  To that, I say:
 
     *SUE ME, RMS!*
+
+** TODO Local variables 
+
+One day, I’m going to add a Local Variables block to the end of this file, which will add an =after-save-hook= to auto-tangle the file after saving.  But first I need to research how best to do that asynchronously.  So.
