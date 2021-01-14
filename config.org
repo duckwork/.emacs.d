@@ -2213,9 +2213,19 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
 			  (list "ttrss+https://acdw@rss.tildeverse.org"
 				:use-authinfo t)))
 
-      (setq elfeed-log-level 'debug)
+      ;; Uncomment this line if elfeed is giving problems.
+      ;; (setq elfeed-log-level 'debug)
 
       (elfeed-protocol-enable)
+
+      (defun acdw/update-elfeed-protocol-feeds ()
+	"Wrap various (non-working) protocol updaters.
+      I could probably do this in a much more ... better way."
+	(interactive)
+	(elfeed-protocol-ttrss-reinit "https://rss.tildeverse.org"))
+
+      (with-eval-after-load 'elfeed
+	(define-key elfeed-search-mode-map "G" #'acdw/update-elfeed-protocol-feeds))
     #+end_src
 
 * System integration
