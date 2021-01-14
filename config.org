@@ -1456,19 +1456,45 @@ from [[https://github.com/Fuco1/.emacs.d/blob/a8230343bb7e2f07f5eac8e63e5506fa16
 
 * Applications
 
+** Web browsing
+
+   #+begin_src emacs-lisp
+     (cuss browse-url-browser-function 'browse-url-firefox)
+     (cuss browse-url-new-window-flag t
+       "Always open a new browser window.")
+
+     ;;(cuss browse-url-generic-program "firefox")
+     (cuss browse-url-firefox-new-window-is-tab t
+       "Or a new tab, in Firefox.")
+
+     ;; we need to add Firefox to `exec-path' on Windows
+     (at-work
+       (add-to-list 'exec-path "c:/Program Files/Mozilla Firefox"))
+   #+end_src
+
 ** Dired
 
 *** Basic customization
 
     #+begin_src emacs-lisp
+      (defun acdw/setup-dired-mode ()
+	(hl-line-mode)
+	(dired-hide-details-mode))
+
       ;; highlight the current line in dired.
-      (add-hook 'dired-mode-hook #'hl-line-mode)
+      (add-hook 'dired-mode-hook #'acdw/setup-dired-mode)
 
       (cuss dired-recursive-copies 'always
 	"Always recursively copy.")
 
+      (cuss dired-recursive-deletes 'always
+	"Always recursively delete.")
+
+      (cuss delete-by-moving-to-trash t)
+
       (cuss dired-listing-switches "-alh"
-	"Show All items, Listed out, with Human-readable sizes.")
+	"Show (A)lmost all items, 
+      (l)isted out, with (h)uman-readable sizes.")
     #+end_src
 
 *** Expand subtrees
