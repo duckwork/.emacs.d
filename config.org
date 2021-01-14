@@ -1792,6 +1792,9 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
 
       (define-key acdw/map (kbd "C-a") #'org-agenda)
 
+      (cuss org-agenda-span 5
+	"Show today + N days.")
+
       (cuss org-todo-keywords
 	  '((sequence "RECUR(r)" "TODO(t)" "|" "DONE(d)")
 	    (sequence "APPT(a)")
@@ -1801,6 +1804,12 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
       (cuss org-agenda-skip-deadline-if-done t)
       (cuss org-deadline-warning-days 0
 	"Don't warn of an impending deadline.")
+
+      (cuss org-log-into-drawer "LOGBOOK"
+	"Log state changes into the LOGBOOK drawer, instead of after
+	the headline.")
+      (cuss org-log-done t
+	"Save CLOSED timestamp when done.")
     #+end_src
 
 *** TODO Capture
