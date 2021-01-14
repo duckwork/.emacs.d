@@ -1812,7 +1812,94 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
 	"Save CLOSED timestamp when done.")
     #+end_src
 
-*** TODO Capture
+*** Capture
+
+**** Templates
+
+    #+begin_src emacs-lisp
+      (cuss org-default-notes-file (expand-file-name "inbox.org"
+						     org-directory)
+	"Put unfiled notes in ~/Org/inbox.org.")
+
+
+      (cuss org-capture-templates
+	  '(("w" "Work Todo") ;;; Work stuff
+	    ("ws" "Small Business" entry
+	     (file+headline "work.org" "Small Business")
+	     "* TODO %?
+      :PROPERTIES:
+      :Via:
+      :Note:
+      :END:
+      :LOGBOOK:
+	- State \"TODO\"       from \"\"           %U
+      :END:" :empty-lines 1)
+	    ("wc" "Career Center" entry
+	     (file+headline "work.org" "Career Center")
+	     "* TODO %?
+      :PROPERTIES:
+      :Via:
+      :Note:
+      :END:
+      :LOGBOOK:
+	- State \"TODO\"       from \"\"           %U
+      :END:" :empty-lines 1)
+	    ("wg" "General" entry
+	     (file+headline "work.org" "General")
+	     "* TODO %?
+      :PROPERTIES:
+      :Via:
+      :Note:
+      :END:
+      :LOGBOOK:
+	- State \"TODO\"       from \"\"           %U
+      :END:" :empty-lines 1)
+
+	    ;;; Regular To-Dos
+	    ("t" "Todo")
+	    ("tt" "Todo" entry
+	     (file+headline "home.org" "TODOs")
+	     "* TODO %?
+      :PROPERTIES:
+      :Via:
+      :Note:
+      :END:
+      :LOGBOOK:  
+      - State \"TODO\"       from \"\"           %U
+      :END:" :empty-lines 1)
+
+	    ("td" "Todo with deadline" entry
+	     (file+headline "home.org" "TODOs")
+	     "* TODO %?
+      DEADLINE: %^t
+      :PROPERTIES:
+      :Via:
+      :Note:
+      :END:
+      :LOGBOOK:  
+      - State \"TODO\"       from \"\"           %U
+      :END:" :empty-lines 1)
+
+      
+	    ("g" "Gift idea" entry
+	     (file+headline "home.org" "Gift ideas")
+	     "* %^{Who?}
+      ,* %^{What?}" :empty-lines 1)
+
+	    ("d" "Diary entry" entry
+	     (file+datetree "diary.org")
+	     "* %?
+      Entered on %U
+
+      " :empty-lines 1)))
+    #+end_src
+
+**** Keybindings
+
+     #+begin_src emacs-lisp
+       (with-eval-after-load 'org-capture
+	 (define-key acdw/map (kbd "C-c") #'org-capture))
+     #+end_src
 
 *** Include Org links in source code
 
