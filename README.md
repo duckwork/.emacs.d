@@ -129,17 +129,20 @@ This comes in handy when I want to garbage collect, say, or save recent files.
 
 I use Emacs at home, with Linux, and at work, with Windows.
 
-    (defmacro at-work (&rest commands)
-      "Only do COMMANDS when at work."
-      (declare (indent defun))
-      `(when (memq system-type '(ms-dos windows-nt))
-         ,@commands))
-    
-    (defmacro at-home (&rest commands)
-      "Only do COMMANDS when at home."
-      (declare (indent defun))
-      `(when (memq system-type '(gnu gnu/linux gnu/kfreebsd))
-         ,@commands))
+    (defmacro when-at (conditions &rest commands)
+      "Only do COMMANDS when CONDITIONS are met.
+    CONDITIONS are one of `:work', `:home', or a list beginning with
+    the above and other conditions to check."
+      (declare (indent 1))
+      (let ((at-work (memq system-type '(ms-dos windows-nt)))
+    	(at-home (memq system-type '(gnu gnu/linux gnu/kfreebsd))))
+        (pcase conditions
+          (:work `(when ',at-work ,@commands))
+          (:home `(when ',at-home ,@commands))
+          (`(:work ,others) `(when (and ',at-work ,others)
+    			   ,@commands))
+          (`(:home ,others) `(when (and ',at-home ,others)
+    			   ,@commands)))))
 
 
 ## Clean `.emacs.d`
@@ -218,6 +221,12 @@ from [EmacsWiki](https://www.emacswiki.org/emacs/AlarmBell#h5o-3).
     (cuss indicate-buffer-boundaries 'right
       "Indicate the beginning and end of the buffer and whether it
       scrolls off-window in the right fringe.")
+    
+    (cuss visual-line-fringe-indicators '(left-curly-arrow nil)
+      "Indicate continuing lines with a curly arrow in the left fringe.")
+    
+    (set-fringe-bitmap-face 'left-curly-arrow
+    			'((t :inherit 'comment)))
 
 
 #### Minibuffer
@@ -798,6 +807,9 @@ UNIX line endings, so I don't want to hear it.
 
 ### Auto-saves
 
+    ;; turn off auto-save-mode until we can set up the right directory for them
+    (auto-save-mode -1)
+    
     (with-eval-after-load 'no-littering
       (let ((dir (no-littering-expand-var-file-name "autosaves")))
         (make-directory dir 'parents)
@@ -849,6 +861,12 @@ Because I like *overkill*, or at least … over-*saving*.
 
 I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://github.com/ncaq/recentf-remove-sudo-tramp-prefix/) – it’s a small enough package that I can just include it completely here.
 
+    ;; appease the compiler
+    (declare-function tramp-tramp-file-p "tramp")
+    (declare-function tramp-dissect-file-name "tramp")
+    (declare-function tramp-file-name-method "tramp")
+    (declare-function tramp-file-name-localname "tramp")
+    
     (defun recentf-remove-sudo-tramp-prefix (path)
       "Remove sudo from PATH."
       (require 'tramp)
@@ -857,15 +875,15 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
     	(if (string-equal "sudo" (tramp-file-name-method tx))
     	    (tramp-file-name-localname tx)
     	  path))
-        path))
+        path)
     
-    (defun recentf-remove-sudo-tramp-prefix-from-recentf-list ()
-      (require 'recentf)
-      (setq recentf-list
-    	(mapcar #'recentf-remove-sudo-tramp-prefix recentf-list)))
+      (defun recentf-remove-sudo-tramp-prefix-from-recentf-list ()
+        (require 'recentf)
+        (setq recentf-list
+    	  (mapcar #'recentf-remove-sudo-tramp-prefix recentf-list)))
     
-    (advice-add 'recentf-cleanup
-    	    :before #'recentf-remove-sudo-tramp-prefix-from-recentf-list)
+      (advice-add 'recentf-cleanup
+    	      :before #'recentf-remove-sudo-tramp-prefix-from-recentf-list))
 
 
 ## Text editing
@@ -1073,6 +1091,7 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
 
 #### Indent Elisp like Common Lisp
 
+    (require 'cl-lib)
     (setq lisp-indent-function 'common-lisp-indent-function)
     (put 'cl-flet 'common-lisp-indent-function
          (get 'flet 'common-lisp-indent-function))
@@ -1203,7 +1222,7 @@ This has to be done *before* loading the package.  It's included in `visual-fill
       "Or a new tab, in Firefox.")
     
     ;; we need to add Firefox to `exec-path' on Windows
-    (at-work
+    (when-at :work
       (add-to-list 'exec-path "c:/Program Files/Mozilla Firefox"))
 
 
@@ -1322,8 +1341,9 @@ from [mpereira](https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffe
 
 #### Source blocks
 
-    (set-face-attribute 'org-block-begin-line nil
-    		    :height 0.85)
+    (with-eval-after-load 'org-faces
+      (set-face-attribute 'org-block-begin-line nil
+    		      :height 0.85))
 
 
 #### Prettify
@@ -1610,7 +1630,7 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
     * %^{What?}" :empty-lines 1)
     
           ("d" "Diary entry" entry
-           (file+datetree "diary.org")
+           (file+olp+datetree "diary.org")
            "* %?
     Entered on %U
     
@@ -1619,6 +1639,8 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
 
 #### Keybindings
 
+    (require 'org-capture)
+    
     (with-eval-after-load 'org-capture
       (define-key acdw/map (kbd "C-c") #'org-capture))
 
@@ -1685,11 +1707,12 @@ I’m only enabling this at home for now, since it requires building stuff.
       "Disable `visual-fill-column-mode'."
       (visual-fill-column-mode -1))
     
-    (at-home
-     (straight-use-package 'pdf-tools)
-     (pdf-loader-install)
+    (eval-when-compile
+      (when-at :home
+        (straight-use-package 'pdf-tools)
+        (pdf-loader-install)
     
-     (add-hook 'pdf-view-mode-hook #'acdw/disable-visual-fill-column-mode))
+        (add-hook 'pdf-view-mode-hook #'acdw/disable-visual-fill-column-mode)))
 
 
 ## E-book tools
@@ -1712,8 +1735,7 @@ I’m only enabling this at home for now, since it requires building stuff.
 
 ## Email
 
-    (when (executable-find "mu")
-    
+    (when-at (:home (executable-find "mu"))
       (add-to-list 'load-path
     	       "/usr/share/emacs/site-lisp/mu4e")
       (require 'mu4e)
@@ -1752,18 +1774,18 @@ I’m only enabling this at home for now, since it requires building stuff.
     
       (cuss mu4e-bookmarks
           '((:name "Unread"
-    	       :query
-    	       "flag:unread AND NOT flag:trashed AND NOT maildir:/Spam"
-    	       :key ?u)
+    	 :query
+    	 "flag:unread AND NOT flag:trashed AND NOT maildir:/Spam"
+    	 :key ?u)
     	(:name "Today"
-    	       :query 
-    	       "date:today..now and not flag:trashed and not maildir:/Spam"
-    	       :key ?t)
+    	 :query 
+    	 "date:today..now and not flag:trashed and not maildir:/Spam"
+    	 :key ?t)
     	(:name "This week"
-    	       :query
-    	       "date:7d..now and not maildir:/Spam and not flag:trashed"
-    	       :hide-unread t
-    	       :key ?w)))
+    	 :query
+    	 "date:7d..now and not maildir:/Spam and not flag:trashed"
+    	 :hide-unread t
+    	 :key ?w)))
     
       (cuss mu4e-headers-fields
           '((:human-date . 12)
@@ -1779,23 +1801,23 @@ I’m only enabling this at home for now, since it requires building stuff.
     	(,mu4e-drafts-folder . ?d)
     	(,mu4e-trash-folder . ?t)))
     
-      (defun acdw/setup-mu4e-headers-mode ()
-        (visual-line-mode -1))
-    
-      (add-hook 'mu4e-headers-mode #'acdw/setup-mu4e-headers-mode)
-    
-      (defun acdw/setup-mu4e-view-mode ()
-        (setq visual-fill-column-center-text t)
-        (visual-fill-column-mode +1))
-    
-      (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode)
-      (add-hook 'mu4e-compose-mode-hook #'acdw/setup-mu4e-view-mode)
-    
       (cuss mu4e-get-mail-command (cond ((executable-find "mbsync")
     				     "mbsync -a"))
         "The command to update mail with.")
       (cuss mu4e-update-interval 300
         "Update automatically every 5 minutes.")
+    
+      (defun acdw/setup-mu4e-headers-mode ()
+        (visual-line-mode -1))
+      (add-hook 'mu4e-headers-mode #'acdw/setup-mu4e-headers-mode)
+    
+      (defun acdw/setup-mu4e-view-mode ()
+        (setq visual-fill-column-center-text t)
+        (visual-fill-column-mode +1))
+      (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode)
+      (add-hook 'mu4e-compose-mode-hook #'acdw/setup-mu4e-view-mode)
+    
+      (declare-function mu4e "mu4e")
       (mu4e +1))
 
 
@@ -1884,10 +1906,8 @@ I’m only enabling this at home for now, since it requires building stuff.
 ### Gemini-write
 
     (straight-use-package '(gemini-write
-    			:repo "https://alexschroeder.ch/cgit/gemini-write"))
+    			:repo "https://tildegit.org/acdw/gemini-write.git"))
     (require 'gemini-write)
-    
-    ;; TODO : add tokens ... somehow
 
 
 ## RSS
@@ -1945,13 +1965,14 @@ I’m only enabling this at home for now, since it requires building stuff.
 
 ### Exec path from shell
 
-    (at-home
-     (straight-use-package 'exec-path-from-shell)
-     (defvar acdw/exec-path-from-shell-initialized nil
-       "Stores whether we've initialized or not.")
-     (unless acdw/exec-path-from-shell-initialized
-       (exec-path-from-shell-initialize)
-       (setq acdw/exec-path-from-shell-initialized (current-time))))
+    (eval-when-compile
+      (when-at :home
+        (straight-use-package 'exec-path-from-shell)
+        (defvar acdw/exec-path-from-shell-initialized nil
+          "Stores whether we've initialized or not.")
+        (unless acdw/exec-path-from-shell-initialized
+          (exec-path-from-shell-initialize)
+          (setq acdw/exec-path-from-shell-initialized (current-time)))))
 
 
 # Appendices
