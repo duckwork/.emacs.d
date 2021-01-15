@@ -1022,6 +1022,12 @@ from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-mag
      I’ve pretty much cribbed this from [[https://github.com/ncaq/recentf-remove-sudo-tramp-prefix/][recentf-remove-sudo-tramp-prefix]] – it’s a small enough package that I can just include it completely here.
 
      #+begin_src emacs-lisp
+       ;; appease the compiler
+       (declare-function tramp-tramp-file-p "tramp")
+       (declare-function tramp-dissect-file-name "tramp")
+       (declare-function tramp-file-name-method "tramp")
+       (declare-function tramp-file-name-localname "tramp")
+
        (defun recentf-remove-sudo-tramp-prefix (path)
 	 "Remove sudo from PATH."
 	 (require 'tramp)
@@ -1030,15 +1036,15 @@ from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-mag
 	       (if (string-equal "sudo" (tramp-file-name-method tx))
 		   (tramp-file-name-localname tx)
 		 path))
-	   path))
+	   path)
 
-       (defun recentf-remove-sudo-tramp-prefix-from-recentf-list ()
-	 (require 'recentf)
-	 (setq recentf-list
-	       (mapcar #'recentf-remove-sudo-tramp-prefix recentf-list)))
+	 (defun recentf-remove-sudo-tramp-prefix-from-recentf-list ()
+	   (require 'recentf)
+	   (setq recentf-list
+		 (mapcar #'recentf-remove-sudo-tramp-prefix recentf-list)))
 
-       (advice-add 'recentf-cleanup
-		   :before #'recentf-remove-sudo-tramp-prefix-from-recentf-list)
+	 (advice-add 'recentf-cleanup
+		     :before #'recentf-remove-sudo-tramp-prefix-from-recentf-list))
      #+end_src
 
 ** Text editing
@@ -1534,8 +1540,9 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
 **** Source blocks
 
      #+begin_src emacs-lisp
-       (set-face-attribute 'org-block-begin-line nil
-			   :height 0.85)
+       (with-eval-after-load 'org-faces
+	 (set-face-attribute 'org-block-begin-line nil
+			     :height 0.85))
      #+end_src
 
 **** Prettify
@@ -1837,6 +1844,8 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
 **** Keybindings
 
      #+begin_src emacs-lisp
+       (require 'org-capture)
+
        (with-eval-after-load 'org-capture
 	 (define-key acdw/map (kbd "C-c") #'org-capture))
      #+end_src
