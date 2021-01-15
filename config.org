@@ -962,6 +962,9 @@ from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-mag
 *** Auto-saves
 
     #+begin_src emacs-lisp
+      ;; turn off auto-save-mode until we can set up the right directory for them
+      (auto-save-mode -1)
+
       (with-eval-after-load 'no-littering
 	(let ((dir (no-littering-expand-var-file-name "autosaves")))
 	  (make-directory dir 'parents)
