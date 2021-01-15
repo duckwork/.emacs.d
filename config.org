@@ -1827,14 +1827,14 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
       - State \"TODO\"       from \"\"           %U
       :END:" :empty-lines 1)
 
-      
+
 	    ("g" "Gift idea" entry
 	     (file+headline "home.org" "Gift ideas")
 	     "* %^{Who?}
       ,* %^{What?}" :empty-lines 1)
 
 	    ("d" "Diary entry" entry
-	     (file+datetree "diary.org")
+	     (file+olp+datetree "diary.org")
 	     "* %?
       Entered on %U
 
