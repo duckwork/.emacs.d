@@ -143,17 +143,20 @@
     I use Emacs at home, with Linux, and at work, with Windows.
 
     #+begin_src emacs-lisp
-      (defmacro at-work (&rest commands)
-	"Only do COMMANDS when at work."
-	(declare (indent defun))
-	`(when (memq system-type '(ms-dos windows-nt))
-	   ,@commands))
-
-      (defmacro at-home (&rest commands)
-	"Only do COMMANDS when at home."
-	(declare (indent defun))
-	`(when (memq system-type '(gnu gnu/linux gnu/kfreebsd))
-	   ,@commands))
+      (defmacro when-at (conditions &rest commands)
+	"Only do COMMANDS when CONDITIONS are met.
+      CONDITIONS are one of `:work', `:home', or a list beginning with
+      the above and other conditions to check."
+	(declare (indent 1))
+	(let ((at-work (memq system-type '(ms-dos windows-nt)))
+	      (at-home (memq system-type '(gnu gnu/linux gnu/kfreebsd))))
+	  (pcase conditions
+	    (:work `(when ',at-work ,@commands))
+	    (:home `(when ',at-home ,@commands))
+	    (`(:work ,others) `(when (and ',at-work ,others)
+				 ,@commands))
+	    (`(:home ,others) `(when (and ',at-home ,others)
+				 ,@commands)))))
     #+end_src
 
 ** Clean =.emacs.d=
@@ -1395,7 +1398,7 @@ from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-mag
        "Or a new tab, in Firefox.")
 
      ;; we need to add Firefox to `exec-path' on Windows
-     (at-work
+     (when-at :work
        (add-to-list 'exec-path "c:/Program Files/Mozilla Firefox"))
    #+end_src
 
@@ -1896,11 +1899,12 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
        "Disable `visual-fill-column-mode'."
        (visual-fill-column-mode -1))
 
-     (at-home
-      (straight-use-package 'pdf-tools)
-      (pdf-loader-install)
+     (eval-when-compile
+       (when-at :home
+	 (straight-use-package 'pdf-tools)
+	 (pdf-loader-install)
 
-      (add-hook 'pdf-view-mode-hook #'acdw/disable-visual-fill-column-mode))
+	 (add-hook 'pdf-view-mode-hook #'acdw/disable-visual-fill-column-mode)))
    #+end_src
 
 ** E-book tools
@@ -1925,8 +1929,7 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
 ** Email
 
    #+begin_src emacs-lisp
-     (when (executable-find "mu")
-
+     (when-at (:home (executable-find "mu"))
        (add-to-list 'load-path
 		    "/usr/share/emacs/site-lisp/mu4e")
        (require 'mu4e)
@@ -2162,13 +2165,14 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
 *** Exec path from shell
 
     #+begin_src emacs-lisp
-      (at-home
-       (straight-use-package 'exec-path-from-shell)
-       (defvar acdw/exec-path-from-shell-initialized nil
-	 "Stores whether we've initialized or not.")
-       (unless acdw/exec-path-from-shell-initialized
-	 (exec-path-from-shell-initialize)
-	 (setq acdw/exec-path-from-shell-initialized (current-time))))
+      (eval-when-compile
+	(when-at :home
+	  (straight-use-package 'exec-path-from-shell)
+	  (defvar acdw/exec-path-from-shell-initialized nil
+	    "Stores whether we've initialized or not.")
+	  (unless acdw/exec-path-from-shell-initialized
+	    (exec-path-from-shell-initialize)
+	    (setq acdw/exec-path-from-shell-initialized (current-time)))))
     #+end_src
 
 * Appendices
