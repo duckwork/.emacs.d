@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-14 17:59:25 aduckworth>
+#+Time-stamp: <2021-01-14 20:21:43 acdw>
 
 * Basics
 
@@ -1174,6 +1174,19 @@ from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-mag
       (straight-use-package 'expand-region)
 
       (global-set-key (kbd "C-=") #'er/expand-region)
+    #+end_src
+
+*** Move where I mean
+
+    #+begin_src emacs-lisp
+      (straight-use-package 'mwim)
+      (require 'mwim)
+
+      (cuss mwim-beginning-of-line-function 'beginning-of-visual-line)
+      (cuss mwim-end-of-line-function 'end-of-visual-line)
+
+      (global-set-key (kbd "C-a") #'mwim-beginning)
+      (global-set-key (kbd "C-e") #'mwim-end)
     #+end_src
 
 * Programming
