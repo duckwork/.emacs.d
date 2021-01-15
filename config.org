@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-14 20:21:43 acdw>
+#+Time-stamp: <2021-01-14 20:38:43 acdw>
 
 * Basics
 
@@ -245,8 +245,12 @@
        (cuss visual-line-fringe-indicators '(left-curly-arrow nil)
 	 "Indicate continuing lines with a curly arrow in the left fringe.")
 
-       (set-fringe-bitmap-face 'left-curly-arrow
-			       '((t :inherit 'comment)))
+       ;; redefine the `left-curly-arrow' indicator to be less distracting.
+       (define-fringe-bitmap 'left-curly-arrow
+	   [#b11000000
+	    #b01100000
+	    #b00110000
+	    #b00011000])
      #+end_src
 
 
