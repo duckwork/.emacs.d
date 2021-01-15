@@ -1987,18 +1987,18 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
 
        (cuss mu4e-bookmarks
 	   '((:name "Unread"
-		    :query
-		    "flag:unread AND NOT flag:trashed AND NOT maildir:/Spam"
-		    :key ?u)
+	      :query
+	      "flag:unread AND NOT flag:trashed AND NOT maildir:/Spam"
+	      :key ?u)
 	     (:name "Today"
-		    :query 
-		    "date:today..now and not flag:trashed and not maildir:/Spam"
-		    :key ?t)
+	      :query 
+	      "date:today..now and not flag:trashed and not maildir:/Spam"
+	      :key ?t)
 	     (:name "This week"
-		    :query
-		    "date:7d..now and not maildir:/Spam and not flag:trashed"
-		    :hide-unread t
-		    :key ?w)))
+	      :query
+	      "date:7d..now and not maildir:/Spam and not flag:trashed"
+	      :hide-unread t
+	      :key ?w)))
 
        (cuss mu4e-headers-fields
 	   '((:human-date . 12)
@@ -2014,23 +2014,23 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
 	     (,mu4e-drafts-folder . ?d)
 	     (,mu4e-trash-folder . ?t)))
 
-       (defun acdw/setup-mu4e-headers-mode ()
-	 (visual-line-mode -1))
-
-       (add-hook 'mu4e-headers-mode #'acdw/setup-mu4e-headers-mode)
-
-       (defun acdw/setup-mu4e-view-mode ()
-	 (setq visual-fill-column-center-text t)
-	 (visual-fill-column-mode +1))
-
-       (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode)
-       (add-hook 'mu4e-compose-mode-hook #'acdw/setup-mu4e-view-mode)
-
        (cuss mu4e-get-mail-command (cond ((executable-find "mbsync")
 					  "mbsync -a"))
 	 "The command to update mail with.")
        (cuss mu4e-update-interval 300
 	 "Update automatically every 5 minutes.")
+
+       (defun acdw/setup-mu4e-headers-mode ()
+	 (visual-line-mode -1))
+       (add-hook 'mu4e-headers-mode #'acdw/setup-mu4e-headers-mode)
+
+       (defun acdw/setup-mu4e-view-mode ()
+	 (setq visual-fill-column-center-text t)
+	 (visual-fill-column-mode +1))
+       (add-hook 'mu4e-view-mode-hook #'acdw/setup-mu4e-view-mode)
+       (add-hook 'mu4e-compose-mode-hook #'acdw/setup-mu4e-view-mode)
+
+       (declare-function mu4e "mu4e")
        (mu4e +1))
    #+end_src
 
