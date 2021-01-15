@@ -241,7 +241,14 @@
        (cuss indicate-buffer-boundaries 'right
 	 "Indicate the beginning and end of the buffer and whether it
 	 scrolls off-window in the right fringe.")
+
+       (cuss visual-line-fringe-indicators '(left-curly-arrow nil)
+	 "Indicate continuing lines with a curly arrow in the left fringe.")
+
+       (set-fringe-bitmap-face 'left-curly-arrow
+			       '((t :inherit 'comment)))
      #+end_src
+
 
 **** Minibuffer
 
