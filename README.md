@@ -468,25 +468,25 @@ helper function, though, to add things to the whitelist.
           ;; fixed-pitch /is/ the default
           (set-face-from-alternatives face nil
     				  '(:family "Input Mono"
-    					    :slant normal
-    					    :weight normal
-    					    :height 110)
+    				    :slant normal
+    				    :weight normal
+    				    :height 110)
     				  '(:family "Go Mono"
-    					    :slant normal
-    					    :weight normal
-    					    :height 100)
+    				    :slant normal
+    				    :weight normal
+    				    :height 100)
     				  '(:family "Consolas"
-    					    :slant normal
-    					    :weight normal
-    					    :height 100)))
+    				    :slant normal
+    				    :weight normal
+    				    :height 100)))
         ;; variable-pitch is different
         (set-face-from-alternatives 'variable-pitch nil
     				'(:family "Input Sans"
-    					  :slant normal
-    					  :weight normal)
+    				  :slant normal
+    				  :weight normal)
     				'(:family "Georgia"
-    					  :slant normal
-    					  :weight normal)))
+    				  :slant normal
+    				  :weight normal)))
     
       ;; remove myself from the hook
       (remove-function after-focus-change-function #'acdw/setup-fonts))
@@ -1070,6 +1070,17 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
     (global-aggressive-indent-mode +1)
 
 
+## Auto-fill comments only
+
+from [EmacsWiki](https://www.emacswiki.org/emacs/AutoFillMode).
+
+    (defun comment-auto-fill ()
+      (setq-local comment-auto-fill-only-comments t)
+      (auto-fill-mode 1))
+    
+    (add-hook 'prog-mode-hook #'comment-auto-fill)
+
+
 ## Completion
 
     (straight-use-package 'company)
@@ -1428,81 +1439,81 @@ from [mpereira](https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffe
       (if default
           (org-return)
         (cond
-         ;; Act depending on context around point.
+          ;; Act depending on context around point.
     
-         ;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
-         ;; followed.
+          ;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
+          ;; followed.
     
-         ;; ((eq 'link (car (org-element-context)))
-         ;;  ;; Link: Open it.
-         ;;  (org-open-at-point-global))
+          ;; ((eq 'link (car (org-element-context)))
+          ;;  ;; Link: Open it.
+          ;;  (org-open-at-point-global))
     
-         ((org-at-heading-p)
-          ;; Heading: Move to position after entry content.
-          ;; NOTE: This is probably the most interesting feature of this function.
-          (let ((heading-start (org-entry-beginning-position)))
-    	(goto-char (org-entry-end-position))
-    	(cond ((and (org-at-heading-p)
-    		    (= heading-start (org-entry-beginning-position)))
-    	       ;; Entry ends on its heading; add newline after
-    	       (end-of-line)
-    	       (insert "\n\n"))
-    	      (t
-    	       ;; Entry ends after its heading; back up
-    	       (forward-line -1)
-    	       (end-of-line)
-    	       (when (org-at-heading-p)
-    		 ;; At the same heading
-    		 (forward-line)
-    		 (insert "\n")
-    		 (forward-line -1))
-    	       ;; FIXME: looking-back is supposed to be called with more arguments.
-    	       (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n"))) nil))
-    		 (insert "\n"))
-    	       (forward-line -1)))))
+          ((org-at-heading-p)
+           ;; Heading: Move to position after entry content.
+           ;; NOTE: This is probably the most interesting feature of this function.
+           (let ((heading-start (org-entry-beginning-position)))
+    	 (goto-char (org-entry-end-position))
+    	 (cond ((and (org-at-heading-p)
+    		     (= heading-start (org-entry-beginning-position)))
+    		;; Entry ends on its heading; add newline after
+    		(end-of-line)
+    		(insert "\n\n"))
+    	       (t
+    		;; Entry ends after its heading; back up
+    		(forward-line -1)
+    		(end-of-line)
+    		(when (org-at-heading-p)
+    		  ;; At the same heading
+    		  (forward-line)
+    		  (insert "\n")
+    		  (forward-line -1))
+    		;; FIXME: looking-back is supposed to be called with more arguments.
+    		(while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n"))) nil))
+    		  (insert "\n"))
+    		(forward-line -1)))))
     
-         ((org-at-item-checkbox-p)
-          ;; Checkbox: Insert new item with checkbox.
-          (org-insert-todo-heading nil))
+          ((org-at-item-checkbox-p)
+           ;; Checkbox: Insert new item with checkbox.
+           (org-insert-todo-heading nil))
     
-         ((org-in-item-p)
-          ;; Plain list.  Yes, this gets a little complicated...
-          (let ((context (org-element-context)))
-    	(if (or (eq 'plain-list (car context))  ; First item in list
-    		(and (eq 'item (car context))
-    		     (not (eq (org-element-property :contents-begin context)
-    			      (org-element-property :contents-end context))))
-    		(unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
-    	    ;; Non-empty item: Add new item.
-    	    (org-insert-item)
-    	  ;; Empty item: Close the list.
-    	  ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
-    	  (delete-region (line-beginning-position) (line-end-position))
-    	  (insert "\n"))))
+          ((org-in-item-p)
+           ;; Plain list.  Yes, this gets a little complicated...
+           (let ((context (org-element-context)))
+    	 (if (or (eq 'plain-list (car context))  ; First item in list
+    		 (and (eq 'item (car context))
+    		      (not (eq (org-element-property :contents-begin context)
+    			       (org-element-property :contents-end context))))
+    		 (unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
+    	     ;; Non-empty item: Add new item.
+    	     (org-insert-item)
+    	   ;; Empty item: Close the list.
+    	   ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
+    	   (delete-region (line-beginning-position) (line-end-position))
+    	   (insert "\n"))))
     
-         ((when (fboundp 'org-inlinetask-in-task-p)
-    	(org-inlinetask-in-task-p))
-          ;; Inline task: Don't insert a new heading.
-          (org-return))
+          ((when (fboundp 'org-inlinetask-in-task-p)
+    	 (org-inlinetask-in-task-p))
+           ;; Inline task: Don't insert a new heading.
+           (org-return))
     
-         ((org-at-table-p)
-          (cond ((save-excursion
-    	       (beginning-of-line)
-    	       ;; See `org-table-next-field'.
-    	       (cl-loop with end = (line-end-position)
-    			for cell = (org-element-table-cell-parser)
-    			always (equal (org-element-property :contents-begin cell)
-    				      (org-element-property :contents-end cell))
-    			while (re-search-forward "|" end t)))
-    	     ;; Empty row: end the table.
-    	     (delete-region (line-beginning-position) (line-end-position))
-    	     (org-return))
-    	    (t
-    	     ;; Non-empty row: call `org-return'.
-    	     (org-return))))
-         (t
-          ;; All other cases: call `org-return'.
-          (org-return)))))
+          ((org-at-table-p)
+           (cond ((save-excursion
+    		(beginning-of-line)
+    		;; See `org-table-next-field'.
+    		(cl-loop with end = (line-end-position)
+    		   for cell = (org-element-table-cell-parser)
+    		   always (equal (org-element-property :contents-begin cell)
+    				 (org-element-property :contents-end cell))
+    		   while (re-search-forward "|" end t)))
+    	      ;; Empty row: end the table.
+    	      (delete-region (line-beginning-position) (line-end-position))
+    	      (org-return))
+    	     (t
+    	      ;; Non-empty row: call `org-return'.
+    	      (org-return))))
+          (t
+           ;; All other cases: call `org-return'.
+           (org-return)))))
     
     (with-eval-after-load 'org
       (define-key org-mode-map (kbd "RET") #'unpackaged/org-return-dwim))
@@ -1573,7 +1584,7 @@ from [unpackaged.el](https://github.com/alphapapa/unpackaged.el#ensure-blank-lin
           (dolist (file '(;; add more files to this list
     		      "home.org"
     		      "work.org")
-    		    list)
+    	       list)
     	(push (expand-file-name file org-directory) list))))
     
     (define-key acdw/map (kbd "C-a") #'org-agenda)
@@ -2018,6 +2029,11 @@ I’m only enabling this at home for now, since it requires building stuff.
           (setq acdw/exec-path-from-shell-initialized (current-time)))))
 
 
+# Areas for further research
+
+-   [Use a minor-mode for keybindings](https://github.com/larstvei/dot-emacs#key-bindings)
+
+
 # Appendices
 
 
@@ -2138,6 +2154,22 @@ shortcut-creating software >:(.
     
     REM Regular
     "%EMACS%" %*
+
+
+### emacsclient.desktop
+
+from [taingram](https://www.taingram.org/blog/emacs-client.html).
+
+    [Desktop Entry]
+    Name=Emacs Client
+    GenericName=Text Editor
+    Comment=Edit text
+    MimeType=text/english;text/plain;text/x-makefile;text/x-c++hdr;text/x-c++src;text/x-chdr;text/x-csrc;text/x-java;text/x-moc;text/x-pascal;text/x-tcl;text/x-tex;application/x-shellscript;text/x-c;text/x-c++;
+    Exec=emacsclient -c %f
+    Icon=emacs
+    Type=Application
+    Terminal=false
+    Categories=Utility;TextEditor;
 
 
 ## License

@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-14 20:38:43 acdw>
+#+Time-stamp: <2021-01-18 23:29:22 acdw>
 
 * Basics
 
@@ -1250,6 +1250,18 @@
      (straight-use-package 'aggressive-indent)
 
      (global-aggressive-indent-mode +1)
+   #+end_src
+
+** Auto-fill comments only
+
+from [[https://www.emacswiki.org/emacs/AutoFillMode][EmacsWiki]].
+
+   #+begin_src emacs-lisp
+     (defun comment-auto-fill ()
+       (setq-local comment-auto-fill-only-comments t)
+       (auto-fill-mode 1))
+
+     (add-hook 'prog-mode-hook #'comment-auto-fill)
    #+end_src
 
 ** Completion
