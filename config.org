@@ -291,7 +291,7 @@
 
 **** Switch windows or buffers if one window
 
-from [[https://www.reddit.com/r/emacs/comments/kz347f/what_parts_of_your_config_do_you_like_best/gjlnp2c/][u/astoff1]].
+     from [[https://www.reddit.com/r/emacs/comments/kz347f/what_parts_of_your_config_do_you_like_best/gjlnp2c/][u/astoff1]].
 
      #+begin_src emacs-lisp
        (defun acdw/other-window-or-buffer ()
@@ -347,10 +347,10 @@ from [[https://www.reddit.com/r/emacs/comments/kz347f/what_parts_of_your_config_
 	 "Funtion return new function that ignore errors.
 	  The function wraps a function with `ignore-errors' macro."
 	 (lexical-let ((fn fn))
-		      (lambda ()
-			(interactive)
-			(ignore-errors
-			  (funcall fn)))))
+	   (lambda ()
+	     (interactive)
+	     (ignore-errors
+	       (funcall fn)))))
 
        (global-set-key [S-left] (ignore-error-wrapper 'windmove-left))
        (global-set-key [S-right] (ignore-error-wrapper 'windmove-right))
@@ -530,25 +530,25 @@ from [[https://www.reddit.com/r/emacs/comments/kz347f/what_parts_of_your_config_
 	     ;; fixed-pitch /is/ the default
 	     (set-face-from-alternatives face nil
 					 '(:family "Input Mono"
-						   :slant normal
-						   :weight normal
-						   :height 110)
+					   :slant normal
+					   :weight normal
+					   :height 110)
 					 '(:family "Go Mono"
-						   :slant normal
-						   :weight normal
-						   :height 100)
+					   :slant normal
+					   :weight normal
+					   :height 100)
 					 '(:family "Consolas"
-						   :slant normal
-						   :weight normal
-						   :height 100)))
+					   :slant normal
+					   :weight normal
+					   :height 100)))
 	   ;; variable-pitch is different
 	   (set-face-from-alternatives 'variable-pitch nil
 				       '(:family "Input Sans"
-						 :slant normal
-						 :weight normal)
+					 :slant normal
+					 :weight normal)
 				       '(:family "Georgia"
-						 :slant normal
-						 :weight normal)))
+					 :slant normal
+					 :weight normal)))
 
 	 ;; remove myself from the hook
 	 (remove-function after-focus-change-function #'acdw/setup-fonts))
@@ -690,9 +690,9 @@ from [[https://www.reddit.com/r/emacs/comments/kz347f/what_parts_of_your_config_
        (defun bk/go-straight-home ()
 	 (interactive)
 	 (cond
-	  ((looking-back "~/") (insert "projects/"))
-	  ((looking-back "/") (insert "~/"))
-	  (:else (call-interactively 'self-insert-command))))
+	   ((looking-back "~/") (insert "projects/"))
+	   ((looking-back "/") (insert "~/"))
+	   (:else (call-interactively 'self-insert-command))))
 
        (defun ido-disable-line-truncation ()
 	 (set (make-local-variable 'truncate-lines) nil))
@@ -817,18 +817,18 @@ from [[https://www.reddit.com/r/emacs/comments/kz347f/what_parts_of_your_config_
 
 *** Scroll much faster
 
-from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-magnitude-faster][mpereira]], from somewhere else.
+    from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-magnitude-faster][mpereira]], from somewhere else.
 
-#+begin_src emacs-lisp
-  (cuss auto-window-vscroll nil
-    "Don't auto-adjust `window-vscroll' to view long lines.")
+    #+begin_src emacs-lisp
+      (cuss auto-window-vscroll nil
+	"Don't auto-adjust `window-vscroll' to view long lines.")
 
-  (cuss fast-but-imprecise-scrolling t
-    "Scroll fast, but possibly with inaccurate text rendering.")
+      (cuss fast-but-imprecise-scrolling t
+	"Scroll fast, but possibly with inaccurate text rendering.")
 
-  (cuss jit-lock-defer-time 0
-    "Only defer font-locking when input is pending.")
-#+end_src
+      (cuss jit-lock-defer-time 0
+	"Only defer font-locking when input is pending.")
+    #+end_src
 
 ** Persistence
 
@@ -1318,17 +1318,17 @@ from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-mag
 
 **** Indent Elisp like Common Lisp
 
-#+begin_src emacs-lisp
-  (require 'cl-lib)
-  (setq lisp-indent-function 'common-lisp-indent-function)
-  (put 'cl-flet 'common-lisp-indent-function
-       (get 'flet 'common-lisp-indent-function))
-  (put 'cl-labels 'common-lisp-indent-function
-       (get 'labels 'common-lisp-indent-function))
-  (put 'if 'common-lisp-indent-function 2)
-  (put 'dotimes-protect 'common-lisp-indent-function
-       (get 'when 'common-lisp-indent-function))
-#+end_src
+     #+begin_src emacs-lisp
+       (require 'cl-lib)
+       (setq lisp-indent-function 'common-lisp-indent-function)
+       (put 'cl-flet 'common-lisp-indent-function
+	    (get 'flet 'common-lisp-indent-function))
+       (put 'cl-labels 'common-lisp-indent-function
+	    (get 'labels 'common-lisp-indent-function))
+       (put 'if 'common-lisp-indent-function 2)
+       (put 'dotimes-protect 'common-lisp-indent-function
+	    (get 'when 'common-lisp-indent-function))
+     #+end_src
 
 *** Janet
 
@@ -1569,17 +1569,17 @@ from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-mag
 
 ***** Align all tags in the buffer on changes
 
-from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-changes][mpereira]].
+      from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-changes][mpereira]].
 
-#+begin_src emacs-lisp
-  (defun acdw/org-align-all-tags ()
-    "Align all org tags in the buffer."
-    (interactive)
-    (when (eq major-mode 'org-mode)
-      (org-align-tags t)))
+      #+begin_src emacs-lisp
+	(defun acdw/org-align-all-tags ()
+	  "Align all org tags in the buffer."
+	  (interactive)
+	  (when (eq major-mode 'org-mode)
+	    (org-align-tags t)))
 
-  (add-hook 'org-after-tags-change-hook #'acdw/org-align-all-tags)
-#+end_src
+	(add-hook 'org-after-tags-change-hook #'acdw/org-align-all-tags)
+      #+end_src
 
 **** Source blocks
 
@@ -1608,105 +1608,105 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
 **** [[https://github.com/alphapapa/unpackaged.el#org-return-dwim][Org Return: DWIM]]
 
      #+begin_src emacs-lisp
-   (defun unpackaged/org-element-descendant-of (type element)
-     "Return non-nil if ELEMENT is a descendant of TYPE.
-   TYPE should be an element type, like `item' or `paragraph'.
-   ELEMENT should be a list like that returned by `org-element-context'."
-     ;; MAYBE: Use `org-element-lineage'.
-     (when-let* ((parent (org-element-property :parent element)))
-       (or (eq type (car parent))
-	   (unpackaged/org-element-descendant-of type parent))))
+       (defun unpackaged/org-element-descendant-of (type element)
+	 "Return non-nil if ELEMENT is a descendant of TYPE.
+       TYPE should be an element type, like `item' or `paragraph'.
+       ELEMENT should be a list like that returned by `org-element-context'."
+	 ;; MAYBE: Use `org-element-lineage'.
+	 (when-let* ((parent (org-element-property :parent element)))
+	   (or (eq type (car parent))
+	       (unpackaged/org-element-descendant-of type parent))))
 
-   ;;;###autoload
-   (defun unpackaged/org-return-dwim (&optional default)
-     "A helpful replacement for `org-return'.  With prefix, call `org-return'.
+       ;;;###autoload
+       (defun unpackaged/org-return-dwim (&optional default)
+	 "A helpful replacement for `org-return'.  With prefix, call `org-return'.
 
-   On headings, move point to position after entry content.  In
-   lists, insert a new item or end the list, with checkbox if
-   appropriate.  In tables, insert a new row or end the table."
-     ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
-     (interactive "P")
-     (if default
-	 (org-return)
-       (cond
-	;; Act depending on context around point.
+       On headings, move point to position after entry content.  In
+       lists, insert a new item or end the list, with checkbox if
+       appropriate.  In tables, insert a new row or end the table."
+	 ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
+	 (interactive "P")
+	 (if default
+	     (org-return)
+	   (cond
+	     ;; Act depending on context around point.
 
-	;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
-	;; followed.
+	     ;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
+	     ;; followed.
 
-	;; ((eq 'link (car (org-element-context)))
-	;;  ;; Link: Open it.
-	;;  (org-open-at-point-global))
+	     ;; ((eq 'link (car (org-element-context)))
+	     ;;  ;; Link: Open it.
+	     ;;  (org-open-at-point-global))
 
-	((org-at-heading-p)
-	 ;; Heading: Move to position after entry content.
-	 ;; NOTE: This is probably the most interesting feature of this function.
-	 (let ((heading-start (org-entry-beginning-position)))
-	   (goto-char (org-entry-end-position))
-	   (cond ((and (org-at-heading-p)
-		       (= heading-start (org-entry-beginning-position)))
-		  ;; Entry ends on its heading; add newline after
-		  (end-of-line)
-		  (insert "\n\n"))
-		 (t
-		  ;; Entry ends after its heading; back up
-		  (forward-line -1)
-		  (end-of-line)
-		  (when (org-at-heading-p)
-		    ;; At the same heading
-		    (forward-line)
-		    (insert "\n")
-		    (forward-line -1))
-		  ;; FIXME: looking-back is supposed to be called with more arguments.
-		  (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n"))) nil))
-		    (insert "\n"))
-		  (forward-line -1)))))
+	     ((org-at-heading-p)
+	      ;; Heading: Move to position after entry content.
+	      ;; NOTE: This is probably the most interesting feature of this function.
+	      (let ((heading-start (org-entry-beginning-position)))
+		(goto-char (org-entry-end-position))
+		(cond ((and (org-at-heading-p)
+			    (= heading-start (org-entry-beginning-position)))
+		       ;; Entry ends on its heading; add newline after
+		       (end-of-line)
+		       (insert "\n\n"))
+		      (t
+		       ;; Entry ends after its heading; back up
+		       (forward-line -1)
+		       (end-of-line)
+		       (when (org-at-heading-p)
+			 ;; At the same heading
+			 (forward-line)
+			 (insert "\n")
+			 (forward-line -1))
+		       ;; FIXME: looking-back is supposed to be called with more arguments.
+		       (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n"))) nil))
+			 (insert "\n"))
+		       (forward-line -1)))))
 
-	((org-at-item-checkbox-p)
-	 ;; Checkbox: Insert new item with checkbox.
-	 (org-insert-todo-heading nil))
+	     ((org-at-item-checkbox-p)
+	      ;; Checkbox: Insert new item with checkbox.
+	      (org-insert-todo-heading nil))
 
-	((org-in-item-p)
-	 ;; Plain list.  Yes, this gets a little complicated...
-	 (let ((context (org-element-context)))
-	   (if (or (eq 'plain-list (car context))  ; First item in list
-		   (and (eq 'item (car context))
-			(not (eq (org-element-property :contents-begin context)
-				 (org-element-property :contents-end context))))
-		   (unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
-	       ;; Non-empty item: Add new item.
-	       (org-insert-item)
-	     ;; Empty item: Close the list.
-	     ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
-	     (delete-region (line-beginning-position) (line-end-position))
-	     (insert "\n"))))
+	     ((org-in-item-p)
+	      ;; Plain list.  Yes, this gets a little complicated...
+	      (let ((context (org-element-context)))
+		(if (or (eq 'plain-list (car context))  ; First item in list
+			(and (eq 'item (car context))
+			     (not (eq (org-element-property :contents-begin context)
+				      (org-element-property :contents-end context))))
+			(unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
+		    ;; Non-empty item: Add new item.
+		    (org-insert-item)
+		  ;; Empty item: Close the list.
+		  ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
+		  (delete-region (line-beginning-position) (line-end-position))
+		  (insert "\n"))))
 
-	((when (fboundp 'org-inlinetask-in-task-p)
-	   (org-inlinetask-in-task-p))
-	 ;; Inline task: Don't insert a new heading.
-	 (org-return))
+	     ((when (fboundp 'org-inlinetask-in-task-p)
+		(org-inlinetask-in-task-p))
+	      ;; Inline task: Don't insert a new heading.
+	      (org-return))
 
-	((org-at-table-p)
-	 (cond ((save-excursion
-		  (beginning-of-line)
-		  ;; See `org-table-next-field'.
-		  (cl-loop with end = (line-end-position)
-			   for cell = (org-element-table-cell-parser)
-			   always (equal (org-element-property :contents-begin cell)
-					 (org-element-property :contents-end cell))
-			   while (re-search-forward "|" end t)))
-		;; Empty row: end the table.
-		(delete-region (line-beginning-position) (line-end-position))
-		(org-return))
-	       (t
-		;; Non-empty row: call `org-return'.
-		(org-return))))
-	(t
-	 ;; All other cases: call `org-return'.
-	 (org-return)))))
+	     ((org-at-table-p)
+	      (cond ((save-excursion
+		       (beginning-of-line)
+		       ;; See `org-table-next-field'.
+		       (cl-loop with end = (line-end-position)
+			  for cell = (org-element-table-cell-parser)
+			  always (equal (org-element-property :contents-begin cell)
+					(org-element-property :contents-end cell))
+			  while (re-search-forward "|" end t)))
+		     ;; Empty row: end the table.
+		     (delete-region (line-beginning-position) (line-end-position))
+		     (org-return))
+		    (t
+		     ;; Non-empty row: call `org-return'.
+		     (org-return))))
+	     (t
+	      ;; All other cases: call `org-return'.
+	      (org-return)))))
 
-   (with-eval-after-load 'org
-     (define-key org-mode-map (kbd "RET") #'unpackaged/org-return-dwim))
+       (with-eval-after-load 'org
+	 (define-key org-mode-map (kbd "RET") #'unpackaged/org-return-dwim))
      #+end_src
 
 **** Insert blank lines around headers
@@ -1778,7 +1778,7 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
 	    (dolist (file '(;; add more files to this list
 			    "home.org"
 			    "work.org")
-			  list)
+		     list)
 	      (push (expand-file-name file org-directory) list))))
 
       (define-key acdw/map (kbd "C-a") #'org-agenda)
@@ -1807,83 +1807,83 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
 
 **** Templates
 
-    #+begin_src emacs-lisp
-      (cuss org-default-notes-file (expand-file-name "inbox.org"
-						     org-directory)
-	"Put unfiled notes in ~/Org/inbox.org.")
+     #+begin_src emacs-lisp
+       (cuss org-default-notes-file (expand-file-name "inbox.org"
+						      org-directory)
+	 "Put unfiled notes in ~/Org/inbox.org.")
 
 
-      (cuss org-capture-templates
-	  '(("w" "Work Todo") ;;; Work stuff
-	    ("ws" "Small Business" entry
-	     (file+headline "work.org" "Small Business")
-	     "* TODO %?
-      :PROPERTIES:
-      :Via:
-      :Note:
-      :END:
-      :LOGBOOK:
-	- State \"TODO\"       from \"\"           %U
-      :END:" :empty-lines 1)
-	    ("wc" "Career Center" entry
-	     (file+headline "work.org" "Career Center")
-	     "* TODO %?
-      :PROPERTIES:
-      :Via:
-      :Note:
-      :END:
-      :LOGBOOK:
-	- State \"TODO\"       from \"\"           %U
-      :END:" :empty-lines 1)
-	    ("wg" "General" entry
-	     (file+headline "work.org" "General")
-	     "* TODO %?
-      :PROPERTIES:
-      :Via:
-      :Note:
-      :END:
-      :LOGBOOK:
-	- State \"TODO\"       from \"\"           %U
-      :END:" :empty-lines 1)
+       (cuss org-capture-templates
+	   '(("w" "Work Todo") ;;; Work stuff
+	     ("ws" "Small Business" entry
+	      (file+headline "work.org" "Small Business")
+	      "* TODO %?
+       :PROPERTIES:
+       :Via:
+       :Note:
+       :END:
+       :LOGBOOK:
+	 - State \"TODO\"       from \"\"           %U
+       :END:" :empty-lines 1)
+	     ("wc" "Career Center" entry
+	      (file+headline "work.org" "Career Center")
+	      "* TODO %?
+       :PROPERTIES:
+       :Via:
+       :Note:
+       :END:
+       :LOGBOOK:
+	 - State \"TODO\"       from \"\"           %U
+       :END:" :empty-lines 1)
+	     ("wg" "General" entry
+	      (file+headline "work.org" "General")
+	      "* TODO %?
+       :PROPERTIES:
+       :Via:
+       :Note:
+       :END:
+       :LOGBOOK:
+	 - State \"TODO\"       from \"\"           %U
+       :END:" :empty-lines 1)
 
-	    ;;; Regular To-Dos
-	    ("t" "Todo")
-	    ("tt" "Todo" entry
-	     (file+headline "home.org" "TODOs")
-	     "* TODO %?
-      :PROPERTIES:
-      :Via:
-      :Note:
-      :END:
-      :LOGBOOK:  
-      - State \"TODO\"       from \"\"           %U
-      :END:" :empty-lines 1)
+	     ;;; Regular To-Dos
+	     ("t" "Todo")
+	     ("tt" "Todo" entry
+	      (file+headline "home.org" "TODOs")
+	      "* TODO %?
+       :PROPERTIES:
+       :Via:
+       :Note:
+       :END:
+       :LOGBOOK:  
+       - State \"TODO\"       from \"\"           %U
+       :END:" :empty-lines 1)
 
-	    ("td" "Todo with deadline" entry
-	     (file+headline "home.org" "TODOs")
-	     "* TODO %?
-      DEADLINE: %^t
-      :PROPERTIES:
-      :Via:
-      :Note:
-      :END:
-      :LOGBOOK:  
-      - State \"TODO\"       from \"\"           %U
-      :END:" :empty-lines 1)
+	     ("td" "Todo with deadline" entry
+	      (file+headline "home.org" "TODOs")
+	      "* TODO %?
+       DEADLINE: %^t
+       :PROPERTIES:
+       :Via:
+       :Note:
+       :END:
+       :LOGBOOK:  
+       - State \"TODO\"       from \"\"           %U
+       :END:" :empty-lines 1)
 
 
-	    ("g" "Gift idea" entry
-	     (file+headline "home.org" "Gift ideas")
-	     "* %^{Who?}
-      ,* %^{What?}" :empty-lines 1)
+	     ("g" "Gift idea" entry
+	      (file+headline "home.org" "Gift ideas")
+	      "* %^{Who?}
+       ,* %^{What?}" :empty-lines 1)
 
-	    ("d" "Diary entry" entry
-	     (file+olp+datetree "diary.org")
-	     "* %?
-      Entered on %U
+	     ("d" "Diary entry" entry
+	      (file+olp+datetree "diary.org")
+	      "* %?
+       Entered on %U
 
-      " :empty-lines 1)))
-    #+end_src
+       " :empty-lines 1)))
+     #+end_src
 
 **** Keybindings
 
@@ -2407,4 +2407,4 @@ from [[https://github.com/mpereira/.emacs.d#align-all-tags-in-the-buffer-on-tag-
 
 ** TODO Local variables 
 
-One day, I’m going to add a Local Variables block to the end of this file, which will add an =after-save-hook= to auto-tangle the file after saving.  But first I need to research how best to do that asynchronously.  So.
+   One day, I’m going to add a Local Variables block to the end of this file, which will add an =after-save-hook= to auto-tangle the file after saving.  But first I need to research how best to do that asynchronously.  So.
