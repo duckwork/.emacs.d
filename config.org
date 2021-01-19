@@ -2236,6 +2236,10 @@
 	    (setq acdw/exec-path-from-shell-initialized (current-time)))))
     #+end_src
 
+* Areas for further research
+
+- [[https://github.com/larstvei/dot-emacs#key-bindings][Use a minor-mode for keybindings]]
+
 * Appendices
   :PROPERTIES:
   :header-args: :tangle LICENSE :comments no
