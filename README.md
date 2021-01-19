@@ -213,6 +213,12 @@ from [EmacsWiki](https://www.emacswiki.org/emacs/AlarmBell#h5o-3).
 ### Frames
 
 
+#### Frame titles
+
+    (cuss frame-title-format (concat invocation-name "@" system-name
+    				 ": %b %+%+ %f")) 
+
+
 #### Fringes
 
     (cuss indicate-empty-lines t
@@ -225,8 +231,12 @@ from [EmacsWiki](https://www.emacswiki.org/emacs/AlarmBell#h5o-3).
     (cuss visual-line-fringe-indicators '(left-curly-arrow nil)
       "Indicate continuing lines with a curly arrow in the left fringe.")
     
-    (set-fringe-bitmap-face 'left-curly-arrow
-    			'((t :inherit 'comment)))
+    ;; redefine the `left-curly-arrow' indicator to be less distracting.
+    (define-fringe-bitmap 'left-curly-arrow
+        [#b11000000
+         #b01100000
+         #b00110000
+         #b00011000])
 
 
 #### Minibuffer
@@ -256,9 +266,18 @@ from [EmacsWiki](https://www.emacswiki.org/emacs/AlarmBell#h5o-3).
       (winner-mode +1))
 
 
-#### Switch windows
+#### Switch windows or buffers if one window
 
-    (global-set-key (kbd "M-o") #'other-window)
+from [u/astoff1](https://www.reddit.com/r/emacs/comments/kz347f/what_parts_of_your_config_do_you_like_best/gjlnp2c/).
+
+    (defun acdw/other-window-or-buffer ()
+      "Switch to other window, or previous buffer."
+      (interactive)
+      (if (eq (count-windows) 1)
+          (switch-to-buffer nil)
+        (other-window 1)))
+    
+    (global-set-key (kbd "M-o") #'acdw/other-window-or-buffer)
 
 
 #### Pop-up windows
@@ -929,6 +948,10 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
     
     (cuss yank-pop-change-selection t
       "Update the X selection when rotating the kill ring.")
+    
+    (cuss x-select-enable-clipboard t)
+    (cuss x-select-enable-primary t)
+    (cuss mouse-drag-copy-region t)
 
 
 #### Don’t append the same thing twice to the kill-ring
@@ -994,6 +1017,18 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
     (straight-use-package 'expand-region)
     
     (global-set-key (kbd "C-=") #'er/expand-region)
+
+
+### Move where I mean
+
+    (straight-use-package 'mwim)
+    (require 'mwim)
+    
+    (cuss mwim-beginning-of-line-function 'beginning-of-visual-line)
+    (cuss mwim-end-of-line-function 'end-of-visual-line)
+    
+    (global-set-key (kbd "C-a") #'mwim-beginning)
+    (global-set-key (kbd "C-e") #'mwim-end)
 
 
 # Programming
@@ -1069,6 +1104,11 @@ I’ve pretty much cribbed this from [recentf-remove-sudo-tramp-prefix](https://
 
 
 ## Language-specific packages
+
+
+### Executable scripts
+
+    (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
 
 
 ### Emacs lisp
@@ -1311,6 +1351,9 @@ I’ve put org mode under Applications, as opposed to Writing, because it’s  m
     
     (cuss org-export-headline-levels 8
       "Maximum level of headlines to export /as/ a headline.")
+
+
+#### TODO configure `mwim` to work with Org mode
 
 
 #### Tags
