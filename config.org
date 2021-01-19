@@ -232,6 +232,13 @@
 
 *** Frames
 
+**** Frame titles
+
+     #+begin_src emacs-lisp
+       (cuss frame-title-format (concat invocation-name "@" system-name
+					": %b %+%+ %f")) 
+     #+end_src
+
 **** Fringes
 
      #+begin_src emacs-lisp
@@ -252,7 +259,6 @@
 	    #b00110000
 	    #b00011000])
      #+end_src
-
 
 **** Minibuffer
 
