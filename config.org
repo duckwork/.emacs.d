@@ -1112,6 +1112,10 @@ from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-mag
 
        (cuss yank-pop-change-selection t
 	 "Update the X selection when rotating the kill ring.")
+
+       (cuss x-select-enable-clipboard t)
+       (cuss x-select-enable-primary t)
+       (cuss mouse-drag-copy-region t)
      #+end_src
 
 **** Don’t append the same thing twice to the kill-ring
