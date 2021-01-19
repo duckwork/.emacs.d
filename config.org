@@ -1290,6 +1290,12 @@ from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-mag
 
 ** Language-specific packages
 
+*** Executable scripts
+
+    #+begin_src emacs-lisp
+      (add-hook 'after-save-hook #'executable-make-buffer-file-executable-if-script-p)
+    #+end_src
+
 *** Emacs lisp
 
     #+begin_src emacs-lisp
