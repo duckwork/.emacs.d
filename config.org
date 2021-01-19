@@ -1551,6 +1551,8 @@ from [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-mag
 	"Maximum level of headlines to export /as/ a headline.")
     #+end_src
 
+**** TODO configure =mwim= to work with Org mode
+
 **** Tags
 
      #+begin_src emacs-lisp
