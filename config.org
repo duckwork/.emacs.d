@@ -289,10 +289,19 @@
 	 (winner-mode +1))
      #+end_src
 
-**** Switch windows
+**** Switch windows or buffers if one window
+
+from [[https://www.reddit.com/r/emacs/comments/kz347f/what_parts_of_your_config_do_you_like_best/gjlnp2c/][u/astoff1]].
 
      #+begin_src emacs-lisp
-       (global-set-key (kbd "M-o") #'other-window)
+       (defun acdw/other-window-or-buffer ()
+	 "Switch to other window, or previous buffer."
+	 (interactive)
+	 (if (eq (count-windows) 1)
+	     (switch-to-buffer nil)
+	   (other-window 1)))
+
+       (global-set-key (kbd "M-o") #'acdw/other-window-or-buffer)
      #+end_src
 
 **** Pop-up windows
