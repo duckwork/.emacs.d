@@ -5,7 +5,7 @@
 ;; Prefer newer files to older files
 
 
-;; [[file:~/.config/emacs/config.org::*Prefer newer files to older files][Prefer newer files to older files:1]]
+;; [[file:config.org::*Prefer newer files to older files][Prefer newer files to older files:1]]
 (setq load-prefer-newer t)
 ;; Prefer newer files to older files:1 ends here
 
@@ -16,7 +16,7 @@
 ;; directly from Org if it's newer.
 
 
-;; [[file:~/.config/emacs/config.org::*Load the config][Load the config:1]]
+;; [[file:config.org::*Load the config][Load the config:1]]
 (let* (;; Speed up init
        (gc-cons-threshold most-positive-fixnum)
        (file-name-handler-alist nil)

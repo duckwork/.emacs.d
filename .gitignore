@@ -6,7 +6,7 @@
 !init.el
 !early-init.el
 !.gitignore
-!README.md
+!README.*
 
 # and ...
 !var/

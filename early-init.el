@@ -7,21 +7,21 @@
 ;; I use =straight.el= instead.
 
 
-;; [[file:~/.config/emacs/config.org::*Disable loading of =package.el=][Disable loading of =package.el=:1]]
+;; [[file:config.org::*Disable loading of =package.el=][Disable loading of =package.el=:1]]
 (setq package-enable-at-startup nil)
 ;; Disable loading of =package.el=:1 ends here
 
 ;; Don't resize the frame when loading fonts
 
 
-;; [[file:~/.config/emacs/config.org::*Don't resize the frame when loading fonts][Don't resize the frame when loading fonts:1]]
+;; [[file:config.org::*Don't resize the frame when loading fonts][Don't resize the frame when loading fonts:1]]
 (setq frame-inhibit-implied-resize t)
 ;; Don't resize the frame when loading fonts:1 ends here
 
 ;; Resize frame by pixels
 
 
-;; [[file:~/.config/emacs/config.org::*Resize frame by pixels][Resize frame by pixels:1]]
+;; [[file:config.org::*Resize frame by pixels][Resize frame by pixels:1]]
 (setq frame-resize-pixelwise t)
 ;; Resize frame by pixels:1 ends here
 
@@ -35,7 +35,7 @@
 ;; what I have for now.
 
 
-;; [[file:~/.config/emacs/config.org::*Shoe-horned from elsewhere in =config.org=][Shoe-horned from elsewhere in =config.org=:1]]
+;; [[file:config.org::*Shoe-horned from elsewhere in =config.org=][Shoe-horned from elsewhere in =config.org=:1]]
 (add-to-list 'default-frame-alist
 	     '(tool-bar-lines . 0))
 
