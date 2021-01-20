@@ -5,7 +5,7 @@
 #+EXPORT_FILE_NAME: README.md
 #+OPTIONS: toc:nil
 #+BANKRUPTCY_COUNT: 3.2
-#+Time-stamp: <2021-01-18 23:29:22 acdw>
+#+Time-stamp: <2021-01-18 23:33:24 acdw>
 
 * Basics
 
@@ -181,8 +181,8 @@
       (cuss cursor-type 'bar
 	"Show a vertical bar for the cursor.")
 
-      (cuss cursor-in-non-selected-windows 'hbar
-	"Show an empty box in inactive windows.")
+      (cuss cursor-in-non-selected-windows nil
+	"Don't show a cursor in non-selected windows.")
 
       ;; Don't blink the cursor
       (blink-cursor-mode -1)
