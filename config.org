@@ -1,6 +1,6 @@
 #+TITLE: Emacs configuration, literate-style
 #+AUTHOR: Case Duckworth
-#+PROPERTY: header-args :tangle yes :tangle-mode (identity #o444) :comments both :mkdirp yes
+#+PROPERTY: header-args :tangle yes :tangle-mode (identity #o444) :comments both
 
 * Settings
 
@@ -56,11 +56,10 @@ These should not require non-built-in packages.
   (add-function :before after-focus-change-function #'acdw/set-custom-faces)
 
   (defmacro cussface (face spec &optional _docstring)
-    "Add the form (FACE SPEC) to `acdw--custom-faces', and add a
-  hook to run `acdw/set-custom-faces' after init."
+    "Add the form (FACE SPEC) to `acdw--custom-faces'."
     (declare (doc-string 3)
-	     (indent 2))
-    `(add-to-list acdw--custom-faces '(,face ,spec)))
+	     (indent defun))
+    `(add-to-list 'acdw--custom-faces '(,face ,spec)))
 #+end_src
 
 *** Only do something when Emacs is unfocused
@@ -108,43 +107,6 @@ My name and email address.
 
   ;; Don't blink the cursor
   (blink-cursor-mode -1)
-#+end_src
-
-*** Dialogs and alerts
-
-**** Don't use a dialog box
-
-#+begin_src emacs-lisp
-  (cuss use-dialog-box nil)
-#+end_src
-
-**** Yes or no questions
-
-#+begin_src emacs-lisp
-  (fset 'yes-or-no-p #'y-or-n-p)
-#+end_src
-
-**** The Bell
-
-#+begin_src emacs-lisp
-  ;; Don't flash the whole screen on bell
-  (cuss visible-bell nil)
-
-  ;; Instead, flash the mode line
-  (cuss ring-bell-function #'flash-mode-line)
-
-  (defun flash-mode-line ()
-    (invert-face 'mode-line)
-    (run-with-timer 0.2 nil #'invert-face 'mode-line))
-#+end_src
-
-t*** Minibuffer
-
-**** Keep the cursor away from the minibuffer prompt
-
-#+begin_src emacs-lisp
-  (cuss minibuffer-prompt-properties
-      '(read-only t cursor-intangible t face minibuffer-prompt))
 #+end_src
 
 *** Tabs
@@ -237,19 +199,351 @@ and have made a custom fringe bitmap.
 
 #+begin_src emacs-lisp
   (cuss visual-line-fringe-indicators '(left-curly-arrow nil))
+#+end_src
 
-  ;; And make the `left-curly-arrow' indicator less distracting.
+***** Customize fringe bitmaps
 
+****** Curly arrows (continuation lines)
+
+#+begin_src emacs-lisp
   (define-fringe-bitmap 'left-curly-arrow
     [#b11000000
      #b01100000
      #b00110000
      #b00011000])
+
+  (define-fringe-bitmap 'right-curly-arrow
+    [#b00011000
+     #b00110000
+     #b01100000
+     #b11000000])
+#+end_src
+
+****** Arrows (truncation lines)
+
+#+begin_src emacs-lisp
+  (define-fringe-bitmap 'left-arrow
+    [#b00000000
+     #b01010100
+     #b01010100
+     #b00000000])
+
+  (define-fringe-bitmap 'right-arrow
+    [#b00000000
+     #b00101010
+     #b00101010
+     #b00000000])
 #+end_src
 
 *** Windows
 
+**** Winner mode
+
+I don't really /use/ winner-mode as of yet, but it seems like a really
+good thing to have.  It lets you move between window configurations
+with =C-c <-/->=.
+
+#+begin_src emacs-lisp
+  (when (fboundp 'winner-mode)
+    (winner-mode +1))
+#+end_src
+
+**** Switch windows, or buffers if there's only one
+
+from [[https://www.reddit.com/r/emacs/comments/kz347f/what_parts_of_your_config_do_you_like_best/gjlnp2c/][u/astoff1]].
+
+#+begin_src emacs-lisp
+  (defun other-window-or-buffer ()
+    "Switch to the other window, or previous buffer."
+    (interactive)
+    (if (eq (count-windows) 1)
+	(switch-to-buffer nil)
+      (other-window 1)))
+#+end_src
+
 *** Buffers
+
+**** Startup buffers
+
+I don't want to see Emacs's splash screen, and I want the =*scratch*=
+buffer to have a little message.
+
+#+begin_src emacs-lisp
+  (cuss inhibit-startup-screen t
+    "Don't show the startup buffer.")
+
+  (cuss initial-buffer-choice t
+    "Start with *scratch*.")
+
+  (cuss initial-scratch-message
+      (concat ";; Hello, " (nth 0 (split-string user-full-name)) "!\n"
+	      ";; Happy hacking ..."))
+#+end_src
+
+**** Immortal =*scratch*= buffer
+
+I don't want to accidentally kill the =*scratch*= buffer.
+
+#+begin_src emacs-lisp
+  (defun immortal-scratch ()
+    (if (eq (current-buffer) (get-buffer "*scratch*"))
+	(progn (bury-buffer)
+	       nil)
+      t))
+
+  (add-hook 'kill-buffer-query-functions #'immortal-scratch)
+#+end_src
+
+**** Uniquify buffers
+
+I like the =forward= style, which uniquifies buffers by including path
+elements up the tree until the names are unique.
+
+#+begin_src emacs-lisp
+  (require 'uniquify)
+  (cuss uniquify-buffer-name-style 'forward)
+#+end_src
+
+**** Kill buffers more smarter-ly
+
+#+begin_src emacs-lisp
+  (defun kill-a-buffer (&optional prefix)
+    "Kill buffers and windows sanely.
+
+  `kill-a-buffer' works based on the prefix argument as follows:
+
+  - 0            => kill the CURRENT buffer and window
+  - 4 (C-u)      => kill the OTHER window and its buffer
+  - 16 (C-u C-u) => kill ALL OTHER buffers and windows
+
+  Prompt iff there are unsaved changes."
+    (interactive "P")
+    (pcase (or (car prefix) 0)
+      (0  (kill-current-buffer)
+	  (unless (one-window-p) (delete-window)))
+      (4  (other-window 1)
+	  (kill-current-buffer)
+	  (unless (one-window-p) (delete-window)))
+      (16 (mapc #'kill-buffer (delq (current-buffer) (buffer-list)))
+	  (delete-other-windows))))
+#+end_src
+
+*** Fonts
+
+**** Function: =set-face-from-alternatives=
+
+To be honest, this might be better off using =cussface=, but that's
+another story for another day.
+
+#+begin_src emacs-lisp
+  (defun set-face-from-alternatives (face frame &rest fontspecs)
+    "Set FACE on FRAME from first available font from FONTSPECS.
+  FACE and FRAME work the same as with `set-face-attribute'."
+    (catch :return
+      (dolist (spec fontspecs)
+	(when-let ((found (find-font (apply #'font-spec spec))))
+	  (set-face-attribute face frame :font found)
+	  (throw :return found)))))
+#+end_src
+
+**** Add a hook to setup fonts after the first window focus change
+
+Of course, I only need to setup the fonts on a graphical session.
+
+#+begin_src emacs-lisp
+  (when (display-graphic-p)
+    (add-function :before after-focus-change-function #'acdw/setup-fonts))
+#+end_src
+
+**** Setup my fonts
+
+Notice that this function removes itself from
+=after-focus-change-function=, since ideally you'll only need to set
+the fonts once.
+
+#+begin_src emacs-lisp
+  (defun acdw/setup-fonts ()
+    "Setup fonts.
+
+  This has to happen after the frame is setup for the first time,
+  so it should be added to `after-focus-change-function'.  It
+  removes itself."
+    (set-face-from-alternatives 'default nil
+				'(:family "Input Mono"
+				  :slant normal
+				  :weight normal
+				  :height 110)
+				'(:family "Consolas"
+				  :slant normal
+				  :weight normal
+				  :height 100))
+    ;; `fixed-pitch' should just inherit from `default'
+    (set-face-attribute 'fixed-pitch nil :inherit 'default)
+
+    (set-face-from-alternatives 'variable-pitch nil
+				'(:family "Input Sans"
+				  :slant normal
+				  :weight normal)
+				'(:family "Georgia"
+				  :slant normal
+				  :weight normal))
+
+    (remove-function after-focus-change-function #'acdw/setup-fonts))
+#+end_src
+
+**** Underlines
+
+#+begin_src emacs-lisp
+  (cuss x-underline-at-descent-line t)
+#+end_src
+
+** Interactivity
+*** Dialogs and alerts
+
+**** Don't use a dialog box
+
+#+begin_src emacs-lisp
+  (cuss use-dialog-box nil)
+#+end_src
+
+**** Yes or no questions
+
+#+begin_src emacs-lisp
+  (fset 'yes-or-no-p #'y-or-n-p)
+#+end_src
+
+**** The Bell
+
+#+begin_src emacs-lisp
+  ;; Don't flash the whole screen on bell
+  (cuss visible-bell nil)
+
+  ;; Instead, flash the mode line
+  (cuss ring-bell-function #'flash-mode-line)
+
+  (defun flash-mode-line ()
+    (invert-face 'mode-line)
+    (run-with-timer 0.2 nil #'invert-face 'mode-line))
+#+end_src
+
+t*** Minibuffer
+
+*** Minibuffer
+
+**** Keep the cursor away from the minibuffer prompt
+
+#+begin_src emacs-lisp
+  (cuss minibuffer-prompt-properties
+      '(read-only t cursor-intangible t face minibuffer-prompt))
+#+end_src
+
+**** Enable recursive minibuffer
+
+#+begin_src emacs-lisp
+  (cuss enable-recursive-minibuffers t)
+#+end_src
+
+**** Show how deep the minibuffer goes in the modeline
+
+#+begin_src emacs-lisp
+  (minibuffer-depth-indicate-mode +1)
+#+end_src
+
+*** Completing-read
+
+**** Shadow file names
+
+When typing =~= or =/= in the file-selection dialog, Emacs "pretends"
+that you've typed them at the beginning of the line.  By default,
+however, it only /fades out/ the previous contents of the line.  I
+want to /hide/ those contents.
+
+#+begin_src emacs-lisp
+  (cuss file-name-shadow-properties '(invisible t))
+
+  (file-name-shadow-mode +1)
+#+end_src
+
+**** Ignore case
+
+#+begin_src emacs-lisp
+  (cuss completion-ignore-case t)
+  (cuss read-buffer-completion-ignore-case t)
+  (cuss read-file-name-completion-ignore-case t)
+#+end_src
+
+** Persistence
+
+*** Minibuffer history
+
+The =savehist= package saves the minibuffer history between sessions.
+It can also save some other variables alongside the minibuffer
+history.  Since storage is cheap, I'm also going to keep all my
+history.
+
+#+begin_src emacs-lisp
+  (require 'savehist)
+
+  (cuss savehist-additional-variables
+      '(kill-ring
+	search-ring
+	regexp-search-ring))
+
+  ;; Don't truncate history
+  (cuss history-length t)
+
+  ;; Delete history duplicates
+  (cuss history-delete-duplicates t)
+
+  (savehist-mode +1)
+#+end_src
+
+*** File places
+
+The =saveplace= package saves where I've been in the files I've
+visited, so I can return back to them.
+
+#+begin_src emacs-lisp
+  (require 'saveplace)
+
+  ;; Forget the place in unreadable files
+  (cuss save-place-forget-unreadable-files t)
+
+  (save-place-mode +1)
+#+end_src
+
+*** Recent files
+
+#+begin_src emacs-lisp
+  (require 'recentf)
+
+  ;; Limit the number of items in the recentf menu
+  (cuss recentf-max-menu-items 100)
+  ;; But not the number of items in the actual list
+  (cuss recentf-max-saved-items nil)
+
+  (recentf-mode +1)
+#+end_src
+
+**** Save the recentf list periodically
+
+#+begin_src emacs-lisp
+  (defun acdw/maybe-save-recentf ()
+    "Save `recentf-file every five minutes, but only when out of focus."
+    (defvar recentf--last-save (time-convert nil 'integer)
+      "When we last ran `recentf-save-list'.")
+
+    (when (> (time-convert (time-since recentf--last-save) 'integer)
+	     (* 60 5))
+      (setq recentf--last-save (time-convert nil 'integer))
+      (acdw/when-unfocused #'recentf-save-list)))
+
+  (add-function :after after-focus-change-function #'acdw/maybe-save-recentf)
+#+end_src
+
+** Files
+
+*** Encoding
 
 * System-specific
 
@@ -286,7 +580,7 @@ settings and written some ancillary scripts.
 
 **** em
 :PROPERTIES:
-:header-args: :tangle-mode (identity #o755) :tangle bin/em
+:header-args: :tangle-mode (identity #o755) :tangle bin/em :mkdirp yes
 :END:
 
 Here's a wrapper script that'll start =emacs --daemon= if there isn't
@@ -302,7 +596,7 @@ your =$PATH= somewhere.
 
 **** emacsclient.desktop
 :PROPERTIES:
-:header-args: :tangle bin/emacsclient.desktop
+:header-args: :tangle bin/emacsclient.desktop :mkdirp yes
 :END:
 
 I haven't really tested this yet, but it should allow me to open other
@@ -338,7 +632,7 @@ section come from [[https://github.com/termitereform/JunkPile/blob/master/emacs-
 
 *** Scripts
 :PROPERTIES:
-:header-args: :noweb tangle
+:header-args: :noweb tangle :mkdirp yes
 :END:
 
 **** Common variables
