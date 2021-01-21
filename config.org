@@ -1,143 +1,27 @@
 #+TITLE: Emacs configuration, literate-style
 #+AUTHOR: Case Duckworth
-#+PROPERTY: header-args :tangle yes :tangle-mode (identity #o444) :comments both
 
-* Settings
+* About me
 
-Basic settings necessary for a decent editing experience in Emacs.
-These should not require non-built-in packages.
-
-** Prelude
-
-*** Enable lexical binding
-
-#+begin_src emacs-lisp :comments no
-  ;; config.el -*- lexical-binding: t -*-
-#+end_src
-
-*** Disclaimer
-
-#+NAME: disclaimer
-#+begin_src emacs-lisp :comments no
-  ;; This file is automatically tangled from config.org.
-  ;; Hand edits will be overwritten!
-#+end_src
-
-** Customization
-
-*** Emulate use-package's =:custom=
-
-#+begin_src emacs-lisp
-  (defmacro cuss (var val &optional _docstring)
-    "`use-package''s `:custom', without `use-package'."
-    (declare (doc-string 3)
-	     (indent 2))
-    `(funcall (or (get ',var 'custom-set) #'set-default)
-	      ',var ,val))
-#+end_src
-
-*** Emulate use-package's =:custom-face=
-
-#+begin_src emacs-lisp
-  (defvar acdw--custom-faces ()
-    "List of custom faces to run through `acdw/set-custom-faces'.")
-
-  (defun acdw/set-custom-faces ()
-    "Customize faces using `customize-set-faces'.
-
-  I only want to run this once, per the documentation of `customize-set-faces'."
-    (when acdw--custom-faces
-      (let ((msg "Customizing faces"))
-	(message "%s..." msg)
-	(apply #'custom-set-faces acdw--custom-faces)
-	(message "%s...Done." msg)
-	(remove-function after-focuse-change-function #'acdw/set-custom-faces))))
-
-  (add-function :before after-focus-change-function #'acdw/set-custom-faces)
-
-  (defmacro cussface (face spec &optional _docstring)
-    "Add the form (FACE SPEC) to `acdw--custom-faces'."
-    (declare (doc-string 3)
-	     (indent defun))
-    `(add-to-list 'acdw--custom-faces '(,face ,spec)))
-#+end_src
-
-*** Only do something when Emacs is unfocused
-
-Since Emacs is single-threaded, I only want to run really expensive
-operations when I won't notice, say .. when I'm focused on another
-window.
-
-#+begin_src emacs-lisp
-  (defun when-unfocused (func &rest args)
-    "Run FUNC with ARGS iff all frames are out of focus."
-    (when (seq-every-p #'null (mapcar #'frame-focus-state (frame-list)))
-      (apply func args)))
-#+end_src
-
-*** Throw customizations away
-
-I use Emacs's Customize interface, but really only to learn about what
-options a package presents to /be/ customized.  I don't want to use
-the custom file for anything at all.
-
-#+begin_src emacs-lisp
-  (cuss custom-file null-device)
-#+end_src
-
-** About me
-
-My name and email address.
-
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb-ref settings
   (setq user-full-name "Case Duckworth"
 	user-mail-address "acdw@acdw.net")
 #+end_src
 
-** Look and feel
+* Look and feel
 
-*** Cursor
+** Frames
 
-#+begin_src emacs-lisp
-  ;; Show a vertical bar cursor
-  (cuss cursor-type 'bar)
-
-  ;; Hide the cursor in other windows
-  (cuss cursor-in-non-selected-windows nil)
-
-  ;; Don't blink the cursor
-  (blink-cursor-mode -1)
-#+end_src
-
-*** Tabs
-
-**** Tab names should be current buffer + a count of windows
-
-#+begin_src emacs-lisp
-  (cuss tab-bar-tab-name-function
-      #'tab-bar-tab-name-current-with-count)
-#+end_src
-
-**** Only show the tab bar when there's more than one tab
-
-For some reason, this doesn't work with multiple frames.
-
-#+begin_src emacs-lisp
-  (cuss tab-bar-show 1)
-#+end_src
-
-*** Frames
-
-/Frames/ are Emacs's concepts that generally correspond to other
-programs' /windows/ -- that is, they're the boxen on the screen that
-contain the Emacs programmen.
-
-**** Initial frame setup
+*** Initial frame setup
 :PROPERTIES:
 :header-args: :noweb-ref initial-frame-setup
 :END:
 
-***** Tool bar
+I tangle this section to =early-init.el=, since that's evaluated
+before GUI set-up.  Which, in turn, means Emacs will skip the "flash
+of unstyled content" thing.
+
+**** Tool bar
 
 #+begin_src emacs-lisp
   (add-to-list 'default-frame-alist
@@ -146,7 +30,7 @@ contain the Emacs programmen.
   (tool-bar-mode -1)
 #+end_src
 
-***** Menu bar
+**** Menu bar
 
 #+begin_src emacs-lisp
   (add-to-list 'default-frame-alist
@@ -155,7 +39,7 @@ contain the Emacs programmen.
   (menu-bar-mode -1)
 #+end_src
 
-***** Scroll bars
+**** Scroll bars
 
 #+begin_src emacs-lisp
   (add-to-list 'default-frame-alist
@@ -166,44 +50,44 @@ contain the Emacs programmen.
   (horizontal-scroll-bar-mode -1)
 #+end_src
 
-**** Frame titles
+*** Frame titles
 
-Set the frame title to something more useful than the default: include
-the current buffer and the current filename.
-
-#+begin_src emacs-lisp
-  (cuss frame-title-format
-      (concat invocation-name "@" (system-name)
-	      ": %b %+%+ %f"))
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default frame-title-format
+		(concat invocation-name "@" (system-name)
+			": %b %+%+ %f"))
 #+end_src
 
-**** Fringes
+*** Fringes
+:PROPERTIES:
+:header-args: :noweb-ref settings
+:END:
 
 I have grown to love Emacs's little fringes on the side of the
 windows.  In fact, I love them so much that I really went overboard
 and have made a custom fringe bitmap.
 
-***** Indicate empty lines after the end of the buffer
+**** Indicate empty lines after the end of the buffer
 
 #+begin_src emacs-lisp
-  (cuss indicate-empty-lines t)
+  (setq-default indicate-empty-lines t)
 #+end_src
 
-***** Indicate the boundaries of the buffer
+**** Indicate the boundaries of the buffer
 
 #+begin_src emacs-lisp
-  (cuss indicate-buffer-boundaries 'right)
+  (setq-default indicate-buffer-boundaries 'right)
 #+end_src
 
-***** Indicate continuation lines, but only on the left fringe
+**** Indicate continuation lines, but only on the left fringe
 
 #+begin_src emacs-lisp
-  (cuss visual-line-fringe-indicators '(left-curly-arrow nil))
+  (setq-default visual-line-fringe-indicators '(left-curly-arrow nil))
 #+end_src
 
-***** Customize fringe bitmaps
+**** Customize fringe bitmaps
 
-****** Curly arrows (continuation lines)
+***** Curly arrows (continuation lines)
 
 #+begin_src emacs-lisp
   (define-fringe-bitmap 'left-curly-arrow
@@ -219,7 +103,7 @@ and have made a custom fringe bitmap.
      #b11000000])
 #+end_src
 
-****** Arrows (truncation lines)
+***** Arrows (truncation lines)
 
 #+begin_src emacs-lisp
   (define-fringe-bitmap 'left-arrow
@@ -235,139 +119,162 @@ and have made a custom fringe bitmap.
      #b00000000])
 #+end_src
 
-*** Windows
+** Windows
 
-**** Winner mode
+*** Switch to other window or buffer
 
-I don't really /use/ winner-mode as of yet, but it seems like a really
-good thing to have.  It lets you move between window configurations
-with =C-c <-/->=.
+I grabbed this from [[https://www.reddit.com/r/emacs/comments/kz347f/what_parts_of_your_config_do_you_like_best/gjlnp2c/][u/astoff1]]: it extends the =other-window= command
+to switch to the other buffer if there's only one window in the frame.
 
-#+begin_src emacs-lisp
-  (when (fboundp 'winner-mode)
-    (winner-mode +1))
-#+end_src
-
-**** Switch windows, or buffers if there's only one
-
-from [[https://www.reddit.com/r/emacs/comments/kz347f/what_parts_of_your_config_do_you_like_best/gjlnp2c/][u/astoff1]].
-
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb-ref functions
   (defun other-window-or-buffer ()
-    "Switch to the other window, or previous buffer."
+    "Switch to other window, or the previous buffer."
     (interactive)
     (if (eq (count-windows) 1)
 	(switch-to-buffer nil)
       (other-window 1)))
 #+end_src
 
-*** Buffers
+And I'll bind it to =M-o=, since that's easier to reach than =C-x o=.
 
-**** Startup buffers
-
-I don't want to see Emacs's splash screen, and I want the =*scratch*=
-buffer to have a little message.
-
-#+begin_src emacs-lisp
-  (cuss inhibit-startup-screen t
-    "Don't show the startup buffer.")
-
-  (cuss initial-buffer-choice t
-    "Start with *scratch*.")
-
-  (cuss initial-scratch-message
-      (concat ";; Hello, " (nth 0 (split-string user-full-name)) "!\n"
-	      ";; Happy hacking ..."))
+#+begin_src emacs-lisp :noweb-ref bindings
+  (define-key global-map (kbd "M-o") #'other-window-or-buffer)
 #+end_src
 
-**** Immortal =*scratch*= buffer
+** Buffers
 
-I don't want to accidentally kill the =*scratch*= buffer.
+*** Uniquify buffers
 
-#+begin_src emacs-lisp
+The default way Emacs makes buffer names unique is really ugly and,
+dare I say it, stupid.  Instead, I want them to be uniquified by their
+filesystem paths.
+
+#+begin_src emacs-lisp :noweb-ref requires
+  (require 'uniquify)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default uniquify-buffer-name-style 'forward)
+#+end_src
+
+*** Startup buffers
+
+When Emacs starts up, I want a blank slate: the *scratch* buffer.  I
+also want it to show a cute little message to myself.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default inhibit-startup-screen t ; Don't show that splash screen thing.
+		initial-buffer-choice t  ; Start on *scratch*
+		initial-scratch-message
+		(concat ";; Howdy, "
+			(nth 0 (split-string user-full-name)) "!\n"
+			";; Welcome to Emacs."
+			"\n\n"))
+#+end_src
+
+*** Immortal =*scratch*= buffer
+
+I don't want to accidentally kill the *scratch* buffer.  So, I add a
+function to the =kill-buffer-query-functions= hook that will return
+=nil= if the buffer is *scratch*.
+
+#+begin_src emacs-lisp :noweb-ref functions
   (defun immortal-scratch ()
-    (if (eq (current-buffer) (get-buffer "*scratch*"))
-	(progn (bury-buffer)
-	       nil)
-      t))
+    (if (not (eq (current-buffer) (get-buffer "*scratch*")))
+	t
+      (bury-buffer)
+      nil))
+#+end_src
 
+#+begin_src emacs-lisp :noweb-ref hooks
   (add-hook 'kill-buffer-query-functions #'immortal-scratch)
 #+end_src
 
-**** Uniquify buffers
+*** Kill buffers better
 
-I like the =forward= style, which uniquifies buffers by including path
-elements up the tree until the names are unique.
-
-#+begin_src emacs-lisp
-  (require 'uniquify)
-  (cuss uniquify-buffer-name-style 'forward)
-#+end_src
-
-**** Kill buffers more smarter-ly
-
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb-ref functions
   (defun kill-a-buffer (&optional prefix)
-    "Kill buffers and windows sanely.
+    "Kill a buffer and its window, prompting only on unsaved changes.
 
-  `kill-a-buffer' works based on the prefix argument as follows:
-
-  - 0            => kill the CURRENT buffer and window
-  - 4 (C-u)      => kill the OTHER window and its buffer
-  - 16 (C-u C-u) => kill ALL OTHER buffers and windows
-
-  Prompt iff there are unsaved changes."
+  `kill-a-buffer' uses the PREFIX argument to determine which buffer(s) to kill:
+  0            => Kill current buffer & window
+  4 (C-u)      => Kill OTHER buffer & window
+  16 (C-u C-u) => Kill ALL OTHER buffers & windows"
     (interactive "P")
     (pcase (or (car prefix) 0)
-      (0  (kill-current-buffer)
-	  (unless (one-window-p) (delete-window)))
-      (4  (other-window 1)
-	  (kill-current-buffer)
-	  (unless (one-window-p) (delete-window)))
+      (0 (kill-current-buffer)
+	 (unless (one-window-p) (delete-window)))
+      (4 (other-window 1)
+	 (kill-current-buffer)
+	 (unless (one-window-p) (delete-window)))
       (16 (mapc #'kill-buffer (delq (current-buffer) (buffer-list)))
 	  (delete-other-windows))))
 #+end_src
 
-*** Fonts
+#+begin_src emacs-lisp :noweb-ref bindings
+  (define-key ctl-x-map "k" #'kill-a-buffer)
+#+end_src
 
-**** Function: =set-face-from-alternatives=
+** Cursor
 
-To be honest, this might be better off using =cussface=, but that's
-another story for another day.
+*** Cursor shape
 
-#+begin_src emacs-lisp
+I like a vertical bar, but only in the selected window.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default cursor-type 'bar
+		cursor-in-non-selected-windows nil)
+#+end_src
+
+*** Don't blink the cursor
+
+#+begin_src emacs-lisp :noweb-ref modes
+  (blink-cursor-mode -1)
+#+end_src
+
+** Tabs
+
+*** Tab names
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default tab-bar-tab-name-function
+		#'tab-bar-tab-name-current-with-count)
+#+end_src
+
+*** When to show the tab bar
+
+Only when there's more than one tab.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default tab-bar-show 1)
+#+end_src
+
+** Fonts
+
+*** Find an installed font from a list of alternatives
+
+#+begin_src emacs-lisp :noweb-ref functions
   (defun set-face-from-alternatives (face frame &rest fontspecs)
-    "Set FACE on FRAME from first available font from FONTSPECS.
-  FACE and FRAME work the same as with `set-face-attribute'."
-    (catch :return
-      (dolist (spec fontspecs)
-	(when-let ((found (find-font (apply #'font-spec spec))))
-	  (set-face-attribute face frame :font found)
-	  (throw :return found)))))
+	   "Set FACE on FRAME from first available spec from FONTSPECS.
+	 FACE and FRAME work the same as with `set-face-attribute.'"
+	   (catch :return
+	     (dolist (spec fontspecs)
+	       (when-let ((found (find-font (apply #'font-spec spec))))
+		 (set-face-attribute face frame :font found)
+		 (throw :return found)))))
 #+end_src
 
-**** Add a hook to setup fonts after the first window focus change
+*** Setup fonts on first window focus
 
-Of course, I only need to setup the fonts on a graphical session.
+At the end of this function, it removes itself from
+=after-focus-change-function=, so it only runs once.
 
-#+begin_src emacs-lisp
-  (when (display-graphic-p)
-    (add-function :before after-focus-change-function #'acdw/setup-fonts))
-#+end_src
-
-**** Setup my fonts
-
-Notice that this function removes itself from
-=after-focus-change-function=, since ideally you'll only need to set
-the fonts once.
-
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb-ref functions
   (defun acdw/setup-fonts ()
-    "Setup fonts.
-
-  This has to happen after the frame is setup for the first time,
-  so it should be added to `after-focus-change-function'.  It
-  removes itself."
+    "Setup fonts.  This has to happen after the frame is setup for
+  the first time, so it should be added to `after-focus-change-function'.  It
+  removes itself from that hook."
+    (interactive)
     (set-face-from-alternatives 'default nil
 				'(:family "Input Mono"
 				  :slant normal
@@ -377,9 +284,9 @@ the fonts once.
 				  :slant normal
 				  :weight normal
 				  :height 100))
-    ;; `fixed-pitch' should just inherit from `default'
+    ;; `fixed-pitch' inherits from `default'
     (set-face-attribute 'fixed-pitch nil :inherit 'default)
-
+    ;; variable-pitch is different
     (set-face-from-alternatives 'variable-pitch nil
 				'(:family "Input Sans"
 				  :slant normal
@@ -387,163 +294,318 @@ the fonts once.
 				'(:family "Georgia"
 				  :slant normal
 				  :weight normal))
-
+    ;; remove self from hook
     (remove-function after-focus-change-function #'acdw/setup-fonts))
 #+end_src
 
-**** Underlines
+Of course, it only makes sense to run the font setup at all if I'm
+using the graphical Emacs.
 
-#+begin_src emacs-lisp
-  (cuss x-underline-at-descent-line t)
+#+begin_src emacs-lisp :noweb-ref hooks
+  (when (display-graphic-p)
+    (add-function :before after-focus-change-function
+		#'acdw/setup-fonts))
 #+end_src
 
-** Interactivity
-*** Dialogs and alerts
+*** Underlines
 
-**** Don't use a dialog box
+I like the /fancy/ underlines in newer browsers that skip all the
+descenders.  Emacs doesn't /quite/ have that, but it can put the
+underline below all the text.
 
-#+begin_src emacs-lisp
-  (cuss use-dialog-box nil)
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default x-underline-at-descent-line t)
 #+end_src
 
-**** Yes or no questions
+* Interactivity
 
-#+begin_src emacs-lisp
+** Dialogs and alerts
+
+*** Don't use a dialog box
+
+Ask in the modeline instead.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default use-dialog-box nil)
+#+end_src
+
+*** Yes or no questions
+
+I just want to type =y= or =n=, okay?
+
+#+begin_src emacs-lisp :noweb-ref functions
   (fset 'yes-or-no-p #'y-or-n-p)
 #+end_src
 
-**** The Bell
+*** The Bell
 
-#+begin_src emacs-lisp
-  ;; Don't flash the whole screen on bell
-  (cuss visible-bell nil)
+The only system I /sort of/ like the bell on is my Thinkpad, which
+does a little on-board speaker beep.  Until I can figure out how to
+let it do its thing, though, I'll just change the bell on all my
+systems.
 
-  ;; Instead, flash the mode line
-  (cuss ring-bell-function #'flash-mode-line)
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default visible-bell nil
+		ring-bell-function #'flash-mode-line)
+#+end_src
 
+**** Flash the mode-line
+
+#+begin_src emacs-lisp :noweb-ref functions
   (defun flash-mode-line ()
     (invert-face 'mode-line)
     (run-with-timer 0.2 nil #'invert-face 'mode-line))
 #+end_src
 
-t*** Minibuffer
+** Minibuffer
 
-*** Minibuffer
+*** Keep the cursor away from the  minibuffer prompt
 
-**** Keep the cursor away from the minibuffer prompt
-
-#+begin_src emacs-lisp
-  (cuss minibuffer-prompt-properties
-      '(read-only t cursor-intangible t face minibuffer-prompt))
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default minibuffer-prompt-properties
+		'(read-only t
+		  cursor-intangible t
+		  face minibuffer-prompt))
 #+end_src
 
-**** Enable recursive minibuffer
+*** Enable a recursive minibuffer
 
-#+begin_src emacs-lisp
-  (cuss enable-recursive-minibuffers t)
+#+begin_src emacs-lisp :noweb-ref
+  (setq-default enable-recursive-minibuffers t)
 #+end_src
 
-**** Show how deep the minibuffer goes in the modeline
+*** Show the recursivity of the minibuffer in the mode-line
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb-ref modes
   (minibuffer-depth-indicate-mode +1)
 #+end_src
 
-*** Completing-read
+** Completing-read
 
-**** Shadow file names
+*** Shadow file names
 
 When typing =~= or =/= in the file-selection dialog, Emacs "pretends"
-that you've typed them at the beginning of the line.  By default,
-however, it only /fades out/ the previous contents of the line.  I
-want to /hide/ those contents.
+that you've typed them at the beginning of the line. By default,
+however, it only /fades out/ the previous contents of the line. I want
+to /hide/ those contents.
 
-#+begin_src emacs-lisp
-  (cuss file-name-shadow-properties '(invisible t))
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default file-name-shadow-properties '(invisible t))
+#+end_src
 
+#+begin_src emacs-lisp :noweb-ref modes
   (file-name-shadow-mode +1)
 #+end_src
 
-**** Ignore case
+*** Ignore case
 
-#+begin_src emacs-lisp
-  (cuss completion-ignore-case t)
-  (cuss read-buffer-completion-ignore-case t)
-  (cuss read-file-name-completion-ignore-case t)
+#+begin_src emacs-lisp :noweb-ref
+  (setq-default completion-ignore-case t
+		read-buffer-completion-ignore-case t
+		read-file-name-completion-ignore-case t)
 #+end_src
 
-** Persistence
+* Persistence
 
-*** Minibuffer history
+** Minibuffer history
 
-The =savehist= package saves the minibuffer history between sessions.
-It can also save some other variables alongside the minibuffer
-history.  Since storage is cheap, I'm also going to keep all my
-history.
+The =savehist= package saves minibuffer history between sessions, as
+well as the option for some other variables.  Since storage is cheap,
+I keep all of it.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb-ref requires
   (require 'savehist)
+#+end_src
 
-  (cuss savehist-additional-variables
-      '(kill-ring
-	search-ring
-	regexp-search-ring))
+#+begin_src emacs-lisp :noweb-ref modes
+  (setq-default savehist-additional-variables
+		'(kill-ring
+		  search-ring
+		  regexp-search-ring)
+		history-length t ; Don't truncate
+		history-delete-duplicates t)
+#+end_src
 
-  ;; Don't truncate history
-  (cuss history-length t)
-
-  ;; Delete history duplicates
-  (cuss history-delete-duplicates t)
-
+#+begin_src emacs-lisp :noweb-ref modes
   (savehist-mode +1)
 #+end_src
 
-*** File places
+** File places
 
-The =saveplace= package saves where I've been in the files I've
-visited, so I can return back to them.
+The =saveplace= package saves where I've been in my visited files.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :noweb-ref requires
   (require 'saveplace)
+#+end_src
 
-  ;; Forget the place in unreadable files
-  (cuss save-place-forget-unreadable-files t)
+Since storage is cheap, but I'm impatient -- especially on Windows --
+I'm not going to check whether the files =save-place= saves the places
+of are readable or not.
 
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default save-place-forget-unreadable-files (when-at :home))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref modes
   (save-place-mode +1)
 #+end_src
 
-*** Recent files
+** Recent files
 
-#+begin_src emacs-lisp
+I also like to keep track of recently-opened files.  =recentf= helps
+with that.
+
+#+begin_src emacs-lisp :noweb-ref requires
   (require 'recentf)
+#+end_src
 
-  ;; Limit the number of items in the recentf menu
-  (cuss recentf-max-menu-items 100)
-  ;; But not the number of items in the actual list
-  (cuss recentf-max-saved-items nil)
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default recentf-max-menu-items 100
+		recentf-max-saved-items nil)
+#+end_src
 
+#+begin_src emacs-lisp :noweb-ref modes
   (recentf-mode +1)
 #+end_src
 
-**** Save the recentf list periodically
+*** Save the recentf list periodically
 
-#+begin_src emacs-lisp
-  (defun acdw/maybe-save-recentf ()
-    "Save `recentf-file every five minutes, but only when out of focus."
+#+begin_src emacs-lisp :noweb-ref functions
+  (defun maybe-save-recentf ()
+    "Save `recentf-file' every five minutes, but only when out of focus."
     (defvar recentf--last-save (time-convert nil 'integer)
-      "When we last ran `recentf-save-list'.")
+      "When we last saved the `recentf-save-list'.")
 
     (when (> (time-convert (time-since recentf--last-save) 'integer)
 	     (* 60 5))
-      (setq recentf--last-save (time-convert nil 'integer))
-      (acdw/when-unfocused #'recentf-save-list)))
-
-  (add-function :after after-focus-change-function #'acdw/maybe-save-recentf)
+      (setq-default recentf--last-save (time-convert nil 'integer))
+      (when-unfocused #'recentf-save-list)))
 #+end_src
 
-** Files
+#+begin_src emacs-lisp :noweb-ref hooks
+  (add-function :after after-focus-change-function
+		#'maybe-save-recentf)
+#+end_src
 
-*** Encoding
+* Responsiveness
+
+Emacs has a slew of well-documented problems with snappiness.
+Luckily, there are a number of solutions.
+
+** Only do things when unfocused
+
+Sometimes, we can fake responsiveness by only performing commands when
+the user is looking at something else.
+
+#+begin_src emacs-lisp :noweb-ref functions
+  (defun when-unfocused (func &rest args)
+    "Run FUNC, with ARGS, iff all frames are out of focus."
+    (when (seq-every-p #'null (mapcar #'frame-focus-state (frame-list)))
+      (apply func args)))
+#+end_src
+
+* Files
+
+** Encoding
+
+*** UTF-8
+
+It's 2020.  Let's encode files like it is.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (prefer-coding-system 'utf-8)
+  (set-default-coding-systems 'utf-8)
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+
+  (setq-default buffer-file-coding-system 'utf-8
+		x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
+#+end_src
+
+*** UNIX-style line endings
+
+This function is from the [[https://www.emacswiki.org/emacs/EndOfLineTips][Emacs Wiki]].
+
+#+begin_src emacs-lisp :noweb-ref functions
+  (defun ewiki/no-junk-please-were-unixish ()
+    "Convert line endings to UNIX, dammit."
+    (let ((coding-str (symbol-name buffer-file-coding-system)))
+      (when (string-match "-\\(?:dos\\|mac\\)$" coding-str)
+	(set-buffer-file-coding-system 'unix))))
+#+end_src
+
+I add it to both =file-find-hook= /and/ =before-save-hook= because I'm
+/that/ over it.  I don't want to ever work with anything other than
+UNIX line endings ever again. I just don't care. Even Microsoft
+Notepad can handle UNIX line endings, so I don't want to hear it.
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (add-hook 'find-file-hook #'ewiki/no-junk-please-were-unixish)
+  (add-hook 'before-save-hook #'ewiki/no-junk-please-were-unixish)
+#+end_src
+
+** Keep =~/.emacs.d= clean                                          :package:
+
+* Package management                                                :package:
+:PROPERTIES:
+:header-args: :noweb-ref package-bootstrap
+:END:
+
+Emacs is the /extensible/ editor, and that means I want to use
+third-party packages.  Of course, first I have to /manage/ those
+packages.  I use the excellent =straight.el=.
+
+** TODO Update the PATH
+
+** Disable =package.el=
+
+#+begin_src emacs-lisp
+  (setq package-enable-at-startup nil)
+#+end_src
+
+** Bootstrap
+
+The following is straight (heh) from the straight repo, wrapped in a
+function so I can call it in another wrapper.
+
+#+begin_src emacs-lisp
+  (defun acdw/bootstrap-straight ()
+    "Bootstrap straight.el."
+    (defvar bootstrap-version)
+    (let ((bootstrap-file
+	   (expand-file-name
+	    "straight/repos/straight.el/bootstrap.el"
+	    user-emacs-directory))
+	  (bootstrap-version 5))
+      (unless (file-exists-p bootstrap-file)
+	(with-current-buffer
+	    (url-retrieve-synchronously
+	     (concat
+	      "https://raw.githubusercontent.com/"
+	      "raxod502/straight.el/develop/install.el")
+	     'silent 'inhibit-cookies)
+	  (goto-char (point-max))
+	  (eval-print-last-sexp)))
+      (load bootstrap-file nil 'nomessage)))
+#+end_src
+
+To actually bootstrap straight, I'll first try running the above
+directly.  If it errors (it tends to on Windows), I'll directly clone
+the repo using git, /then/ run the bootstrap code.
+
+#+begin_src emacs-lisp
+  (unless (ignore-errors (acdw/bootstrap-straight))
+    (let ((msg "Straight.el didn't bootstrap correctly.  Cloning directly"))
+      (message "%s..." msg)
+      (call-process "git" nil
+		    (get-buffer-create "*bootstrap-straight-messages*") nil
+		    "clone"
+		    "https://github.com/raxod502/straight.el"
+		    (expand-file-name "straight/repos/straight.el"
+				      user-emacs-directory))
+      (message "%s...Done." msg)
+      (acdw/bootstrap-straight)))
+#+end_src
 
 * System-specific
 
@@ -552,27 +614,41 @@ easier to use in both systems, I've included various system-specific
 settings and written some ancillary scripts.
 
 ** Determine where I am
+:PROPERTIES:
+:header-args: :noweb-ref functions
+:END:
 
 #+begin_src emacs-lisp
   (defmacro when-at (conditions &rest commands)
-    "Run COMMANDS when at a specific place.
+    "Run COMMANDS, or let the user know, when at a specific place.
 
   CONDITIONS are one of `:work', `:home', or a list beginning with
   those and other conditions to check.  COMMANDS are only run if
-  all CONDITIONS are met."
+  all CONDITIONS are met.
+
+  If COMMANDS is empty or nil, simply return the result of CONDITIONS."
     (declare (indent 1))
-    (let ((at-work (memq system-type '(ms-dos windows-nt)))
-	  (at-home (memq system-type '(gnu gnu/linux gnu/kfreebsd))))
+    (let ((at-work '(memq system-type '(ms-dos windows-nt)))
+	  (at-home '(memq system-type '(gnu gnu/linux gnu/kfreebsd))))
       (pcase conditions
-	(:work `(when ',at-work ,@commands))
-	(:home `(when ',at-home ,@commands))
-	(`(:work ,others) `(when (and ',at-work ,others)
-			     ,@commands))
-	(`(:home ,others) `(when (and ',at-home ,others)
-			     ,@commands)))))
+	(:work (if commands `(when ,at-work ,@commands) at-work))
+	(:home (if commands `(when ,at-home ,@commands) at-home))
+	((guard (eq (car conditions) :work))
+	 (if commands
+	     `(when (and ,at-work ,@(cdr conditions))
+		,@commands)
+	   `(and ,at-work ,@(cdr conditions))))
+	((guard (eq (car conditions) :home))
+	 (if commands
+	     `(when (and ,at-home ,@(cdr conditions))
+		,@commands)
+	   `(and ,at-work ,@(cdr conditions)))))))
 #+end_src
 
-** Linux
+** Linux (home) 
+:PROPERTIES:
+:header-args: :noweb-ref linux-specific
+:END:
 
 *** Settings
 
@@ -580,14 +656,14 @@ settings and written some ancillary scripts.
 
 **** em
 :PROPERTIES:
-:header-args: :tangle-mode (identity #o755) :tangle bin/em :mkdirp yes
+:header-args: :tangle-mode (identity #o755) :mkdirp yes
 :END:
 
 Here's a wrapper script that'll start =emacs --daemon= if there isn't
 one, and then launch =emacsclient= with the arguments.  Install it to
 your =$PATH= somewhere.
 
-#+begin_src sh :shebang "#!/bin/sh"
+#+begin_src sh :shebang "#!/bin/sh" :tangle (when-at :home "~/bin/em")
   if ! emacsclient -nc "$@"; then
       emacs --daemon
       emacsclient -nc "$@"
@@ -596,13 +672,13 @@ your =$PATH= somewhere.
 
 **** emacsclient.desktop
 :PROPERTIES:
-:header-args: :tangle bin/emacsclient.desktop :mkdirp yes
+:header-args: :mkdirp yes
 :END:
 
 I haven't really tested this yet, but it should allow me to open other
 files and things in Emacs.  From [[https://www.taingram.org/blog/emacs-client.html][taingram]].
 
-#+begin_src conf-desktop
+#+begin_src conf-desktop :tangle (when-at :home "~/.local/share/applications/emacsclient.desktop")
   [Desktop Entry]
   Name=Emacs Client
   GenericName=Text Editor
@@ -615,7 +691,10 @@ files and things in Emacs.  From [[https://www.taingram.org/blog/emacs-client.ht
   Categories=Utility;TextEditor;
 #+end_src
 
-** Windows
+** Windows (work)
+:PROPERTIES:
+:header-args: :noweb-ref windows-specific
+:END:
 
 I use Windows at work, where I /also/ don't have Admin rights.  So I
 kind of fly-by-night there.  Much of the ideas and scripts in this
@@ -623,24 +702,21 @@ section come from [[https://github.com/termitereform/JunkPile/blob/master/emacs-
 
 *** Settings
 
-#+NAME: w32-settings
 #+begin_src emacs-lisp
-  (when (memq system-type '(windows-nt ms-dos cygwin))
-    (setq w32-allow-system-shell t ; enable cmd.exe as shell
-	  ))
+    (setq-default w32-allow-system-shell t) ; enable cmd.exe as shell
 #+end_src
 
 *** Scripts
 :PROPERTIES:
-:header-args: :noweb tangle :mkdirp yes
+:header-args: :noweb yes :mkdirp yes
 :END:
 
 **** Common variables
 
 #+NAME: w32-bat-common
 #+begin_src bat
-set HOME=%~dp0..\..\
-set EMACS=%~dp0..\..\..\bin\runemacs.exe
+set HOME=%~dp0..\..
+set EMACS=%HOME%\Applications\Emacs\bin\runemacs.exe
 #+end_src
 
 **** Emacs Daemon
@@ -649,9 +725,9 @@ Either run this once at startup, or put a shortcut of it in the
 Startup folder: 
 =%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup=.
 
-#+begin_src bat :tangle "bin/Emacs Daemon.cmd"
+#+begin_src bat :tangle (when-at :work "~/Applications/cmd/Emacs Daemon.cmd")
 <<w32-bat-common>>
-"%EMACS%" --daemon
+%EMACS% --daemon
 #+end_src
 
 **** Emacs Client
@@ -661,9 +737,9 @@ run =runemacs.exe=.
 
 *This is the main shortcut for running Emacs.*
 
-#+begin_src bat :tangle bin/Emacs.cmd
+#+begin_src bat :tangle (when-at :work "~/Applications/cmd/Emacs.cmd")
 <<w32-bat-common>>
-set EMACSC=%~dp0..\..\..\bin\emacsclientw.exe
+set EMACSC=%HOME%\Applications\Emacs\bin\emacsclientw.exe
 "%EMACSC%" -n -c -a "%EMACS%" %*
 #+end_src
 
@@ -671,7 +747,7 @@ set EMACSC=%~dp0..\..\..\bin\emacsclientw.exe
 
 This runs Emacs with the factory settings.
 
-#+begin_src bat :tangle "bin/Emacs Safe Start.cmd"
+#+begin_src bat :tangle (when-at :work "~/Applications/cmd/Emacs Safe Start.cmd")
 <<w32-bat-common>>
 "%EMACS%" -Q %*
 #+end_src
@@ -680,23 +756,76 @@ This runs Emacs with the factory settings.
 
 This runs Emacs with the =--debug-init= option enabled.
 
-#+begin_src bat :tangle "bin/Emacs Debug.cmd"
+#+begin_src bat :tangle (when-at :work "~/Applications/cmd/Emacs Debug.cmd")
 <<w32-bat-common>>
 "%EMACS%" --debug-init %*
 #+end_src
 * Appendices
+
+** =config.el=
+:PROPERTIES:
+:header-args: :tangle config.el :noweb yes
+:END:
+
+While =config.el= is written above, I use Noweb references to tangle
+them all together in the following block, which enables me to organize
+my config here /logically/, while keeping the generated file organized
+/programmatically/.
+
+*** Enable lexical binding
+
+#+begin_src emacs-lisp
+  ;; config.el -*- lexical-binding: t -*-
+#+end_src
+
+*** Disclaimer
+:PROPERTIES:
+:header-args: :noweb-ref disclaimer
+:END:
+
+#+begin_src emacs-lisp
+  ;; This file is automatically tangled from config.org.
+  ;; Hand edits will be overwritten!
+#+end_src
+
+*** The rest
+
+#+begin_src emacs-lisp
+  ;;; REQUIRES
+  <<requires>>
+  ;;; PACKAGES
+  <<packages>>
+  ;;; FUNCTIONS
+  <<functions>>
+  ;;; SETTINGS
+  <<settings>>
+  ;;; MODES
+  <<modes>>
+  ;;; SYSTEM-DEPENDENT SETTINGS
+  (when-at :home
+  <<linux-specific>>
+  )
+  (when-at :work
+  <<windows-specific>>
+  )
+  ;;; HOOKS
+  <<hooks>>
+  ;;; BINDINGS
+  <<bindings>>
+#+end_src
+
 ** Emacs's files
 
 *** init.el
 :PROPERTIES:
-:header-args: :tangle init.el :comments both
+:header-args: :tangle init.el :noweb yes
 :END:
 
 The classic Emacs initiation file.
 
 **** Use lexical binding when evaluating =init.el=
 
-#+begin_src emacs-lisp :comments no :noweb tangle
+#+begin_src emacs-lisp
   ;; init.el -*- lexical-binding: t -*-
   <<disclaimer>>
 #+end_src
@@ -704,7 +833,7 @@ The classic Emacs initiation file.
 **** Prefer newer files to older files
 
 #+begin_src emacs-lisp
-  (setq load-prefer-newer t)
+  (setq-default load-prefer-newer t)
 #+end_src
 
 **** Load the config
@@ -715,27 +844,33 @@ directly from Org if it's newer.
 
 #+begin_src emacs-lisp
   (let* (;; Speed up init
-         (gc-cons-threshold most-positive-fixnum)
-         (file-name-handler-alist nil)
-         ;; Config file names
-         (conf (expand-file-name "config"
-                                 user-emacs-directory))
-         (conf-el (concat conf ".el"))
-         (conf-org (concat conf ".org")))
-    (unless (and (file-newer-than-file-p conf-el conf-org)
-                 (load conf 'no-error))
-      ;; A plain require here just loads the older `org'
-      ;; in Emacs' install dir.  We need to add the newer
-      ;; one to the `load-path', hopefully that's all.
-      (add-to-list 'load-path (expand-file-name "straight/build/org"
-                                                user-emacs-directory))
-      (require 'org)
-      (org-babel-load-file conf-org)))
+	 (gc-cons-threshold most-positive-fixnum)
+	 (file-name-handler-alist nil)
+	 ;; Config file names
+	 (config (expand-file-name "config"
+				   user-emacs-directory))
+	 (config.el (concat config ".el"))
+	 (config.org (concat config ".org"))
+	 (straight-org-dir (expand-file-name "straight/build/org"
+					     user-emacs-directory)))
+	 ;; Unless config.org is /newer/ than config.el, *or* the config
+	 ;; is able to be loaded without errors, load the config from
+	 ;; config.org.
+	 (unless (or (file-newer-than-file-p config.org config.el)
+		     (load config 'no-error))
+	   ;; A plain require here just loads the older `org'
+	   ;; in Emacs' install dir.  We need to add the newer
+	   ;; one to the `load-path', hopefully that's all.
+	   (when (file-exists-p straight-org-dir)
+	     (add-to-list 'load-path straight-org-dir))
+	   ;; Load config.org
+	   (require 'org)
+	   (org-babel-load-file config.org)))
 #+end_src
 
 *** early-init.el
 :PROPERTIES:
-:header-args: :tangle early-init.el :comments both
+:header-args: :tangle early-init.el :noweb yes
 :END:
 
 Beginning with 27.1, Emacs also loads an =early-init.el= file, before
@@ -744,29 +879,31 @@ little as possible in this file, so I only have what I need.
 
 **** Don't byte-compile this file
 
-#+begin_src emacs-lisp :comments no :noweb tangle
+#+begin_src emacs-lisp
   ;; early-init.el -*- no-byte-compile: t; -*-
   <<disclaimer>>
 #+end_src
 
-****  Disable loading of =package.el=
+**** Package management
 
-I use =straight.el= instead.
+Since =early-init.el= loads before the built-in package manager
+initializes, I disable it and bootstrap my package manager of choice,
+=straight.el=.
 
 #+begin_src emacs-lisp
-  (setq package-enable-at-startup nil)
+  <<package-bootstrap>>
 #+end_src
 
 **** Don't resize the frame when loading fonts
 
 #+begin_src emacs-lisp
-  (setq frame-inhibit-implied-resize t)
+  (setq-default frame-inhibit-implied-resize t)
 #+end_src
 
 **** Resize frame by pixels
 
 #+begin_src emacs-lisp
-  (setq frame-resize-pixelwise t)
+  (setq-default frame-resize-pixelwise t)
 #+end_src
 
 **** Shoe-horned from elsewhere in =config.org=
@@ -778,13 +915,13 @@ weird shoe-horning of other bits of my config here, in a backwater
 heading in an appendix, isn't quite the future I wanted.  But it's
 what I have for now.
 
-#+begin_src emacs-lisp :noweb tangle
+#+begin_src emacs-lisp
   <<initial-frame-setup>>
 #+end_src
 
 ** License
 :PROPERTIES:
-:header-args: :tangle LICENSE :comments no
+:header-args: :tangle LICENSE
 :END:
 
 Copyright © 2020 Case Duckworth <acdw@acdw.net>
@@ -817,3 +954,33 @@ It's highly likely that the WTFPL is completely incompatible with the
 GPL, for what should be fairly obvious reasons.  To that, I say:
 
 *SUE ME, RMS!*
+
+** Make it easier to edit =config.org=                             :noexport:
+
+Because I use a lot of =:noweb-ref= directives in this file, editing
+it can be annoying -- I need some nice templates.  Run this code block
+with =C-c C-c=.
+
+#+begin_src emacs-lisp :results output silent
+  (require 'org-tempo)
+
+  (dolist (cell '(("el" . "src emacs-lisp")
+		 ("cr" . "src emacs-lisp :noweb-ref requires")
+		 ("cf" . "src emacs-lisp :noweb-ref functions")
+		 ("cs" . "src emacs-lisp :noweb-ref settings")
+		 ("cm" . "src emacs-lisp :noweb-ref modes")
+		 ("cl" . "src emacs-lisp :noweb-ref linux-specific")
+		 ("cw" . "src emacs-lisp :noweb-ref windows-specific")
+		 ("cp" . "src emacs-lisp :noweb-ref packages")
+		 ("ch" . "src emacs-lisp :noweb-ref hooks")
+		 ("cb" . "src emacs-lisp :noweb-ref bindings")))
+    (add-to-list 'org-structure-template-alist cell))
+#+end_src
+
+** Local variables                                                 :noexport:
+
+# Local variables:
+# org-adapt-indentation: nil
+# lisp-indent-function: 'common-lisp-indent-function
+# eval: (auto-fill-mode +1)
+# End:
