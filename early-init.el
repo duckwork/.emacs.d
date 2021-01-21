@@ -2,40 +2,41 @@
 ;; This file is automatically tangled from config.org.
 ;; Hand edits will be overwritten!
 
-;;  Disable loading of =package.el=
-
-;; I use =straight.el= instead.
-
-
-;; [[file:~/.emacs.d/config.org::*Disable loading of =package.el=][Disable loading of =package.el=:1]]
 (setq package-enable-at-startup nil)
-;; Disable loading of =package.el=:1 ends here
+(defun acdw/bootstrap-straight ()
+  "Bootstrap straight.el."
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+	 (expand-file-name
+	  "straight/repos/straight.el/bootstrap.el"
+	  user-emacs-directory))
+	(bootstrap-version 5))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+	  (url-retrieve-synchronously
+	   (concat
+	    "https://raw.githubusercontent.com/"
+	    "raxod502/straight.el/develop/install.el")
+	   'silent 'inhibit-cookies)
+	(goto-char (point-max))
+	(eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage)))
+(unless (ignore-errors (acdw/bootstrap-straight))
+  (let ((msg "Straight.el didn't bootstrap correctly.  Cloning directly"))
+    (message "%s..." msg)
+    (call-process "git" nil
+		  (get-buffer-create "*bootstrap-straight-messages*") nil
+		  "clone"
+		  "https://github.com/raxod502/straight.el"
+		  (expand-file-name "straight/repos/straight.el"
+				    user-emacs-directory))
+    (message "%s...Done." msg)
+    (acdw/bootstrap-straight)))
 
-;; Don't resize the frame when loading fonts
+(setq-default frame-inhibit-implied-resize t)
 
+(setq-default frame-resize-pixelwise t)
 
-;; [[file:~/.emacs.d/config.org::*Don't resize the frame when loading fonts][Don't resize the frame when loading fonts:1]]
-(setq frame-inhibit-implied-resize t)
-;; Don't resize the frame when loading fonts:1 ends here
-
-;; Resize frame by pixels
-
-
-;; [[file:~/.emacs.d/config.org::*Resize frame by pixels][Resize frame by pixels:1]]
-(setq frame-resize-pixelwise t)
-;; Resize frame by pixels:1 ends here
-
-;; Shoe-horned from elsewhere in =config.org=
-
-;; A fundamental tension of literal programming is logical versus
-;; programmatic ordering.  I understand that's a problem it's meant to
-;; solve but hey, maybe I'm not quite there yet.  I feel that having this
-;; weird shoe-horning of other bits of my config here, in a backwater
-;; heading in an appendix, isn't quite the future I wanted.  But it's
-;; what I have for now.
-
-
-;; [[file:~/.emacs.d/config.org::*Shoe-horned from elsewhere in =config.org=][Shoe-horned from elsewhere in =config.org=:1]]
 (add-to-list 'default-frame-alist
 	     '(tool-bar-lines . 0))
 
@@ -50,4 +51,3 @@
 
 (scroll-bar-mode -1)
 (horizontal-scroll-bar-mode -1)
-;; Shoe-horned from elsewhere in =config.org=:1 ends here
