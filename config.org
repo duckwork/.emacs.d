@@ -304,7 +304,7 @@ underline below all the text.
   (setq-default x-underline-at-descent-line t)
 #+end_src
 
-*** COMMENT Unicode fonts
+*** COMMENT Unicode fonts                                           :package:
 
 =unicode-fonts= pulls in some other packages that still require the
 deprecated =cl= library.  I'm including this stuff here because it's
