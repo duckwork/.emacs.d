@@ -527,10 +527,11 @@ The =saveplace= package saves where I've been in my visited files.
 
 Since storage is cheap, but I'm impatient -- especially on Windows --
 I'm not going to check whether the files =save-place= saves the places
-of are readable or not.
+of are readable or not when I'm not at home.
 
 #+begin_src emacs-lisp :noweb-ref settings
-  (setq-default save-place-forget-unreadable-files (when-at :home))
+  (setq-default save-place-forget-unreadable-files
+                (memq system-type '(gnu gnu/linux gnu/kfreebsd)))
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref modes
@@ -729,7 +730,6 @@ contents of the files the represent on-disk.  Thus, we have
 #+begin_src emacs-lisp :noweb-ref modes
   (global-auto-revert-mode +1)
 #+end_src
-
 
 * Editing
 
@@ -975,7 +975,6 @@ checks for a shebang).
 #+begin_src emacs-lisp :noweb-ref settings
   (setq-default lisp-indent-function #'common-lisp-indent-function)
 #+end_src
-
 
 * Applications
 
@@ -1317,42 +1316,6 @@ I use both Linux (at home) and Windows (at work).  To make Emacs
 easier to use in both systems, I've included various system-specific
 settings and written some ancillary scripts.
 
-** Determine where I am
-:PROPERTIES:
-:header-args: :noweb-ref when-at
-:END:
-
-This macro needs to go into =init.el=, /before/ loading =config.el= --
-because I've used the =when-at= form in the =:tangle= directive for
-the scripts in this section.
-
-#+begin_src emacs-lisp
-  (defmacro when-at (conditions &rest commands)
-    "Run COMMANDS, or let the user know, when at a specific place.
-
-  CONDITIONS are one of `:work', `:home', or a list beginning with
-  those and other conditions to check.  COMMANDS are only run if
-  all CONDITIONS are met.
-
-  If COMMANDS is empty or nil, simply return the result of CONDITIONS."
-    (declare (indent 1))
-    (let ((at-work '(memq system-type '(ms-dos windows-nt)))
-          (at-home '(memq system-type '(gnu gnu/linux gnu/kfreebsd))))
-      (pcase conditions
-        (:work (if commands `(when ,at-work ,@commands) at-work))
-        (:home (if commands `(when ,at-home ,@commands) at-home))
-        ((guard (eq (car conditions) :work))
-         (if commands
-             `(when (and ,at-work ,@(cdr conditions))
-                ,@commands)
-           `(and ,at-work ,@(cdr conditions))))
-        ((guard (eq (car conditions) :home))
-         (if commands
-             `(when (and ,at-home ,@(cdr conditions))
-                ,@commands)
-           `(and ,at-work ,@(cdr conditions)))))))
-#+end_src
-
 ** Linux (home) 
 :PROPERTIES:
 :header-args: :noweb-ref linux-specific
@@ -1510,60 +1473,61 @@ my config here /logically/, while keeping the generated file organized
     )
   ;;; FUNCTIONS
   <<functions>>
+
   ;;; SETTINGS
   <<settings>>
+
   ;;; SYSTEM-DEPENDENT SETTINGS
-  (when-at :home
-    <<linux-specific>>
-    ) ; end when-at :home
-  (when-at :work
-    <<windows-specific>>
-    ) ; end when-at :work
+  ;; at home
+  (eval-and-compile
+    (when (memq system-type '(gnu gnu/linux gnu/kfreebsd))
+      <<linux-specific>>
+      ))
+  ;; at work
+  (eval-and-compile
+    (when (memq system-type '(ms-dos windows-nt))
+      <<windows-specific>>
+      ))
+
   ;;; MODES
   <<modes>>
+
   ;;; HOOKS
   <<hooks>>
+
   ;;; BINDINGS
   <<bindings>>
+  ;;; config.el ends here
 #+end_src
 
-** Emacs's files
-
-*** init.el
+** init.el
 :PROPERTIES:
 :header-args: :tangle init.el :noweb yes
 :END:
 
 The classic Emacs initiation file.
 
-**** Use lexical binding when evaluating =init.el=
+*** Header
 
 #+begin_src emacs-lisp
-  ;; init.el -*- lexical-binding: t -*-
+  ;;; init.el -*- lexical-binding: t -*-
   <<disclaimer>>
+  ;;; Code:
 #+end_src
 
-**** Prefer newer files to older files
+*** Prefer newer files to older files
 
 #+begin_src emacs-lisp
   (setq-default load-prefer-newer t)
 #+end_src
 
-**** =when-at=
-
-See [[*Determine where I am][the definition above]] for rationale as to why this is here.
-
-#+begin_src emacs-lisp
-  <<when-at>>
-#+end_src
-
-**** Load the config
+*** Load the config
 
 I keep most of my config in =config.el=, which is tangled directly from
-this file.  This init just loads that file, either from lisp ~or
-directly from Org if it's newer~.  I found out that =org-babel-load-file=
-/caches/ its runs, and checks for me whether the .org or .el file is
-newer.  /Plus/ it can byte-compile!!
+this file.  This init just loads that file, either from lisp 
+or directly from Org if it's newer.  /Note/ the longish comment before
+the =unless= form -- it was pretty tough for me to wrap my head around
+the needed boolean expression to tangle config.org.  Booleans, yall!
 
 #+begin_src emacs-lisp
   (let* (;; Speed up init
