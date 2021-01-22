@@ -567,6 +567,16 @@ generally use it as a leader for entering applications.
   (blackout 'which-key-mode)
 #+end_src
 
+** Scrolling
+
+According to [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-order-of-magnitude-faster][Murilo Pereira]], these settings will make Emacs scrolling
+"an order of magnitude faster."
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default auto-window-vscroll nil
+                fast-but-imprecise-scrolling t)
+#+end_src
+
 * Persistence
 
 ** Minibuffer history
