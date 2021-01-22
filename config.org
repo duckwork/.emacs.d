@@ -1156,7 +1156,33 @@ that one item is.
   (add-hook 'dired-mode-hook #'dired-collapse-mode)
 #+end_src
 
+** Git                                                              :package:
+
+*** Magit
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'magit)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref bindings
+  (define-key acdw/leader "g" #'magit-status)
+#+end_src
+
+*** Git file modes
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (dolist (feat '(gitattributes-mode
+                  gitconfig-mode
+                  gitignore-mode))
+    (straight-use-package feat)
+    (require feat))
+#+end_src
+
 * Org mode                                                          :package:
+
+** Install it with =straight.el=
+
+I want to use the newest version of Org that I can.
 
 #+begin_src emacs-lisp :noweb-ref packages
   (straight-use-package 'org)
@@ -1165,6 +1191,8 @@ that one item is.
     (require 'org-tempo)
     (require 'ox-md))
 #+end_src
+
+** Basic settings
 
 #+begin_src emacs-lisp :noweb-ref settings
   (setq-default
@@ -1189,6 +1217,24 @@ that one item is.
    org-special-ctrl-k t
    ;; Exporting
    org-export-headline-levels 8)
+#+end_src
+
+** Aesthetics
+
+*** Prettify some other symbols
+
+#+begin_src emacs-lisp :noweb-ref functions
+  (defun acdw/org-mode-prettify ()
+    "Prettify `org-mode'."
+    (dolist (cell '(("[ ]" . ?☐) ("[X]" . ?☑) ("[-]" . ?◐)
+                    ("#+BEGIN_SRC" . ?✎) ("#+begin_src" . ?✎)
+                    ("#+END_SRC" . ?■) ("#+end_src" . ?■)))
+      (add-to-list 'prettify-symbols-alist cell :append))
+    (prettify-symbols-mode +1))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (add-hook 'org-mode-hook #'acdw/org-mode-prettify)
 #+end_src
 
 ** Org templates
@@ -1314,6 +1360,55 @@ that one item is.
     (define-key org-mode-map (kbd "RET") #'unpackaged/org-return-dwim))
 #+end_src
 
+** Insert blank lines around headers                             :unpackaged:
+
+#+begin_src emacs-lisp :noweb-ref functions
+  (defun unpackaged/org-fix-blank-lines (&optional prefix)
+    "Ensure that blank lines exist between headings and between headings and their contents.
+  With prefix, operate on whole buffer. Ensures that blank lines
+  exist after each headings's drawers."
+    (interactive "P")
+    (org-map-entries (lambda ()
+                       (org-with-wide-buffer
+                        ;; `org-map-entries' narrows the buffer, which prevents us
+                        ;; from seeing newlines before the current heading, so we
+                        ;; do this part widened.
+                        (while (not (looking-back "\n\n" nil))
+                          ;; Insert blank lines before heading.
+                          (insert "\n")))
+                       (let ((end (org-entry-end-position)))
+                         ;; Insert blank lines before entry content
+                         (forward-line)
+                         (while (and (org-at-planning-p)
+                                     (< (point) (point-max)))
+                           ;; Skip planning lines
+                           (forward-line))
+                         (while (re-search-forward org-drawer-regexp end t)
+                           ;; Skip drawers. You might think that `org-at-drawer-p'
+                           ;; would suffice, but for some reason it doesn't work
+                           ;; correctly when operating on hidden text.  This
+                           ;; works, taken from `org-agenda-get-some-entry-text'.
+                           (re-search-forward "^[ \t]*:END:.*\n?" end t)
+                           (goto-char (match-end 0)))
+                         (unless (or (= (point) (point-max))
+                                     (org-at-heading-p)
+                                     (looking-at-p "\n"))
+                           (insert "\n"))))
+                     t (if prefix
+                           nil
+                         'tree)))
+#+end_src
+
+I fix the headline spacing every time I save.
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (defun hook--org-mode-fix-blank-lines ()
+    (when (eq major-mode 'org-mode)
+      (let ((current-prefix-arg 4)) ; Emulate C-u
+        (call-interactively 'unpackaged/org-fix-blank-lines))))
+
+  (add-hook 'before-save-hook #'hook--org-mode-fix-blank-lines)
+#+end_src
 
 * Package management                                                :package:
 :PROPERTIES:
@@ -1340,12 +1435,13 @@ any data loss.  Here's what all that looks like.
   (let ((win-app-dir "~/Applications"))
     (dolist (path (list
                    ;; Windows
+                   (expand-file-name "exe" win-app-dir)
                    (expand-file-name "Git/bin" win-app-dir)
                    (expand-file-name "Git/usr/bin" win-app-dir)
                    (expand-file-name "Git/mingw64/bin" win-app-dir)
+                   (expand-file-name "Everything" win-app-dir)
                    ;; Linux
-                   (expand-file-name "bin"
-                                     user-emacs-directory)
+                   (expand-file-name "bin" user-emacs-directory)
                    (expand-file-name "~/bin")
                    (expand-file-name "~/.local/bin")
                    (expand-file-name "~/Scripts")
