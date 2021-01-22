@@ -1431,9 +1431,10 @@ This runs Emacs with the =--debug-init= option enabled.
 <<w32-bat-common>>
 "%EMACS%" --debug-init %*
 #+end_src
+
 * Appendices
 
-** =config.el=
+** config.el
 :PROPERTIES:
 :header-args: :tangle config.el :noweb yes
 :END:
@@ -1446,24 +1447,42 @@ my config here /logically/, while keeping the generated file organized
 *** Enable lexical binding
 
 #+begin_src emacs-lisp
-  ;; config.el -*- lexical-binding: t -*-
+  ;;; config.el --- personal configuration -*- lexical-binding: t -*-
 #+end_src
 
-*** Disclaimer
+*** Header & disclaimer
 :PROPERTIES:
 :header-args: :noweb-ref disclaimer
 :END:
 
 #+begin_src emacs-lisp
+  ;; Copyright (C) 2020 Case Duckworth
+
+  ;; Author: Case Duckworth <acdw@acdw.net>
+  ;; Created: Sometime during the Covid-19 lockdown, 2019
+  ;; Keywords: configuration
+  ;; URL: https://tildegit.org/acdw/emacs
+
+  ;; This file is not part of GNU Emacs.
+
+  ;;; Commentary:
   ;; This file is automatically tangled from config.org.
   ;; Hand edits will be overwritten!
+
 #+end_src
 
 *** The rest
 
 #+begin_src emacs-lisp
+  <<disclaimer>>
+  ;;; Code:
+
   ;;; REQUIRES
   <<requires>>
+
+  ;;; ACDW MODE
+  <<acdw-mode>>
+
   ;;; PACKAGES
   ;; straight.el depends on git, which /should be/ find-able by the PATH
   ;; manipulation in early-init.el.  Just in case, though, we'll check
@@ -1561,12 +1580,16 @@ the package manager or the UI code.  The Info says we should put as
 little as possible in this file, so I only have what I need.
 
 #+begin_src emacs-lisp
-  ;; early-init.el -*- no-byte-compile: t; -*-
+  ;;; early-init.el -*- no-byte-compile: t; -*-
   <<disclaimer>>
+  ;;; Code:
+
   ;; BOOTSTRAP PACKAGE MANAGEMENT
   <<early-init-package>>
   ;; SETUP FRAME
   <<early-init-frame>>
+
+  ;;; early-init.el ends here
 #+end_src
 
 ** License
