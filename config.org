@@ -494,9 +494,20 @@ to /hide/ those contents.
                 read-file-name-completion-ignore-case t)
 #+end_src
 
-* Bindings
+** Completion
 
-** Acdw Mode
+*** Hippie Expand
+
+Before I install any completion framework, I want a good default for
+completing.  =hippie-expand= fills that niche.
+
+#+begin_src emacs-lisp :noweb-ref bindings
+  (define-key acdw/map (kbd "M-/") #'hippie-expand)
+#+end_src
+
+** Bindings
+
+*** Acdw Mode
 
 I've decided to set up a custom minor mode for my keybindings, as
 suggested in [[https://github.com/larstvei/dot-emacs#key-bindings][Lars Tvei]]'s config, so that I can override all other
@@ -516,7 +527,7 @@ on as I please.
   (define-globalized-minor-mode acdw/global-mode acdw/mode acdw/mode)
 #+end_src
 
-*** Turn off acdw/mode in the minibuffer
+**** Turn off acdw/mode in the minibuffer
 
 #+begin_src emacs-lisp :noweb-ref acdw-mode
   (defun acdw/mode--disable ()
@@ -526,7 +537,7 @@ on as I please.
   (add-hook 'minibuffer-setup-hook #'acdw/mode--disable)
 #+end_src
 
-*** Custom leader
+**** Custom leader
 
 Since =C-z= is generally pretty useless in Emacs (minimize the window?
 really?), I rebind it to be a sort of personal leader key.  I
@@ -545,7 +556,7 @@ generally use it as a leader for entering applications.
   (run-hooks 'acdw/leader-defined-hook)
 #+end_src
 
-** Show keybindings with =which-key=
+*** Show keybindings with =which-key=                                 :package:
 
 #+begin_src emacs-lisp :noweb-ref packages
   (straight-use-package 'which-key)
