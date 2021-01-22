@@ -1687,12 +1687,8 @@ my config here /logically/, while keeping the generated file organized
   <<acdw-mode>>
 
   ;;; PACKAGES
-  ;; straight.el depends on git, which /should be/ find-able by the PATH
-  ;; manipulation in early-init.el.  Just in case, though, we'll check
-  ;; that we can find git.
-  (when (executable-find "git")
-    <<packages>>
-    )
+  <<packages>>
+
   ;;; FUNCTIONS
   <<functions>>
 
@@ -1705,6 +1701,7 @@ my config here /logically/, while keeping the generated file organized
     (when (memq system-type '(gnu gnu/linux gnu/kfreebsd))
       <<linux-specific>>
       ))
+
   ;; at work
   (eval-and-compile
     (when (memq system-type '(ms-dos windows-nt))
