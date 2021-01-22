@@ -1173,6 +1173,13 @@ checks for a shebang).
 
 #+begin_src emacs-lisp :noweb-ref settings
   (setq-default lisp-indent-function #'common-lisp-indent-function)
+  (put 'cl-flet 'common-lisp-indent-function
+       (get 'flet 'common-lisp-indent-function))
+  (put 'cl-labels 'common-lisp-indent-function
+       (get 'labels 'common-lisp-indent-function))
+  (put 'if 'common-lisp-indent-function 2)
+  (put 'dotimes-protect 'common-lisp-indent-function
+       (get 'when 'common-lisp-indent-function))
 #+end_src
 
 * Applications
