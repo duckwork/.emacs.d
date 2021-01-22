@@ -944,6 +944,49 @@ to auto-fill in programming modes, but /only/ the comments.
                 show-paren-style 'mixed)
 #+end_src
 
+*** Smart parens                                                    :package:
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'smartparens)
+  (require 'smartparens-config)
+#+end_src
+
+**** Show parens
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default sp-show-pair-delay 0
+                sp-show-pair-from-inside t)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (add-hook 'prog-mode-hook #'show-smartparens-mode)
+#+end_src
+
+**** Hide the =smartparens= lighter
+
+#+begin_src emacs-lisp :noweb-ref modes
+  (blackout 'smartparens-mode)
+#+end_src
+
+**** Be strict in =prog-mode=
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (add-hook 'prog-mode-hook #'smartparens-strict-mode)
+#+end_src
+
+** Formatting
+
+*** Aggressive indent                                               :package:
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'aggressive-indent)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref modes
+  (global-aggressive-indent-mode +1)
+  (blackout 'aggressive-indent-mode)
+#+end_src
+
 ** Executable scripts
 
 This poorly-named function will make a file executable if it looks
