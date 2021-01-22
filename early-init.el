@@ -1,16 +1,30 @@
-;; early-init.el -*- no-byte-compile: t; -*-
+;;; early-init.el -*- no-byte-compile: t; -*-
+;; Copyright (C) 2020 Case Duckworth
+
+;; Author: Case Duckworth <acdw@acdw.net>
+;; Created: Sometime during the Covid-19 lockdown, 2019
+;; Keywords: configuration
+;; URL: https://tildegit.org/acdw/emacs
+
+;; This file is not part of GNU Emacs.
+
+;;; Commentary:
 ;; This file is automatically tangled from config.org.
 ;; Hand edits will be overwritten!
+
+;;; Code:
+
 ;; BOOTSTRAP PACKAGE MANAGEMENT
 (let ((win-app-dir "~/Applications"))
   (dolist (path (list
                  ;; Windows
+                 (expand-file-name "exe" win-app-dir)
                  (expand-file-name "Git/bin" win-app-dir)
                  (expand-file-name "Git/usr/bin" win-app-dir)
                  (expand-file-name "Git/mingw64/bin" win-app-dir)
+                 (expand-file-name "Everything" win-app-dir)
                  ;; Linux
-                 (expand-file-name "bin"
-                                   user-emacs-directory)
+                 (expand-file-name "bin" user-emacs-directory)
                  (expand-file-name "~/bin")
                  (expand-file-name "~/.local/bin")
                  (expand-file-name "~/Scripts")
@@ -68,3 +82,5 @@
 (horizontal-scroll-bar-mode -1)
 (setq-default frame-inhibit-implied-resize t
               frame-resize-pixelwise t)
+
+;;; early-init.el ends here

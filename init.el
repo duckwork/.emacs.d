@@ -1,33 +1,20 @@
-;; init.el -*- lexical-binding: t -*-
+;;; init.el -*- lexical-binding: t -*-
+;; Copyright (C) 2020 Case Duckworth
+
+;; Author: Case Duckworth <acdw@acdw.net>
+;; Created: Sometime during the Covid-19 lockdown, 2019
+;; Keywords: configuration
+;; URL: https://tildegit.org/acdw/emacs
+
+;; This file is not part of GNU Emacs.
+
+;;; Commentary:
 ;; This file is automatically tangled from config.org.
 ;; Hand edits will be overwritten!
 
+;;; Code:
+
 (setq-default load-prefer-newer t)
-
-(defmacro when-at (conditions &rest commands)
-  "Run COMMANDS, or let the user know, when at a specific place.
-
-CONDITIONS are one of `:work', `:home', or a list beginning with
-those and other conditions to check.  COMMANDS are only run if
-all CONDITIONS are met.
-
-If COMMANDS is empty or nil, simply return the result of CONDITIONS."
-  (declare (indent 1))
-  (let ((at-work '(memq system-type '(ms-dos windows-nt)))
-        (at-home '(memq system-type '(gnu gnu/linux gnu/kfreebsd))))
-    (pcase conditions
-      (:work (if commands `(when ,at-work ,@commands) at-work))
-      (:home (if commands `(when ,at-home ,@commands) at-home))
-      ((guard (eq (car conditions) :work))
-       (if commands
-           `(when (and ,at-work ,@(cdr conditions))
-              ,@commands)
-         `(and ,at-work ,@(cdr conditions))))
-      ((guard (eq (car conditions) :home))
-       (if commands
-           `(when (and ,at-home ,@(cdr conditions))
-              ,@commands)
-         `(and ,at-work ,@(cdr conditions)))))))
 
 (let* (;; Speed up init
        (gc-cons-threshold most-positive-fixnum)
@@ -39,12 +26,23 @@ If COMMANDS is empty or nil, simply return the result of CONDITIONS."
        (config.org (concat config ".org"))
        (straight-org-dir (expand-file-name "straight/build/org"
                                            user-emacs-directory)))
-  (unless (load config 'no-error))
-  ;; A plain require here just loads the older `org'
-  ;; in Emacs' install dir.  We need to add the newer
-  ;; one to the `load-path', hopefully that's all.
-  (when (file-exists-p straight-org-dir)
-    (add-to-list 'load-path straight-org-dir))
-  ;; Load config.org
-  (require 'org)
-  (org-babel-load-file config.org :compile))
+  ;; Okay, let's figure this out.
+  ;; `and' evaluates each form, and returns nil on the first that
+  ;; returns nil.  `unless' only executes its body if the test
+  ;; returns nil.  So.
+  ;; 1. Test if config.org is newer than config.el.  If it is (t), we
+  ;;    *want* to evaluate the body, so we need to negate that test.
+  ;; 2. Try to load the config.  If it errors (nil), it'll bubble that
+  ;;    to the `and' and the body will be evaluated.
+  (unless (and (not (file-newer-than-file-p config.org config.el))
+               (load config :noerror))
+    ;; A plain require here just loads the older `org'
+    ;; in Emacs' install dir.  We need to add the newer
+    ;; one to the `load-path', hopefully that's all.
+    (when (file-exists-p straight-org-dir)
+      (add-to-list 'load-path straight-org-dir))
+    ;; Load config.org
+    (require 'org)
+    (org-babel-load-file config.org)))
+
+;;; init.el ends here
