@@ -988,6 +988,56 @@ from =undo-fu=.
   (global-undo-fu-session-mode +1)
 #+end_src
 
+** Search/Replace
+
+The /biggest/ thing I miss about my Neovim days is its ease of
+search/replace.  It didn't matter where the point was in the buffer;
+it could wrap around.  It had a little highlight to show you all the
+matching strings, /and/ it could show you what the replacement would
+look like.  =anzu= does /most/ of this, except the wrapping around part --
+=ctrlf= does the wrapping around okay, but I haven't really tried to get
+the two packages to play nice together.  Until then, I'll just use
+=anzu= and =isearch=, which is honestly a pretty good search package.
+
+*** Regex
+
+I search with regex by default.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default
+   ;; Search Regex by default
+   search-default-mode t)
+#+end_src
+
+I've switched =query-replace= and =query-replace-regexp= with their anzu
+versions, because of the regex thing.
+
+#+begin_src emacs-lisp :noweb-ref bindings
+  (define-key acdw/map [remap query-replace] #'anzu-query-replace-regexp)
+  (define-key acdw/map [remap query-replace-regexp] #'anzu-query-replace)
+
+  (define-key isearch-mode-map [remap isearch-query-replace]
+    #'anzu-isearch-query-replace)
+  (define-key isearch-mode-map [remap isearch-query-replace-regexp]
+    #'anzu-isearch-query-replace-regexp)
+#+end_src
+
+*** Anzu setup                                                      :package:
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'anzu)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default anzu-mode-lighter "" ; hide anzu-mode in the modeline
+                anzu-replace-to-string-separator " → ")
+
+  ;; Set up anzu in the modeline
+  (setq-default anzu-cons-mode-line-p nil)
+  (setcar (cdr (assq 'isearch-mode minor-mode-alist))
+          '(:eval (concat " " (anzu--update-mode-line))))
+#+end_src
+
 * Writing
 
 ** Word count                                                       :package:
