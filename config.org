@@ -1,5 +1,6 @@
 #+TITLE: Emacs configuration, literate-style
 #+AUTHOR: Case Duckworth
+#+STARTUP: overview
 
 * About me
 
