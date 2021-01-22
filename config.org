@@ -157,7 +157,7 @@ to switch to the other buffer if there's only one window in the frame.
 And I'll bind it to =M-o=, since that's easier to reach than =C-x o=.
 
 #+begin_src emacs-lisp :noweb-ref bindings
-  (define-key global-map (kbd "M-o") #'other-window-or-buffer)
+  (define-key acdw/map (kbd "M-o") #'other-window-or-buffer)
 #+end_src
 
 ** Buffers
@@ -231,7 +231,7 @@ function to the =kill-buffer-query-functions= hook that will return
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref bindings
-  (define-key ctl-x-map "k" #'kill-a-buffer)
+  (define-key acdw/map (kbd "C-x k") #'kill-a-buffer)
 #+end_src
 
 ** Cursor
@@ -490,6 +490,68 @@ to /hide/ those contents.
   (setq-default completion-ignore-case t
                 read-buffer-completion-ignore-case t
                 read-file-name-completion-ignore-case t)
+#+end_src
+
+* Bindings
+
+** Acdw Mode
+
+I've decided to set up a custom minor mode for my keybindings, as
+suggested in [[https://github.com/larstvei/dot-emacs#key-bindings][Lars Tvei]]'s config, so that I can override all other
+modes with my own keybindings.  Plus I can easily turn it off and back
+on as I please.
+
+#+begin_src emacs-lisp :noweb-ref acdw-mode
+  (defvar acdw/map (make-sparse-keymap)
+    "A keymap for my custom bindings.")
+
+  (define-minor-mode acdw/mode
+      "A mode for `acdw/map'."
+    :init-value t
+    :lighter " ⱷ"
+    :keymap acdw/map)
+
+  (define-globalized-minor-mode acdw/global-mode acdw/mode acdw/mode)
+#+end_src
+
+*** Turn off acdw/mode in the minibuffer
+
+#+begin_src emacs-lisp :noweb-ref acdw-mode
+  (defun acdw/mode--disable ()
+    "Turn off acdw/mode."
+    (acdw/mode -1))
+
+  (add-hook 'minibuffer-setup-hook #'acdw/mode--disable)
+#+end_src
+
+*** Custom leader
+
+Since =C-z= is generally pretty useless in Emacs (minimize the window?
+really?), I rebind it to be a sort of personal leader key.  I
+generally use it as a leader for entering applications.
+
+#+begin_src emacs-lisp :noweb-ref acdw-mode
+  (defvar acdw/leader
+    (let ((map (make-sparse-keymap))
+          (c-z (global-key-binding "\C-z")))
+      ;(global-unset-key "\C-z")
+      (define-key acdw/map "\C-z" map)
+      (define-key map "\C-z" c-z)
+      map))
+
+  ;; Just in case I want to run hooks after defining the leader map
+  (run-hooks 'acdw/leader-defined-hook)
+#+end_src
+
+** Show keybindings with =which-key=
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'which-key)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref modes
+  (which-key-mode +1)
+  (blackout 'which-key-mode)
 #+end_src
 
 * Persistence
@@ -872,8 +934,8 @@ It manages my whitespace for me, anyway.
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref bindings
-  (define-key global-map (kbd "C-/") #'undo-fu-only-undo)
-  (define-key global-map (kbd "C-?") #'undo-fu-only-redo)
+  (define-key acdw/map (kbd "C-/") #'undo-fu-only-undo)
+  (define-key acdw/map (kbd "C-?") #'undo-fu-only-redo)
 #+end_src
 
 *** Undo Fu session
