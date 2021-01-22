@@ -1578,6 +1578,9 @@ section come from [[https://github.com/termitereform/JunkPile/blob/master/emacs-
 
 *** Settings
 
+See also [[https://www.gnu.org/software/emacs/manual/html_mono/efaq-w32.html][the GNU FAQ for Windows]].  At some point I should really dig
+into the multiple settings available for w32 systems.
+
 #+begin_src emacs-lisp
     (setq-default w32-allow-system-shell t) ; enable cmd.exe as shell
 #+end_src
