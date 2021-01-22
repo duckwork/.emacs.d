@@ -269,64 +269,26 @@ Only when there's more than one tab.
 
 ** Fonts
 
-*** Find an installed font from a list of alternatives
+I have different fonts installed on Linux and on Windows.
 
-#+begin_src emacs-lisp :noweb-ref functions
-  (defun set-face-from-alternatives (face frame &rest fontspecs)
-    "Set FACE on FRAME from first available spec from FONTSPECS.
-         FACE and FRAME work the same as with `set-face-attribute.'"
-    (catch :return
-      (dolist (spec fontspecs)
-        (when-let ((found (find-font (apply #'font-spec spec))))
-          (set-face-attribute face frame :font found)
-          (throw :return found)))))
+#+begin_src emacs-lisp :noweb-ref linux-specific
+  (set-face-attribute 'default nil
+                      :family "Iosevka Acdw"
+                      :height 105)
+
+  (set-face-attribute 'fixed-pitch nil
+                      :family "Iosevka Acdw"
+                      :height 105)
 #+end_src
 
-*** Setup fonts on first window focus
+#+begin_src emacs-lisp :noweb-ref windows-specific
+  (set-face-attribute 'default nil
+                      :family "Consolas"
+                      :height 110)
 
-At the end of this function, it removes itself from
-=after-focus-change-function=, so it only runs once.
-
-#+begin_src emacs-lisp :noweb-ref functions
-  (defun acdw/setup-fonts ()
-    "Setup fonts.  This has to happen after the frame is setup for
-  the first time, so it should be added to `after-focus-change-function'.  It
-  removes itself from that hook."
-    (interactive)
-    (set-face-from-alternatives 'default nil
-                                '(:family "Iosevka Acdw"
-                                  :slant normal
-                                  :weight normal
-                                  :height 105)
-                                '(:family "Iosevka Extended"
-                                  :slant normal
-                                  :weight normal
-                                  :height 105)
-                                '(:family "Consolas"
-                                  :slant normal
-                                  :weight normal
-                                  :height 100))
-    ;; `fixed-pitch' inherits from `default'
-    (set-face-attribute 'fixed-pitch nil :inherit 'default)
-    ;; variable-pitch is different
-    (set-face-from-alternatives 'variable-pitch nil
-                                '(:family "DejaVu Sans"
-                                  :slant normal
-                                  :weight normal)
-                                '(:family "Georgia"
-                                  :slant normal
-                                  :weight normal))
-    ;; remove self from hook
-    (remove-function after-focus-change-function #'acdw/setup-fonts))
-#+end_src
-
-Of course, it only makes sense to run the font setup at all if I'm
-using the graphical Emacs.
-
-#+begin_src emacs-lisp :noweb-ref hooks
-  (when (display-graphic-p)
-    (add-function :before after-focus-change-function
-                  #'acdw/setup-fonts))
+  (set-face-attribute 'fixed-pitch nil
+                      :family "Consolas"
+                      :height 110)
 #+end_src
 
 *** Underlines
@@ -341,7 +303,7 @@ underline below all the text.
 
 ** Theming
 
-*** Modus themes
+*** Modus themes                                                    :package:
 
 #+begin_src emacs-lisp :noweb-ref packages
   (straight-use-package 'modus-themes)
@@ -384,6 +346,45 @@ underline below all the text.
 #+begin_src emacs-lisp :noweb-ref hooks
   (acdw/run-with-sun #'modus-themes-load-operandi
                      #'modus-themes-load-vivendi)
+#+end_src
+
+*** Mode line
+
+**** Simple modeline                                                :package:
+
+After trying =doom-mode-line= and =smart-mode-line=, I think I've finally
+landed on a good one: =simple-modeline=.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'simple-modeline)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default simple-modeline-segments
+                '((simple-modeline-segment-modified
+                   simple-modeline-segment-buffer-name
+                   simple-modeline-segment-position)
+                  (simple-modeline-segment-minor-modes
+                   simple-modeline-segment-input-method
+                   simple-modeline-segment-vc
+                   simple-modeline-segment-misc-info
+                   simple-modeline-segment-process
+                   simple-modeline-segment-major-mode)))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref modes
+  (simple-modeline-mode +1)
+#+end_src
+
+**** Blackout some modes                                            :package:
+
+Like =diminish= or =delight=, =blackout= allows me to remove some
+minor-modes from the modeline.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package '(blackout
+                          :host github
+                          :repo "raxod502/blackout"))
 #+end_src
 
 * Interactivity
@@ -577,9 +578,34 @@ the user is looking at something else.
 #+begin_src emacs-lisp :noweb-ref functions
   (defun when-unfocused (func &rest args)
     "Run FUNC, with ARGS, iff all frames are out of focus."
-    (require 'seq)
     (when (seq-every-p #'null (mapcar #'frame-focus-state (frame-list)))
       (apply func args)))
+#+end_src
+
+** Garbage collection
+
+*** Garbage Collection Magic Hack                                   :package:
+
+Look, I'm not going to look too deeply into this.  It's /magic/ afer
+all.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'gcmh)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref modes
+  (gcmh-mode +1)
+  (blackout 'gcmh-mode)
+#+end_src
+
+*** Garbage Collect when out of focus
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (defun hook--gc-when-unfocused ()
+    (when-unfocused #'garbage-collect))
+
+  (add-function :after after-focus-change-function
+                #'hook--gc-when-unfocused)
 #+end_src
 
 * Files
@@ -670,6 +696,7 @@ Bozhidar Batsov's [[https://github.com/bbatsov/super-save][super-save]] package.
 
 #+begin_src emacs-lisp :noweb-ref modes
   (super-save-mode +1)
+  (blackout 'super-save-mode)
 #+end_src
 
 ** Auto-revert files
@@ -819,6 +846,44 @@ It manages my whitespace for me, anyway.
   (setq-default set-mark-repeat-command-pop t)
 #+end_src
 
+** Undo                                                             :package:
+
+*** Undo Fu
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'undo-fu)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref bindings
+  (define-key global-map (kbd "C-/") #'undo-fu-only-undo)
+  (define-key global-map (kbd "C-?") #'undo-fu-only-redo)
+#+end_src
+
+*** Undo Fu session
+
+I'm not putting this in [[*Persistence]] because it'd be confusing away
+from =undo-fu=.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'undo-fu-session)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default undo-fu-session-incompatible-files
+                '("/COMMIT_EDITMSG\\'"
+                  "/git-rebase-todo\\'"))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref no-littering
+  (let ((dir (no-littering-expand-var-file-name "undos")))
+    (make-directory dir :parents)
+    (setq-default undo-fu-session-directory dir))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref modes
+  (global-undo-fu-session-mode +1)
+#+end_src
+
 * Writing
 
 ** Word count                                                       :package:
@@ -957,20 +1022,20 @@ enables me to open them in the same buffer, fancily indented.
     (define-key dired-mode-map "i" #'dired-subtree-toggle))
 #+end_src
 
-*** Collapse singleton directories
+*** Collapse singleton directories                                  :package:
 
 If a directory only has one item in it, =dired-collapse= shows what
 that one item is.
 
 #+begin_src emacs-lisp :noweb-ref packages
-  (straight-use-package 'dired-subtree)
+  (straight-use-package 'dired-collapse)
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref hooks
   (add-hook 'dired-mode-hook #'dired-collapse-mode)
 #+end_src
 
-** Org mode
+* Org mode                                                          :package:
 
 #+begin_src emacs-lisp :noweb-ref packages
   (straight-use-package 'org)
@@ -994,7 +1059,7 @@ that one item is.
    org-pretty-entities t
    ;; Source blocks
    org-src-tab-acts-natively t
-   org-src-window-setup 'current-window ; could change this
+   org-src-window-setup 'split-window-below ; could change this based on geom
    org-confirm-babel-evaluate nil
    ;; Behavior
    org-adapt-indentation nil ; don't indent things
@@ -1005,7 +1070,7 @@ that one item is.
    org-export-headline-levels 8)
 #+end_src
 
-*** Org templates
+** Org templates
 
 #+begin_src emacs-lisp :noweb-ref settings
   (with-eval-after-load 'org-tempo
@@ -1023,7 +1088,7 @@ that one item is.
       (add-to-list 'org-structure-template-alist cell)))
 #+end_src
 
-*** Org Return: DWIM                                             :unpackaged:
+** Org Return: DWIM                                              :unpackaged:
 
 #+begin_src emacs-lisp :noweb-ref functions
   (defun unpackaged/org-element-descendant-of (type element)
@@ -1477,9 +1542,11 @@ See [[*Determine where I am][the definition above]] for rationale as to why this
 
 **** Load the config
 
-I keep most of my config in =config.el=, which is tangled directly
-from this file.  This init just loads that file, either from lisp or
-directly from Org if it's newer.
+I keep most of my config in =config.el=, which is tangled directly from
+this file.  This init just loads that file, either from lisp ~or
+directly from Org if it's newer~.  I found out that =org-babel-load-file=
+/caches/ its runs, and checks for me whether the .org or .el file is
+newer.  /Plus/ it can byte-compile!!
 
 #+begin_src emacs-lisp
   (let* (;; Speed up init
@@ -1492,19 +1559,15 @@ directly from Org if it's newer.
          (config.org (concat config ".org"))
          (straight-org-dir (expand-file-name "straight/build/org"
                                              user-emacs-directory)))
-         ;; Unless config.org is /newer/ than config.el, *or* the config
-         ;; is able to be loaded without errors, load the config from
-         ;; config.org.
-         (unless (or (file-newer-than-file-p config.org config.el)
-                     (load config 'no-error))
-           ;; A plain require here just loads the older `org'
-           ;; in Emacs' install dir.  We need to add the newer
-           ;; one to the `load-path', hopefully that's all.
-           (when (file-exists-p straight-org-dir)
-             (add-to-list 'load-path straight-org-dir))
-           ;; Load config.org
-           (require 'org)
-           (org-babel-load-file config.org)))
+    (unless (load config 'no-error))
+    ;; A plain require here just loads the older `org'
+    ;; in Emacs' install dir.  We need to add the newer
+    ;; one to the `load-path', hopefully that's all.
+    (when (file-exists-p straight-org-dir)
+      (add-to-list 'load-path straight-org-dir))
+    ;; Load config.org
+    (require 'org)
+    (org-babel-load-file config.org :compile))
 #+end_src
 
 *** early-init.el
