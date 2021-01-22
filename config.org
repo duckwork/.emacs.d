@@ -703,8 +703,10 @@ It's 2020.  Let's encode files like it is.
   (set-default-coding-systems 'utf-8)
   (set-terminal-coding-system 'utf-8)
   (set-keyboard-coding-system 'utf-8)
+  (set-language-environment "UTF-8")
 
-  (setq-default buffer-file-coding-system 'utf-8
+  (setq-default locale-coding-system 'utf-8
+                buffer-file-coding-system 'utf-8
                 x-select-request-type '(UTF8_STRING COMPOUND_TEXT TEXT STRING))
 #+end_src
 
