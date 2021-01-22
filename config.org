@@ -270,7 +270,7 @@ Only when there's more than one tab.
 
 ** Fonts
 
-I have different fonts installed on Linux and on Windows.
+On Linux, I have a custom build of Iosevka that I like.
 
 #+begin_src emacs-lisp :noweb-ref linux-specific
   (set-face-attribute 'default nil
@@ -281,6 +281,8 @@ I have different fonts installed on Linux and on Windows.
                       :family "Iosevka Acdw"
                       :height 105)
 #+end_src
+
+But on Windows, I use Consolas.
 
 #+begin_src emacs-lisp :noweb-ref windows-specific
   (set-face-attribute 'default nil
