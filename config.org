@@ -302,6 +302,22 @@ underline below all the text.
   (setq-default x-underline-at-descent-line t)
 #+end_src
 
+*** COMMENT Unicode fonts
+
+=unicode-fonts= pulls in some other packages that still require the
+deprecated =cl= library.  I'm including this stuff here because it's
+good to have, ready to use, but I'm holding off on actually including
+it in my config -- thus the =COMMENT= in the header.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'unicode-fonts)
+  (require 'unicode-fonts)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref modes
+  (unicode-fonts-setup)
+#+end_src
+
 ** Theming
 
 *** Modus themes                                                    :package:
