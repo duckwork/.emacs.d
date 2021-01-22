@@ -1124,6 +1124,25 @@ to auto-fill in programming modes, but /only/ the comments.
   (blackout 'aggressive-indent-mode)
 #+end_src
 
+** Typesetting
+
+*** Prettify-mode
+
+I like my pretty =lambda='s -- and maybe one day, I'll add more symbols,
+but only in prog-mode.  I want to see what I'm actually typing in
+text.
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (add-hook 'prog-mode-hook #'prettify-symbols-mode)
+#+end_src
+
+Of course, I want to be able to /see/ the actual text in the buffer if
+I'm /in/ the symbols.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default prettify-symbols-unprettify-at-point 'right-edge)
+#+end_src
+
 ** Executable scripts
 
 This poorly-named function will make a file executable if it looks
