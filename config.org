@@ -218,7 +218,7 @@ function to the =kill-buffer-query-functions= hook that will return
   `kill-a-buffer' uses the PREFIX argument to determine which buffer(s) to kill:
   0            => Kill current buffer & window
   4 (C-u)      => Kill OTHER buffer & window
-  16 (C-u C-u) => Kill ALL OTHER buffers & windows"
+  16 (C-u C-u) => Run `kill-buffer' without a prefix arg."
     (interactive "P")
     (pcase (or (car prefix) 0)
       (0 (kill-current-buffer)
@@ -226,8 +226,8 @@ function to the =kill-buffer-query-functions= hook that will return
       (4 (other-window 1)
          (kill-current-buffer)
          (unless (one-window-p) (delete-window)))
-      (16 (mapc #'kill-buffer (delq (current-buffer) (buffer-list)))
-          (delete-other-windows))))
+      (16 (let ((current-prefix-arg nil))
+            (kill-buffer)))))
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref bindings
