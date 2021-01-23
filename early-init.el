@@ -23,6 +23,7 @@
                  (expand-file-name "Git/usr/bin" win-app-dir)
                  (expand-file-name "Git/mingw64/bin" win-app-dir)
                  (expand-file-name "Everything" win-app-dir)
+                 (expand-file-name "Win-builds/bin" win-app-dir)
                  ;; Linux
                  (expand-file-name "bin" user-emacs-directory)
                  (expand-file-name "~/bin")

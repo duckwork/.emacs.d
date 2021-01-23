@@ -1410,6 +1410,14 @@ following in =cmd.exe= to set =$HOME= correctly:
   (setenv "GIT_ASKPASS" "git-gui--askpass")
 #+end_src
 
+**** Forge
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'forge)
+  (with-eval-after-load 'magit
+    (require 'forge))
+#+end_src
+
 *** Git file modes
 
 #+begin_src emacs-lisp :noweb-ref packages
@@ -1683,6 +1691,7 @@ any data loss.  Here's what all that looks like.
                    (expand-file-name "Git/usr/bin" win-app-dir)
                    (expand-file-name "Git/mingw64/bin" win-app-dir)
                    (expand-file-name "Everything" win-app-dir)
+                   (expand-file-name "Win-builds/bin" win-app-dir)
                    ;; Linux
                    (expand-file-name "bin" user-emacs-directory)
                    (expand-file-name "~/bin")
