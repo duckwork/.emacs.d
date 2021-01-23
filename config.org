@@ -568,7 +568,7 @@ for now .... I just want to see my completions.
   (selectrum-mode +1)
 #+end_src
 
-*** Prescient
+*** Prescient                                                       :package:
 
 #+begin_src emacs-lisp :noweb-ref packages
   (straight-use-package 'prescient)
@@ -592,7 +592,7 @@ Let's have =prescient= and =selectrum= work together.
     (selectrum-prescient-mode +1))
 #+end_src
 
-*** Consult
+*** Consult                                                         :package:
 
 #+begin_src emacs-lisp :noweb-ref modes
   (straight-use-package 'consult)
@@ -643,7 +643,7 @@ default completion system.  These all come from the [[https://github.com/minad/c
                 register-preview-function #'consult-register-preview)
 #+end_src
 
-*** Marginalia
+*** Marginalia                                                      :package:
 
 Finally, =marginalia= provides extra information about completion
 candidates.
@@ -1488,7 +1488,7 @@ true, please feel free to hack this repo and change this paragraph.
   (setenv "GIT_ASKPASS" "git-gui--askpass")
 #+end_src
 
-**** Forge
+**** Forge                                                          :package:
 
 #+begin_src emacs-lisp :noweb-ref packages
   (straight-use-package 'forge)
@@ -1496,7 +1496,7 @@ true, please feel free to hack this repo and change this paragraph.
     (require 'forge))
 #+end_src
 
-*** Git file modes
+*** Git file modes                                                  :package:
 
 #+begin_src emacs-lisp :noweb-ref packages
   (dolist (feat '(gitattributes-mode
