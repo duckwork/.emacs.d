@@ -1478,6 +1478,12 @@ following in =cmd.exe= to set =$HOME= correctly:
   git config --global credential.helper store
 #+end_src
 
+Okay, okay, using the =store= credential.helper is /super/ insecure.  But
+here's the thing -- the Gits I Git at work (a) aren't my /real/ git, and
+(b) they're just tokens!  So any time I think somebody got access, I
+just revoke the tokens and bingo bongo, good to go.  If that's not
+true, please feel free to hack this repo and change this paragraph.
+
 #+begin_src emacs-lisp :noweb-ref settings
   (setenv "GIT_ASKPASS" "git-gui--askpass")
 #+end_src
