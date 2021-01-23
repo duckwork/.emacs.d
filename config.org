@@ -367,8 +367,7 @@ to stay hopeful.
 According to [[https://github.com/rolandwalker/unicode-fonts/issues/3][Issue #3]], there can be problems with =unicode-fonts-setup=
 when using a daemon.  Instead of forking this repo and merging [[https://github.com/rolandwalker/unicode-fonts/pull/4][PR #4]]
 into my personal fork, I'll use the workaround described in the
-issue.  Trying to un-fuck these packages by Roland Walker have been
-enough work today.
+issue.
 
 #+begin_src emacs-lisp :noweb-ref hooks
   (defun hook--unicode-fonts-setup (frame)
@@ -1476,7 +1475,7 @@ following in =cmd.exe= to set =$HOME= correctly:
 /and/ run /this/ command to setup a git credential helper:
 
 #+begin_src sh
-  git config --global credential.helper wincred
+  git config --global credential.helper store
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref settings
