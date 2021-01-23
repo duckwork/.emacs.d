@@ -1455,9 +1455,13 @@ that one item is.
 
 The =auth-info= line should look like this:
 
-#+begin_src emacs-lisp :noweb-ref settings
-  (setq-default magit-process-find-password-functions
-                '(magit-process-password-auth-source))
+#+begin_example
+
+#+end_example
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (add-hook 'magit-process-find-password-functions
+            #'magit-process-password-auth-source)
 #+end_src
 
 **** Windows setup
