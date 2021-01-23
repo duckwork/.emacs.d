@@ -1739,6 +1739,83 @@ I fix the headline spacing every time I save.
   (add-hook 'before-save-hook #'hook--org-mode-fix-blank-lines)
 #+end_src
 
+** Org Agenda
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default org-agenda-files
+                (list
+                 (expand-file-name "inbox.org" org-directory)
+                 (expand-file-name "home.org" org-directory)
+                 (expand-file-name "work.org" org-directory))
+                ;; agenda
+                org-agenda-span 5
+                org-agenda-skip-scheduled-if-done t
+                org-agenda-skip-deadline-if-done t
+                org-deadline-warning-days 0
+                ;; logging
+                org-log-into-drawer "LOGBOOK"
+                org-log-done t)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref bindings
+  (define-key acdw/leader (kbd "C-a") #'org-agenda)
+#+end_src
+
+*** Org Todo Keywords
+
+These need some more thinking -- e.g., the MEETING sequence should
+maybe be a type, or maybe I need to include those in something else
+altogether.  Hm.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default org-todo-keywords
+                '((sequence
+                   "TODO(t)" "STARTED(s)"
+                   "WAITING(w@/!)" "SOMEDAY(.)"
+                   "|" "DONE(x!)" "CANCELLED(c@/!)")
+                  (sequence "RECUR(r)" "|" "DONE(x!)")
+                  (sequence "MEETING(m)")))
+#+end_src
+
+** Org Capture
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (require 'org-capture)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref bindings
+  (with-eval-after-load 'org-capture
+    (define-key acdw/leader (kbd "C-c") #'org-capture))
+#+end_src
+
+I've still got a lot of thinking to do about what kinds of things I
+want to capture, but I guess for now I can start with the basics:
+TODO, and Diary.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (defvar acdw/org-inbox-file (expand-file-name "inbox.org" org-directory))
+  (defvar acdw/org-diary-file (expand-file-name "diary.org" org-directory))
+  (setq-default
+   org-capture-templates
+   `(;; Todo -- these go to the Inbox for further processing
+     ("t" "Quick Task" entry
+          (file ,acdw/org-inbox-file)
+          "* TODO %^{Task}\n"
+          :immediate-finish t)
+     ("T" "Task" entry
+          (file ,acdw/org-inbox-file)
+          "* TODO %^{Task}\n")
+     ("." "Today" entry
+          (file ,acdw/org-inbox-file)
+          "* TODO %^{Task}\nSCHEDULED: %t\n"
+          :immediate-finish t)
+     ;; Diary -- for the special Diary file
+     ("j" "Diary entry" entry
+          (file+olp+datetree ,acdw/org-diary-file)
+          "* %U\n\n%?"
+          :empty-lines 1)))
+#+end_src
+
 * Package management                                                :package:
 :PROPERTIES:
 :header-args: :noweb-ref early-init-package
