@@ -1439,7 +1439,8 @@ I want to use the newest version of Org that I can.
    org-special-ctrl-a/e t
    org-special-ctrl-k t
    ;; Exporting
-   org-export-headline-levels 8)
+   org-export-headline-levels 8
+   org-export-with-smart-quotes t)
 #+end_src
 
 ** Aesthetics
