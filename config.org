@@ -1391,6 +1391,25 @@ that one item is.
   (define-key acdw/leader "g" #'magit-status)
 #+end_src
 
+**** Windows setup
+
+Following the [[https://github.com/magit/magit/wiki/Pushing-with-Magit-from-Windows][wiki page located here]].  Also make sure to run the
+following in =cmd.exe= to set =$HOME= correctly:
+
+#+begin_src cmd
+  setx HOME C:\Users\aduckworth\Downloads\acdw
+#+end_src
+
+/and/ run /this/ command to setup a git credential helper:
+
+#+begin_src sh
+  git config --global credential.helper wincred
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setenv "GIT_ASKPASS" "git-gui--askpass")
+#+end_src
+
 *** Git file modes
 
 #+begin_src emacs-lisp :noweb-ref packages
