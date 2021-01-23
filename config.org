@@ -314,20 +314,70 @@ underline below all the text.
   (setq-default x-underline-at-descent-line t)
 #+end_src
 
-*** COMMENT Unicode fonts                                           :package:
+*** Unicode fonts                                           :package:
 
 =unicode-fonts= pulls in some other packages that still require the
-deprecated =cl= library.  I'm including this stuff here because it's
-good to have, ready to use, but I'm holding off on actually including
-it in my config -- thus the =COMMENT= in the header.
+deprecated =cl= library.  So, I've forked those libraries to require
+=cl-lib= instead.
+
+*** First: un-fuck =font-utils= and =list-utils=
+
+**** List-utils first
+
+Since =font-utils= depends on =list-utils=, if I load the former first, it
+pulls in the unpatched latter.  /So/ I need to do =list-utils= first.
+(=*straight-process*= is your friend, y'all!)
+
+Since =list-utils= requires =cl= in line 259 (see [[https://github.com/rolandwalker/list-utils/issues/6][this issue]], apparently
+just changing it breaks many tests, but I'll run with it until Emacs
+complains), I need to fork and change that to a =cl-lib=.
 
 #+begin_src emacs-lisp :noweb-ref packages
-  (straight-use-package 'unicode-fonts)
+  (straight-use-package '(list-utils
+                          :host github
+                          :repo "rolandwalker/list-utils"
+                          :fork (:repo "duckwork/list-utils")))
+#+end_src
+
+**** Font-utils
+
+I was able to actually create a [[https://github.com/rolandwalker/font-utils/pull/2][PR]] for this one, so fingers crossed.
+Since the last update on =font-utils= was in 2015, I'm not super hopeful
+that my fix will get merged upstream, but I'm using a =:fork= argument
+to stay hopeful.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package '(font-utils
+                          :host github
+                          :repo "rolandwalker/font-utils"
+                          :fork (:repo "duckwork/font-utils")))
+#+end_src
+
+**** Unicode-fonts
+
+/Okay/ ... pull requests in, time to load =unicode-fonts=.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package '(unicode-fonts
+                          :host github
+                          :repo "rolandwalker/unicode-fonts"))
   (require 'unicode-fonts)
 #+end_src
 
-#+begin_src emacs-lisp :noweb-ref modes
-  (unicode-fonts-setup)
+According to [[https://github.com/rolandwalker/unicode-fonts/issues/3][Issue #3]], there can be problems with =unicode-fonts-setup=
+when using a daemon.  Instead of forking this repo and merging [[https://github.com/rolandwalker/unicode-fonts/pull/4][PR #4]]
+into my personal fork, I'll use the workaround described in the
+issue.  Trying to un-fuck these packages by Roland Walker have been
+enough work today.
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (defun hook--unicode-fonts-setup (frame)
+    "Run `unicode-fonts-setup', then remove the hook."
+    (select-frame frame)
+    (unicode-fonts-setup)
+    (remove-hook 'after-make-frame-functions #'hook--unicode-fonts-setup))
+
+  (add-hook 'after-make-frame-functions #'hook--unicode-fonts-setup)
 #+end_src
 
 ** Theming
