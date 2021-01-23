@@ -17,6 +17,16 @@
         calendar-longitude -91.1)
 #+end_src
 
+** Auth-sources
+
+Here feels like as good a place as any to setup =auth-sources=.  Yes, I
+/need/ to use GPG.  I'll get around to it.  Until then, /please/ don't
+break into my workplace and steal my secrets.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default auth-sources '("~/.authinfo"))
+#+end_src
+
 * Look and feel
 
 ** Frames
