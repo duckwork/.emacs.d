@@ -1451,6 +1451,15 @@ that one item is.
   (define-key acdw/leader "g" #'magit-status)
 #+end_src
 
+**** Use =~/.authinfo= for passwords
+
+The =auth-info= line should look like this:
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default magit-process-find-password-functions
+                '(magit-process-password-auth-source))
+#+end_src
+
 **** Windows setup
 
 Following the [[https://github.com/magit/magit/wiki/Pushing-with-Magit-from-Windows][wiki page located here]].  Also make sure to run the
