@@ -1584,7 +1584,7 @@ I want to use the newest version of Org that I can.
       (add-to-list 'org-structure-template-alist cell)))
 #+end_src
 
-** Org Return: DWIM                                              :unpackaged:
+** Org Return: DWIM
 
 #+begin_src emacs-lisp :noweb-ref functions
   (defun unpackaged/org-element-descendant-of (type element)
@@ -1689,7 +1689,7 @@ I want to use the newest version of Org that I can.
     (define-key org-mode-map (kbd "RET") #'unpackaged/org-return-dwim))
 #+end_src
 
-** Insert blank lines around headers                             :unpackaged:
+** Insert blank lines around headers
 
 #+begin_src emacs-lisp :noweb-ref functions
   (defun unpackaged/org-fix-blank-lines (&optional prefix)
