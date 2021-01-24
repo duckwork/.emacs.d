@@ -1455,7 +1455,7 @@ that one item is.
 The =auth-info= line should look like this:
 
 #+begin_example
-
+machine git.example.com user acdw password hahayeahrightyamoroniwouldn'tgiveyouthat
 #+end_example
 
 #+begin_src emacs-lisp :noweb-ref hooks
