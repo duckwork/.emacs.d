@@ -383,8 +383,12 @@ issue.
 
 *** Modus themes                                                    :package:
 
+I want the git version.
+
 #+begin_src emacs-lisp :noweb-ref packages
-  (straight-use-package 'modus-themes)
+  (straight-use-package '(modus-themes
+                          :host gitlab
+                          :repo "protesilaos/modus-themes"))
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref settings
@@ -394,7 +398,8 @@ issue.
                 modus-themes-org-blocks 'grayscale
                 modus-themes-headings '((1 . line)
                                         (t . t))
-                modus-themes-scale-headings nil)
+                modus-themes-scale-headings nil
+                modus-themes-mode-line 'borderless-3d)
 #+end_src
 
 *** Change themes based on time of day
