@@ -1626,6 +1626,7 @@ I want to use the newest version of Org that I can.
    org-catch-invisible-edits 'smart ; let's try this
    org-special-ctrl-a/e t
    org-special-ctrl-k t
+   org-imenu-depth 8
    ;; Exporting
    org-export-headline-levels 8
    org-export-with-smart-quotes t)
