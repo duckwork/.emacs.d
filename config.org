@@ -1525,6 +1525,47 @@ true, please feel free to hack this repo and change this paragraph.
     (require feat))
 #+end_src
 
+** Crosswords!
+
+I love crosswords.  I love Emacs.  There ya go.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package '(crossword
+                          :host github
+                          :repo "Boruch-Baum/emacs-crossword"))
+#+end_src
+
+The problem with this package is that the default faces are pretty
+bad, to be honest.  Let's change em.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (doremi-face-set 'crossword-current-face
+                   '((((class color)
+                       (background light))
+                      (:inherit 'normal :foreground "black"
+                       :background "lightgreen"))
+                     (((class color)
+                       (background dark))
+                      (:inherit 'normal :foreground "white"
+                       :background "darkgreen"))
+                     (t
+                      (:inherit 'normal :foreground "black"
+                       :background "darkgreen"))))
+
+  (doremi-face-set 'crossword-other-dir-face
+                   '((((class color)
+                       (background light))
+                      (:inherit 'normal :foreground "black"
+                       :background "darkgrey"))
+                     (((class color)
+                       (background dark))
+                      (:inherit 'normal :foreground "black"
+                       :background "darkgrey"))
+                     (t
+                      (:inherit 'normal :foreground "black"
+                       :background "darkgrey"))))
+#+end_src
+
 * Org mode                                                          :package:
 
 ** Install it with =straight.el=
