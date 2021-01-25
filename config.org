@@ -219,6 +219,23 @@ function to the =kill-buffer-query-functions= hook that will return
   (add-hook 'kill-buffer-query-functions #'immortal-scratch)
 #+end_src
 
+*** An /even better/ scratch buffer                                   :package:
+
+The aptly-named =scratch= pops open a new scratch buffer /with the same
+mode as the file you're currently editing/.  I'm pretty chuffed about
+it.
+
+I found it from [[https://old.reddit.com/r/emacs/comments/l4v1ux/one_of_the_most_useful_small_lisp_functions_in_my/][this discussion]], which might also come in handy
+someday.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'scratch)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref bindings
+  (define-key acdw/leader (kbd "C-x") #'scratch)
+#+end_src
+
 *** Kill buffers better
 
 #+begin_src emacs-lisp :noweb-ref functions
