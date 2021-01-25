@@ -1825,17 +1825,16 @@ I fix the headline spacing every time I save.
 
 ** Org Agenda
 
+*** Basic Agenda Settings
+
 #+begin_src emacs-lisp :noweb-ref settings
-  (setq-default org-agenda-files
-                (list
-                 (expand-file-name "inbox.org" org-directory)
-                 (expand-file-name "home.org" org-directory)
-                 (expand-file-name "work.org" org-directory))
+  (setq-default org-agenda-files ; look for files in ~/org
+                (list org-directory)
                 ;; agenda
                 org-agenda-span 5
                 org-agenda-skip-scheduled-if-done t
                 org-agenda-skip-deadline-if-done t
-                org-deadline-warning-days 0
+                org-deadline-warning-days 2
                 ;; logging
                 org-log-into-drawer "LOGBOOK"
                 org-log-done t)
@@ -1844,6 +1843,25 @@ I fix the headline spacing every time I save.
 #+begin_src emacs-lisp :noweb-ref bindings
   (define-key acdw/leader (kbd "C-a") #'org-agenda)
 #+end_src
+
+*** Calendar settings
+
+I'm not sure where else to put these, to be honest.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default calendar-date-style 'iso) ; YYYY-mm-dd
+#+end_src
+
+*** Habits
+
+Org can track habits!  Great stuff.  I need to add it to =org-modules=,
+though.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (add-to-list 'org-modules 'org-habit)
+#+end_src
+
+Now I just add a =habit= property to a subtree, and BAM!
 
 *** Org Todo Keywords
 
