@@ -470,6 +470,20 @@ minor-modes from the modeline.
                           :repo "raxod502/blackout"))
 #+end_src
 
+*** Setting faces
+
+It took me a while to find a function that'll let me customize faces
+/without/ using *customize*.  Thanks to [[https://www.emacswiki.org/emacs/CustomizingFaces#toc5][Drew Adams]], I've got it!
+
+#+begin_src emacs-lisp :noweb-ref functions
+  (defun doremi-face-set (face spec)
+    "Tell Customize that FACE has been set to value SPEC.
+    SPEC is as for `defface'."
+    (put face 'customized-face spec)
+    (face-spec-set face spec)
+    (message "Customized face %s." (symbol-name face)))
+#+end_src
+
 * Interactivity
 
 ** Dialogs and alerts
