@@ -1585,6 +1585,10 @@ bad, to be honest.  Let's change em.
                        :background "darkgrey"))))
 #+end_src
 
+** TODO Gnus
+
+See [[https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org][this guide]] and try it out.
+
 * Org mode                                                          :package:
 
 ** Install it with =straight.el=
