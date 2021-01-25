@@ -617,6 +617,8 @@ Prescient can persist itself too.
   (prescient-persist-mode +1)
 #+end_src
 
+**** Selectrum integration
+
 Let's have =prescient= and =selectrum= work together.
 
 #+begin_src emacs-lisp :noweb-ref packages
