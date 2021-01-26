@@ -2087,6 +2087,23 @@ I use both Linux (at home) and Windows (at work).  To make Emacs
 easier to use in both systems, I've included various system-specific
 settings and written some ancillary scripts.
 
+** All systems
+
+I'll put generic system-integrating code here.
+
+*** Edit with Emacs
+
+Install the [[https://addons.mozilla.org/en-US/firefox/addon/edit-with-emacs1/][Firefox Addon]] alongside this package to edit web forms in
+Emacs (or the [[https://chrome.google.com/webstore/detail/edit-with-emacs/ljobjlafonikaiipfkggjbhkghgicgoh][Chrome one]] if you... /hate/ freedom :P).
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'edit-server)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (add-hook 'after-init-hook #'edit-server-start)
+#+end_src
+
 ** Linux (home) 
 :PROPERTIES:
 :header-args: :noweb-ref linux-specific
