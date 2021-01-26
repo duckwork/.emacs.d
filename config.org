@@ -337,9 +337,9 @@ underline below all the text.
 deprecated =cl= library.  So, I've forked those libraries to require
 =cl-lib= instead.
 
-*** First: un-fuck =font-utils= and =list-utils=
+*** First: un-fuck =font-utils= and =list-utils= ... and =persistent-soft=
 
-**** List-utils first
+**** List-utils
 
 Since =font-utils= depends on =list-utils=, if I load the former first, it
 pulls in the unpatched latter.  /So/ I need to do =list-utils= first.
@@ -354,6 +354,15 @@ complains), I need to fork and change that to a =cl-lib=.
                           :host github
                           :repo "rolandwalker/list-utils"
                           :fork (:repo "duckwork/list-utils")))
+#+end_src
+
+**** Persistent-soft
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package '(persistent-soft
+                          :host github
+                          :repo "rolandwalker/persistent-soft"
+                          :fork (:repo "duckwork/persistent-soft")))
 #+end_src
 
 **** Font-utils
