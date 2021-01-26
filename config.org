@@ -196,8 +196,8 @@ also want it to show a cute little message to myself.
                 initial-buffer-choice t  ; Start on *scratch*
                 initial-scratch-message
                 (concat ";; Howdy, "
-                        (nth 0 (split-string user-full-name)) "!\n"
-                        ";; Welcome to Emacs."
+                        (nth 0 (split-string user-full-name)) "!"
+                        "  Welcome to Emacs."
                         "\n\n"))
 #+end_src
 
