@@ -1880,6 +1880,12 @@ I fix the headline spacing every time I save.
 
 ** Org Agenda
 
+I'm trying to organize my life.
+Inspo:
+
+- [[https://github.com/cadadr/configuration/blob/3e11ef25344188cc55b16f314c3c5358ace8a266/emacs.d/init.el#L4625][Göktuğ Kayaalp]]
+- [[https://pages.sachachua.com/.emacs.d/Sacha.html#org1db6fe9][Sacha Chua]]
+
 *** Basic Agenda Settings
 
 #+begin_src emacs-lisp :noweb-ref settings
