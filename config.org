@@ -819,6 +819,7 @@ including here myself.  This is kind of an experiment, to be honest.
   (straight-use-package '(crux
                           :host github
                           :repo "bbatsov/crux"))
+  (require 'crux)
 #+end_src
 
 A note: I /don't/ do the same with [[https://github.com/alphapapa/unpackaged.el][unpackaged]] (see below, specifically
