@@ -1728,6 +1728,8 @@ I want to use the newest version of Org that I can.
     "Prettify `org-mode'."
     (dolist (cell '(("[ ]" . ?☐) ("[X]" . ?☑) ("[-]" . ?◐)
                     ("#+BEGIN_SRC" . ?✎) ("#+begin_src" . ?✎)
+                    ("#+BEGIN_QUOTE" . ?❝) ("#+begin_quote" . ?❝)
+                    ("#+END_QUOTE" . ?❞) ("#+end_quote" . ?❞)
                     ("#+END_SRC" . ?■) ("#+end_src" . ?■)))
       (add-to-list 'prettify-symbols-alist cell :append))
     (prettify-symbols-mode +1))
