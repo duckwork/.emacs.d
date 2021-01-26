@@ -327,15 +327,15 @@ underline below all the text.
   (setq-default x-underline-at-descent-line t)
 #+end_src
 
-*** Unicode fonts                                           :package:
+*** Unicode fonts                                                   :package:
 
 =unicode-fonts= pulls in some other packages that still require the
 deprecated =cl= library.  So, I've forked those libraries to require
 =cl-lib= instead.
 
-*** First: un-fuck =font-utils= and =list-utils= ... and =persistent-soft=
+**** First: un-fuck =font-utils= and =list-utils= ... and =persistent-soft=
 
-**** List-utils
+***** List-utils
 
 Since =font-utils= depends on =list-utils=, if I load the former first, it
 pulls in the unpatched latter.  /So/ I need to do =list-utils= first.
@@ -352,7 +352,7 @@ complains), I need to fork and change that to a =cl-lib=.
                           :fork (:repo "duckwork/list-utils")))
 #+end_src
 
-**** Persistent-soft
+***** Persistent-soft
 
 #+begin_src emacs-lisp :noweb-ref packages
   (straight-use-package '(persistent-soft
@@ -361,7 +361,7 @@ complains), I need to fork and change that to a =cl-lib=.
                           :fork (:repo "duckwork/persistent-soft")))
 #+end_src
 
-**** Font-utils
+***** Font-utils
 
 I was able to actually create a [[https://github.com/rolandwalker/font-utils/pull/2][PR]] for this one, so fingers crossed.
 Since the last update on =font-utils= was in 2015, I'm not super hopeful
@@ -373,6 +373,20 @@ to stay hopeful.
                           :host github
                           :repo "rolandwalker/font-utils"
                           :fork (:repo "duckwork/font-utils")))
+#+end_src
+
+***** A function in case it comes up again
+
+I keep googling [[https://github.com/hlissner/doom-emacs/issues/3372][this Doom Emacs issue]], because I keep forgetting what
+I need to do to see where =Package cl is deprecated= is coming from.
+So... function!
+
+#+begin_src emacs-lisp :noweb-ref functions
+  (defun acdw/fucking-cl ()
+    "Find out where the fuck `cl' is being required from."
+    (interactive)
+    (require 'loadhist)
+    (message "%S" (file-dependents (feature-file 'cl))))
 #+end_src
 
 **** Unicode-fonts
