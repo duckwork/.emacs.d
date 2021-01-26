@@ -805,6 +805,15 @@ According to [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-orde
                 fast-but-imprecise-scrolling t)
 #+end_src
 
+** Enable commands
+
+I think the /disabled command/ feature of Emacs is stupid, especially
+for a program that values freedom so much.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default disabled-command-function nil)
+#+end_src
+
 ** CRUX                                                        :package:crux:
 
 A collection of generally-useful functions that I don't want to bother
