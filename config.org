@@ -1308,14 +1308,24 @@ already commented.  That's it.
 
 * Writing
 
-** Word count                                                       :package:
+** COMMENT Word count                                               :package:
+
+I'm just going to comment this out for right now because I honestly
+don't know if it's that useful.
 
 #+begin_src emacs-lisp :noweb-ref packages
   (straight-use-package 'wc-mode)
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref hooks
-  (add-hook 'text-mode-hook #'wc-mode)
+  (defun hook--wc-mode-no-keybinds ()
+    (wc-mode +1)
+    (define-key wc-mode-map (kbd "C-c C-w w") nil)
+    (define-key wc-mode-map (kbd "C-c C-w l") nil)
+    (define-key wc-mode-map (kbd "C-c C-w a") nil)
+    (define-key wc-mode-map (kbd "C-c C-w c") nil))
+
+  (add-hook 'text-mode-hook #'hook--wc-mode-no-keybinds)
 #+end_src
 
 * Programming
@@ -1899,6 +1909,12 @@ Inspo:
 
 #+begin_src emacs-lisp :noweb-ref bindings
   (define-key acdw/leader (kbd "C-a") #'org-agenda)
+#+end_src
+
+*** Refile
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq org-refile-targets '((org-agenda-files . (:maxlevel . 3))))
 #+end_src
 
 *** Calendar settings
