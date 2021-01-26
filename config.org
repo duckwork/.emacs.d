@@ -1673,7 +1673,7 @@ I want to use the newest version of Org that I can.
    org-pretty-entities t
    ;; Source blocks
    org-src-tab-acts-natively t
-   org-src-window-setup 'split-window-below ; could change this based on geom
+   org-src-window-setup 'current-window ; the least stupid option
    org-confirm-babel-evaluate nil
    ;; Behavior
    org-adapt-indentation nil ; don't indent things
