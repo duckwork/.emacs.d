@@ -164,10 +164,10 @@ to switch to the other buffer if there's only one window in the frame.
       (other-window 1)))
 #+end_src
 
-And I'll bind it to =M-o=, since that's easier to reach than =C-x o=.
+*** Switch to other window or buffer                                   :crux:
 
 #+begin_src emacs-lisp :noweb-ref bindings
-  (define-key acdw/map (kbd "M-o") #'other-window-or-buffer)
+  (define-key acdw/map (kbd "M-o") #'crux-other-window-or-switch-buffer)
 #+end_src
 
 ** Buffers
@@ -796,6 +796,20 @@ According to [[https://github.com/mpereira/.emacs.d#make-cursor-movement-an-orde
                 fast-but-imprecise-scrolling t)
 #+end_src
 
+** CRUX                                                        :package:crux:
+
+A collection of generally-useful functions that I don't want to bother
+including here myself.  This is kind of an experiment, to be honest.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package '(crux
+                          :host github
+                          :repo "bbatsov/crux"))
+#+end_src
+
+A note: I /don't/ do the same with [[https://github.com/alphapapa/unpackaged.el][unpackaged]] (see below, specifically
+the *Org* sections) because it pulls in =hydra= and =use-package=, et al.
+
 * Persistence
 
 ** Minibuffer history
@@ -1150,6 +1164,13 @@ It manages my whitespace for me, anyway.
   (setq-default kill-do-not-save-duplicates t)
 #+end_src
 
+*** Kill the line if there is no region                                :crux:
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (crux-with-region-or-line kill-ring-save)
+  (crux-with-region-or-line kill-region)
+#+end_src
+
 ** Overwrite mode
 
 *** Change the cursor
@@ -1218,6 +1239,22 @@ look like.  =anzu= does /most/ of this, except the wrapping around part --
 the two packages to play nice together.  Until then, I'll just use
 =anzu= and =isearch=, which is honestly a pretty good search package.
 
+*** Anzu setup
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'anzu)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default anzu-mode-lighter "" ; hide anzu-mode in the modeline
+                anzu-replace-to-string-separator " → ")
+
+  ;; Set up anzu in the modeline
+  (setq-default anzu-cons-mode-line-p nil)
+  (setcar (cdr (assq 'isearch-mode minor-mode-alist))
+          '(:eval (concat " " (anzu--update-mode-line))))
+#+end_src
+
 *** Regex
 
 I search with regex by default.
@@ -1241,20 +1278,18 @@ versions, because of the regex thing.
     #'anzu-isearch-query-replace-regexp)
 #+end_src
 
-*** Anzu setup                                                      :package:
+** Commenting                                                          :crux:
 
-#+begin_src emacs-lisp :noweb-ref packages
-  (straight-use-package 'anzu)
+I don't think the default =M-;= (=M-x comment-dwim=) binding makes sense.
+I want it to comment out the region or line, or uncomment it if it's
+already commented.  That's it.
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (crux-with-region-or-line comment-or-uncomment-region)
 #+end_src
 
-#+begin_src emacs-lisp :noweb-ref settings
-  (setq-default anzu-mode-lighter "" ; hide anzu-mode in the modeline
-                anzu-replace-to-string-separator " → ")
-
-  ;; Set up anzu in the modeline
-  (setq-default anzu-cons-mode-line-p nil)
-  (setcar (cdr (assq 'isearch-mode minor-mode-alist))
-          '(:eval (concat " " (anzu--update-mode-line))))
+#+begin_src emacs-lisp :noweb-ref bindings
+  (define-key acdw/map (kbd "M-;") #'comment-or-uncomment-region)
 #+end_src
 
 * Writing
