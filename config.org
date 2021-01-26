@@ -153,6 +153,7 @@ and have made a custom fringe bitmap.
 *** Splitting windows sensibly
 
 This is extremely fiddly and I'd love another option.
+- [[https://www.emacswiki.org/emacs/ToggleWindowSplit][ToggleWindowSplit, EmacsWiki]]
 
 #+begin_src emacs-lisp :noweb-ref settings
   (setq-default split-width-threshold 80
