@@ -415,6 +415,17 @@ issue.
   (add-hook 'after-make-frame-functions #'hook--unicode-fonts-setup)
 #+end_src
 
+*** Draw form-feeds (=^L=) properly                                   :package:
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'form-feed)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref modes
+  (global-form-feed-mode +1)
+  (blackout 'form-feed-mode)
+#+end_src
+
 ** Theming
 
 *** Modus themes                                                    :package:
