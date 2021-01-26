@@ -148,6 +148,20 @@ and have made a custom fringe bitmap.
      #b00000000])
 #+end_src
 
+*** Nyan mode
+
+Fuck it, let's have some fun.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'nyan-mode)
+#+end_src
+
+I add it to the modeline [[*Simple modeline][below]].
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default nyan-bar-length 20)
+#+end_src
+
 ** Windows
 
 *** Splitting windows sensibly
@@ -494,7 +508,8 @@ landed on a good one: =simple-modeline=.
                 '((simple-modeline-segment-modified
                    simple-modeline-segment-buffer-name
                    simple-modeline-segment-position)
-                  (simple-modeline-segment-minor-modes
+                  (nyan-create
+                   simple-modeline-segment-minor-modes
                    simple-modeline-segment-input-method
                    simple-modeline-segment-vc
                    simple-modeline-segment-misc-info
