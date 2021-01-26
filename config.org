@@ -150,18 +150,13 @@ and have made a custom fringe bitmap.
 
 ** Windows
 
-*** Switch to other window or buffer
+*** Splitting windows sensibly
 
-I grabbed this from [[https://www.reddit.com/r/emacs/comments/kz347f/what_parts_of_your_config_do_you_like_best/gjlnp2c/][u/astoff1]]: it extends the =other-window= command
-to switch to the other buffer if there's only one window in the frame.
+This is extremely fiddly and I'd love another option.
 
-#+begin_src emacs-lisp :noweb-ref functions
-  (defun other-window-or-buffer ()
-    "Switch to other window, or the previous buffer."
-    (interactive)
-    (if (eq (count-windows) 1)
-        (switch-to-buffer nil)
-      (other-window 1)))
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default split-width-threshold 80
+                split-height-threshold 50)
 #+end_src
 
 *** Switch to other window or buffer                                   :crux:
