@@ -1683,7 +1683,8 @@ I want to use the newest version of Org that I can.
    org-imenu-depth 8
    ;; Exporting
    org-export-headline-levels 8
-   org-export-with-smart-quotes t)
+   org-export-with-smart-quotes t
+   org-export-with-sub-superscripts t)
 #+end_src
 
 ** Aesthetics
