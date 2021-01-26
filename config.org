@@ -1246,7 +1246,7 @@ from =undo-fu=.
   (global-undo-fu-session-mode +1)
 #+end_src
 
-** Search/Replace
+** Search/Replace                                                   :package:
 
 The /biggest/ thing I miss about my Neovim days is its ease of
 search/replace.  It didn't matter where the point was in the buffer;
