@@ -1775,19 +1775,20 @@ I want to use the newest version of Org that I can.
   On headings, move point to position after entry content.  In
   lists, insert a new item or end the list, with checkbox if
   appropriate.  In tables, insert a new row or end the table."
-    ;; Inspired by John Kitchin: http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
+    ;; Inspired by John Kitchin:
+    ;; http://kitchingroup.cheme.cmu.edu/blog/2017/04/09/A-better-return-in-org-mode/
     (interactive "P")
     (if default
         (org-return)
       (cond
         ;; Act depending on context around point.
 
-        ;; NOTE: I prefer RET to not follow links, but by uncommenting this block, links will be
-        ;; followed.
+        ;; NOTE: I prefer RET to not follow links, but by uncommenting
+        ;; this block, links will be followed.
 
-        ;; ((eq 'link (car (org-element-context)))
-        ;;  ;; Link: Open it.
-        ;;  (org-open-at-point-global))
+        ((eq 'link (car (org-element-context)))
+         ;; Link: Open it.
+         (org-open-at-point-global))
 
         ((org-at-heading-p)
          ;; Heading: Move to position after entry content.
@@ -1808,8 +1809,13 @@ I want to use the newest version of Org that I can.
                     (forward-line)
                     (insert "\n")
                     (forward-line -1))
-                  ;; FIXME: looking-back is supposed to be called with more arguments.
-                  (while (not (looking-back (rx (repeat 3 (seq (optional blank) "\n"))) nil))
+                  ;; FIXME: looking-back is supposed to be called with
+                  ;; more arguments.
+                  (while (not (looking-back (rx
+                                             (repeat 3
+                                                     (seq (optional blank)
+                                                          "\n")))
+                                            nil))
                     (insert "\n"))
                   (forward-line -1)))))
 
@@ -1824,11 +1830,13 @@ I want to use the newest version of Org that I can.
                    (and (eq 'item (car context))
                         (not (eq (org-element-property :contents-begin context)
                                  (org-element-property :contents-end context))))
-                   (unpackaged/org-element-descendant-of 'item context))  ; Element in list item, e.g. a link
+                   ;; Element in list item, e.g. a link
+                   (unpackaged/org-element-descendant-of 'item context))
                ;; Non-empty item: Add new item.
                (org-insert-item)
              ;; Empty item: Close the list.
-             ;; TODO: Do this with org functions rather than operating on the text. Can't seem to find the right function.
+             ;; TODO: Do this with org functions rather than operating
+             ;; on the text. Can't seem to find the right function.
              (delete-region (line-beginning-position) (line-end-position))
              (insert "\n"))))
 
