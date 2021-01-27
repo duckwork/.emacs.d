@@ -80,6 +80,26 @@ want it to resize by pixels -- we /are/ using a GUI, after all.
                 frame-resize-pixelwise t)
 #+end_src
 
+**** Don't show default modeline
+
+Wait until my *fancy* modeline is loaded -- from [[https://github.com/KaratasFurkan/.emacs.d#remove-redundant-ui][Furkan Karataş]].
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default mode-line-format nil)
+#+end_src
+
+**** Window Dividers
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default window-divider-default-places t ; bottom and right
+                window-divider-default-bottom-width 2
+                window-divider-default-right-width 2)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref modes
+  (window-divider-mode +1)
+#+end_src
+
 *** Frame titles
 
 #+begin_src emacs-lisp :noweb-ref settings
