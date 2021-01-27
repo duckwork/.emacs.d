@@ -1106,7 +1106,7 @@ Notepad can handle UNIX line endings, so I don't want to hear it.
   (add-hook 'before-save-hook #'ewiki/no-junk-please-were-unixish)
 #+end_src
 
-** Keep =~/.emacs.d= clean                                          :package:
+** Keep =~/.emacs.d= clean                                            :package:
 
 #+begin_src emacs-lisp :noweb-ref packages :noweb yes
   (straight-use-package 'no-littering)
@@ -2164,8 +2164,8 @@ any data loss.  Here's what all that looks like.
 
 - [[https://emacs.stackexchange.com/questions/550/exec-path-and-path][exec-path and $PATH (StackExchange)]]
 - [[https://utoi.tistory.com/entry/Difference-Between-Emacss-%E2%80%9Cgetenv-PATH%E2%80%9D-and-%E2%80%9Cexec-path%E2%80%9D][Difference between Emacs's "(getenv PATH)" and "exec-path" (U&I)]]
-- [[https://emacs.stackexchange.com/questions/27326/gui-emacs-sets-the-exec-path-only-from-windows-environment-variable-but-not-from][GUI Emacs sets the exec-path only from Windows environment variable
-  but not from .emacs file (StackExchange)]]
+- GUI Emacs sets the exec-path only from Windows environment variable
+  but not from .emacs file [[https://emacs.stackexchange.com/questions/27326/gui-emacs-sets-the-exec-path-only-from-windows-environment-variable-but-not-from][(StackExchange)]]
 
 ** Disable =package.el=
 
@@ -2241,7 +2241,7 @@ Emacs (or the [[https://chrome.google.com/webstore/detail/edit-with-emacs/ljobjl
   (add-hook 'after-init-hook #'edit-server-start)
 #+end_src
 
-** Linux (home) 
+** Linux (home)
 :PROPERTIES:
 :header-args: :noweb-ref linux-specific
 :END:
@@ -2293,7 +2293,7 @@ files and things in Emacs.  From [[https://www.taingram.org/blog/emacs-client.ht
 :END:
 
 I use Windows at work, where I /also/ don't have Admin rights.  So I
-kind of fly-by-night there.  Much of the ideas and scripts in this
+kind of fly-by-night there.  Many of the ideas and scripts in this
 section come from [[https://github.com/termitereform/JunkPile/blob/master/emacs-on-windows.md][termitereform]] on Github.
 
 *** Settings
