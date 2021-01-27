@@ -148,9 +148,12 @@ and have made a custom fringe bitmap.
      #b00000000])
 #+end_src
 
-*** Nyan mode
+*** COMMENT Nyan mode
 
-Fuck it, let's have some fun.
++Fuck it, let's have some fun.+  COMMENTED out because it messes up my
+modeline :(
+
+This obviously needs a lot more research.
 
 #+begin_src emacs-lisp :noweb-ref packages
   (straight-use-package 'nyan-mode)
@@ -160,6 +163,12 @@ I add it to the modeline [[*Simple modeline][below]].
 
 #+begin_src emacs-lisp :noweb-ref settings
   (setq-default nyan-bar-length 20)
+#+end_src
+
+But I still have to enable the mode ?!
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (nyan-mode +1)
 #+end_src
 
 ** Windows
@@ -505,11 +514,12 @@ landed on a good one: =simple-modeline=.
 
 #+begin_src emacs-lisp :noweb-ref settings
   (setq-default simple-modeline-segments
-                '((simple-modeline-segment-modified
+                '(;; left side
+                  (simple-modeline-segment-modified
                    simple-modeline-segment-buffer-name
                    simple-modeline-segment-position)
-                  (nyan-create
-                   simple-modeline-segment-minor-modes
+                  ;; right side
+                  (simple-modeline-segment-minor-modes
                    simple-modeline-segment-input-method
                    simple-modeline-segment-vc
                    simple-modeline-segment-misc-info
@@ -519,6 +529,36 @@ landed on a good one: =simple-modeline=.
 
 #+begin_src emacs-lisp :noweb-ref modes
   (simple-modeline-mode +1)
+#+end_src
+
+***** COMMENT Functions to figure out what window is focused
+
+How is this not built into Emacs?  Oh well, I have [[https://github.com/jamesnvc/dotfiles/blob/master/emacs.d/modules/cogent-modeline.el][Cogent]] to thank.
+
+#+begin_src emacs-lisp :noweb-ref variables
+  (defvar cogent-line-selected-window (frame-selected-window))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref functions
+  (defun cogent-line-set-selected-window (&rest _args)
+    (when (not (minibuffer-window-active-p (frame-selected-window)))
+      (setq cogent-line-selected-window (frame-selected-window))
+      (force-mode-line-update)))
+
+  (defun cogent-line-unset-selected-window ()
+    (setq cogent-line-selected-window nil)
+    (force-mode-line-update))
+
+  (defun cogent-line-selected-window-active-p ()
+    (eq cogent-line-selected-window (selected-window)))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (add-hook 'window-configuration-change-hook #'cogent-line-set-selected-window)
+  (add-hook 'focus-in-hook #'cogent-line-set-selected-window)
+  (add-hook 'focus-out-hook #'cogent-line-unset-selected-window)
+  (advice-add 'handle-switch-frame :after #'cogent-line-set-selected-window)
+  (advice-add 'select-window :after #'cogent-line-set-selected-window)
 #+end_src
 
 **** Blackout some modes                                            :package:
