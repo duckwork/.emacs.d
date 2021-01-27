@@ -1169,10 +1169,10 @@ here's what I'm going to do.
      (add-hook 'text-mode-hook #'hook--visual-line-mode)
    #+end_src
 
-2. Enable =auto-fill-mode= with =org-mode=.
+2. Enable =auto-fill-mode= with text modes.
 
    #+begin_src emacs-lisp :noweb-ref hooks
-     (add-hook 'org-mode-hook #'auto-fill-mode)
+     (add-hook 'text-mode-hook #'auto-fill-mode)
    #+end_src
 
 3. /Just/ in case ... let's "fix" =visual-line-mode= if we're in =org-mode=.
