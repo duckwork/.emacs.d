@@ -1784,6 +1784,59 @@ bad, to be honest.  Let's change em.
 
 See [[https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org][this guide]] and try it out.
 
+** RSS Feeds                                                        :package:
+
+*** Elfeed and goodies
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'elfeed)
+  (straight-use-package 'elfeed-goodies)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (with-eval-after-load 'elfeed
+    (require 'elfeed-goodies)
+    (elfeed-goodies/setup))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default elfeed-goodies/entry-pane-position 'bottom
+                elfeed-goodies/powerline-default-separator nil
+                elfeed-goodies/tag-column-width 16)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (defun hook--elfeed-show ()
+    (visual-line-mode +1))
+
+  (add-hook 'elfeed-show-mode-hook #'hook--elfeed-show)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref bindings
+  (define-key acdw/leader "f" #'elfeed)
+#+end_src
+
+*** Elfeed-protocol
+
+I'm not /the most/ happy with this -- it seems like a lot for not that
+much -- but until I figure out a proper syncing solution, it'll do.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'elfeed-protocol)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default elfeed-protocol-ttrss-maxsize 200
+                elfeed-feeds
+                '(("ttrss+https://acdw@rss.tildeverse.org"
+                   :use-authinfo t)))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref modes
+  (with-eval-after-load 'elfeed
+    (elfeed-protocol-enable))
+#+end_src
+
 * Org mode                                                          :package:
 
 ** Install it with =straight.el=
