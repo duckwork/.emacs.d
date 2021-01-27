@@ -1643,6 +1643,10 @@ move up a directory with a keybinding, I'll change =-a= to =-A=.
                 dired-dwim-target t)
 #+end_src
 
+#+begin_src emacs-lisp :noweb-ref bindings
+  (define-key acdw/map (kbd "C-x C-j") #'dired-jump)
+#+end_src
+
 *** Expand subtrees                                                 :package:
 
 Instead of opening each folder in its own buffer, =dired-subtree=
