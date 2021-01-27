@@ -1828,6 +1828,33 @@ I want to use the newest version of Org that I can.
   (add-hook 'org-mode-hook #'acdw/org-mode-prettify)
 #+end_src
 
+*** Prettify lists and checkboxes using font-lock
+
+from [[https://github.com/KaratasFurkan/.emacs.d#org-1][Furkan Karataş]].
+
+#+begin_src emacs-lisp :noweb-ref modes
+  (with-eval-after-load 'org
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([-]\\) "
+                               (0 (prog1 ()
+                                    (compose-region (match-beginning 1) (match-end 1) "•"))))))
+    (font-lock-add-keywords 'org-mode
+                            '(("^ *\\([+]\\) "
+                               (0 (prog1 ()
+                                    (compose-region (match-beginning 1) (match-end 1) "◦"))))))
+  
+    (defface org-checkbox-done-text
+        '((t (:inherit 'font-lock-comment-face :slant normal)))
+      "Face for the text part of a checked org-mode checkbox."
+      :group 'org)
+
+    (font-lock-add-keywords
+     'org-mode
+     `(("^[ \t]*\\(?:[-+*]\\|[0-9]+[).]\\)[ \t]+\\(\\(?:\\[@\\(?:start:\\)?[0-9]+\\][ \t]*\\)?\\[\\(?:X\\|\\([0-9]+\\)/\\2\\)\\][^\n]*\n\\)"
+        1 'org-checkbox-done-text prepend))
+     'append))
+#+end_src
+
 ** Org templates
 
 #+begin_src emacs-lisp :noweb-ref settings
