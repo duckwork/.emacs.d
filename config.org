@@ -1901,10 +1901,14 @@ from [[https://github.com/KaratasFurkan/.emacs.d#org-1][Furkan Karataş]].
 
         ;; NOTE: I prefer RET to not follow links, but by uncommenting
         ;; this block, links will be followed.
+        ;; FURTHER NOTE: Ideally, I would follow links unless point
+        ;; /appeared/ to be at the end of the line (even if it's still
+        ;; inside the link) -- when it would do `org-return'.  That
+        ;; would take some /doing/, however.
 
-        ((eq 'link (car (org-element-context)))
-         ;; Link: Open it.
-         (org-open-at-point-global))
+        ;; ((eq 'link (car (org-element-context)))
+        ;;  ;; Link: Open it.
+        ;;  (org-open-at-point-global))
 
         ((org-at-heading-p)
          ;; Heading: Move to position after entry content.
