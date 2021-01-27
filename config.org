@@ -2374,6 +2374,9 @@ my config here /logically/, while keeping the generated file organized
   ;;; REQUIRES
   <<requires>>
 
+  ;;; VARIABLES
+  <<variables>>
+
   ;;; ACDW MODE
   <<acdw-mode>>
 
