@@ -2140,6 +2140,15 @@ Inspo:
   (define-key acdw/leader (kbd "C-a") #'org-agenda)
 #+end_src
 
+*** Agenda hooks
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (defun hook--org-agenda-mode ()
+    (hl-line-mode +1))
+
+  (add-hook 'org-agenda-mode-hook #'hook--org-agenda-mode)
+#+end_src
+
 *** Refile
 
 #+begin_src emacs-lisp :noweb-ref settings
