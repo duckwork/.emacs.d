@@ -426,6 +426,10 @@ I need to do to see where =Package cl is deprecated= is coming from.
 So... function!
 
 #+begin_src emacs-lisp :noweb-ref functions
+  ;; Make the compiler happy
+  (autoload 'file-dependents "loadhist")
+  (autoload 'feature-file "loadhist")
+
   (defun acdw/fucking-cl ()
     "Find out where the fuck `cl' is being required from."
     (interactive)
@@ -1659,6 +1663,7 @@ machine git.example.com user acdw password hahayeahrightyamoroniwouldn'tgiveyout
 #+end_example
 
 #+begin_src emacs-lisp :noweb-ref hooks
+  (autoload 'magit-process-password-auth-source "magit")
   (add-hook 'magit-process-find-password-functions
             #'magit-process-password-auth-source)
 #+end_src
@@ -2440,6 +2445,54 @@ my config here /logically/, while keeping the generated file organized
   ;;; BINDINGS
   <<bindings>>
   ;;; config.el ends here
+#+end_src
+
+*** Ease of editing
+:PROPERTIES:
+:header-args: :tangle no
+:END:
+
+#+begin_src emacs-lisp :noweb-ref functions
+  (defun acdw/find-config ()
+    "Find `config.org'."
+    (interactive)
+    (find-file (expand-file-name "config.org"
+                                 user-emacs-directory)))
+#+end_src
+
+Bind it to =C-z i= because =C-z C-c= is taken for capture.
+
+#+begin_src emacs-lisp :noweb-ref bindings
+  (define-key acdw/leader (kbd "i") #'acdw/find-config)
+#+end_src
+
+*** Ease of reloading
+:PROPERTIES:
+:header-args: :tangle no
+:END:
+
+#+begin_src emacs-lisp :noweb-ref functions
+  (defun acdw/reload ()
+    "Tangle and reload Emacs configuration."
+    (interactive)
+    (let ((config (expand-file-name "config.org"
+                                    user-emacs-directory)))
+      ;; tangle
+      (with-current-buffer (find-file-noselect config)
+        (let ((prog-mode-hook nil))
+          (add-to-list 'load-path (expand-file-name "straight/build/org/"
+                                                    user-emacs-directory))
+          (require 'org)
+          (org-babel-tangle)))
+      ;; load init files
+      (load (expand-file-name "early-init.el" user-emacs-directory))
+      (byte-compile-file (expand-file-name "init.el" user-emacs-directory) :load)
+      (byte-compile-file (expand-file-name "config.el" user-emacs-directory)
+                         :load)))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref bindings
+  (define-key acdw/leader (kbd "C-M-r") #'acdw/reload)
 #+end_src
 
 ** init.el
