@@ -1739,7 +1739,7 @@ true, please feel free to hack this repo and change this paragraph.
     (require feat))
 #+end_src
 
-** Crosswords!
+** Crosswords!                                                      :package:
 
 I love crosswords.  I love Emacs.  There ya go.
 
