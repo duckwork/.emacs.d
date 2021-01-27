@@ -1619,7 +1619,7 @@ move up a directory with a keybinding, I'll change =-a= to =-A=.
   (setq-default dired-recursive-copies 'always
                 dired-recursive-deletes 'always
                 delete-by-moving-to-trash t
-                dired-listing-switches "-alh"
+                dired-listing-switches "-AFgho --group-directories-first"
                 dired-dwim-target t)
 #+end_src
 
