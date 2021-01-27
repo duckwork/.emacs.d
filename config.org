@@ -1,6 +1,7 @@
 #+TITLE: Emacs configuration, literate-style
 #+AUTHOR: Case Duckworth
 #+STARTUP: overview
+#+PROPERTY: header-args :results output silent
 
 * About me
 
