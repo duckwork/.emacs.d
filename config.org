@@ -1157,6 +1157,14 @@ Bozhidar Batsov's [[https://github.com/bbatsov/super-save][super-save]] package.
   (blackout 'super-save-mode)
 #+end_src
 
+** Lockfiles
+
+I don't think these are really necessary as of now.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default create-lockfiles nil)
+#+end_src
+
 ** Auto-revert files
 
 I like to keep the buffers Emacs has in-memory in sync with the actual
