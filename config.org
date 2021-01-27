@@ -210,6 +210,26 @@ This is extremely fiddly and I'd love another option.
   (define-key acdw/map (kbd "M-o") #'crux-other-window-or-switch-buffer)
 #+end_src
 
+*** Visual fill column mode
+
+In reading-intensive views, this mode keeps the text from getting too
+wide.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'visual-fill-column)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default visual-fill-column-center-text t)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
+
+  (with-eval-after-load 'visual-fill-column
+    (advice-add 'text-scale-adjust :after #'visual-fill-column-adjust))
+#+end_src
+
 ** Buffers
 
 *** Uniquify buffers
