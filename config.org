@@ -2079,7 +2079,15 @@ TODO, and Diary.
      ("j" "Diary entry" entry
           (file+olp+datetree ,acdw/org-diary-file)
           "* %U\n\n%?"
-          :empty-lines 1)))
+          :empty-lines 1)
+     ;; Books to read
+     ("b" "Book to read" entry
+          (file "books.org")
+          "* TOREAD %^{Title}
+  :PROPERTIES:
+  :Author: %^{Author}
+  :END:\n" :immediate-finish t)))
+
 #+end_src
 
 * Package management                                                :package:
