@@ -2372,7 +2372,7 @@ the repo using git, /then/ run the bootstrap code.
         (acdw/bootstrap-straight))))
 #+end_src
 
-* System-specific
+* System integration
 
 I use both Linux (at home) and Windows (at work).  To make Emacs
 easier to use in both systems, I've included various system-specific
@@ -2382,7 +2382,7 @@ settings and written some ancillary scripts.
 
 I'll put generic system-integrating code here.
 
-*** Edit with Emacs
+*** Edit with Emacs                                                 :package:
 
 Install the [[https://addons.mozilla.org/en-US/firefox/addon/edit-with-emacs1/][Firefox Addon]] alongside this package to edit web forms in
 Emacs (or the [[https://chrome.google.com/webstore/detail/edit-with-emacs/ljobjlafonikaiipfkggjbhkghgicgoh][Chrome one]] if you... /hate/ freedom :P).
