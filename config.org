@@ -806,7 +806,8 @@ default completion system.  These all come from the [[https://github.com/minad/c
     (define-key acdw/map (kbd "M-s u") #'consult-focus-lines)
     ;; Other bindings
     (define-key acdw/map (kbd "M-y") #'consult-yank-pop)
-    (define-key acdw/map (kbd "<help> a") #'consult-apropos))
+    (define-key acdw/map (kbd "<f1> a") #'consult-apropos)
+    (define-key acdw/map (kbd "C-h a") #'consult-apropos))
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref settings
