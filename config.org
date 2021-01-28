@@ -1242,6 +1242,21 @@ contents of the files the represent on-disk.  Thus, we have
 
 ** Lines
 
+*** Fill-column
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default fill-column 80)
+#+end_src
+
+By default, Emacs uses =C-x f= to set the =fill-column=.  I think it's
+pretty dumb that such an easy-to-reach binding (for Emacs) is set to a function
+that I /literally/ never use.  So I'm going to bind it to =find-file= ... since
+that's the only time I accidentally call it, anyway.
+
+#+begin_src emacs-lisp :noweb-ref bindings
+  (define-key acdw/map (kbd "C-x f") #'find-file)
+#+end_src
+
 *** Auto-fill vs. Visual-line
 
 I've mostly been using visual-line mode, and it's been pretty good.
@@ -1377,7 +1392,7 @@ It manages my whitespace for me, anyway.
   (setq-default set-mark-repeat-command-pop t)
 #+end_src
 
-** Undo                                                             :package:
+** Undo                                                               :package:
 
 *** Undo Fu
 
@@ -1415,7 +1430,7 @@ from =undo-fu=.
   (global-undo-fu-session-mode +1)
 #+end_src
 
-** Search/Replace                                                   :package:
+** Search/Replace                                                     :package:
 
 The /biggest/ thing I miss about my Neovim days is its ease of
 search/replace.  It didn't matter where the point was in the buffer;
@@ -1465,7 +1480,7 @@ versions, because of the regex thing.
     #'anzu-isearch-query-replace-regexp)
 #+end_src
 
-** Commenting                                                          :crux:
+** Commenting                                                            :crux:
 
 I don't think the default =M-;= (=M-x comment-dwim=) binding makes sense.
 I want it to comment out the region or line, or uncomment it if it's
@@ -1845,7 +1860,7 @@ bad, to be honest.  Let's change em.
 
 See [[https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/master/gnus-guide-en.org][this guide]] and try it out.
 
-** RSS Feeds                                                        :package:
+** RSS Feeds                                                          :package:
 
 *** Elfeed and goodies
 
@@ -1952,6 +1967,7 @@ I want to use the newest version of Org that I can.
    org-src-fontify-natively t
    org-ellipsis "…"
    org-pretty-entities t
+   org-tags-column (- 0 fill-column -1)
    ;; Source blocks
    org-src-tab-acts-natively t
    org-src-window-setup 'current-window ; the least stupid option
