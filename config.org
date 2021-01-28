@@ -2395,6 +2395,23 @@ Emacs (or the [[https://chrome.google.com/webstore/detail/edit-with-emacs/ljobjl
   (add-hook 'after-init-hook #'edit-server-start)
 #+end_src
 
+*** =git-sync= ~/org
+
+I don't know where else to put this, but it's just a little command to
+run =git-sync= in =org-directory=.
+
+#+begin_src emacs-lisp :noweb-ref functions
+  (defun acdw/org-sync ()
+    "Run git-sync in `org-directory'.
+
+  Requires git-sync."
+    (interactive)
+    (async-shell-command
+     (format "git -C %s sync" (expand-file-name org-directory))))
+
+  (define-key acdw/leader (kbd "C-M-o") #'acdw/org-sync)
+#+end_src
+
 ** Linux (home)
 :PROPERTIES:
 :header-args: :noweb-ref linux-specific
