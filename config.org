@@ -321,6 +321,30 @@ someday.
   (define-key acdw/map (kbd "C-x k") #'kill-a-buffer)
 #+end_src
 
+*** Kill old buffers after a while
+
+Adapted from =midnight-mode=, using suggestions from [[https://old.reddit.com/r/emacs/comments/l6jpxf/how_do_emacs_users_usually_have_multiple_files/gl2249u/][u/ndamee]].
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (require 'midnight)
+#+end_src
+
+What time I run the clean up is a little tricky for me, since I use
+Emacs at work /and/ at home, and all at different times.  However, I
+realized that since I close out of Emacs at work pretty much every
+day, I don't need to worry about too many buffers there -- so I just
+have =clean-buffer-list= run at 8:00 PM.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default acdw/clean-buffer-list-timer
+                (run-at-time "20:00" 86400 #'clean-buffer-list)
+                clean-buffer-list-delay-general 5
+                clean-buffer-list-delay-special (* 7 24 60 60))
+
+  (add-to-list 'clean-buffer-list-kill-buffer-names "*Completions*")
+  (add-to-list 'clean-buffer-list-kill-buffer-names "*Calendar*")
+#+end_src
+
 ** Cursor
 
 *** Cursor shape
