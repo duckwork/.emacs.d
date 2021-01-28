@@ -24,8 +24,7 @@
                                  user-emacs-directory))
        (config.el (concat config ".el"))
        (config.org (concat config ".org"))
-       (straight-org-dir (expand-file-name "straight/build/org"
-                                           user-emacs-directory)))
+       (straight-org-dir (locate-user-emacs-file "straight/build/org")))
   ;; Okay, let's figure this out.
   ;; `and' evaluates each form, and returns nil on the first that
   ;; returns nil.  `unless' only executes its body if the test

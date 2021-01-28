@@ -2655,9 +2655,8 @@ Bind it to =C-z i= because =C-z C-c= is taken for capture.
       (message "Tangling config.org... Done.")
       ;; load init files
       (load (locate-user-emacs-file "early-init.el"))
-      (byte-compile-file (locate-user-emacs-file "init.el") :load)
-      (byte-compile-file (locate-user-emacs-file "config.el")
-                         :load)))
+      (load (locate-user-emacs-file "init.el"))
+      (load (locate-user-emacs-file "config.el"))))
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref bindings
