@@ -2309,6 +2309,10 @@ TODO, and Diary.
           (file ,acdw/org-inbox-file)
           "* TODO %^{Task}\nSCHEDULED: %t\n"
           :immediate-finish t)
+     ;; Meetings
+     ("m" "Meeting" entry
+          (file ,acdw/org-inbox-file)
+          "* MEETING %^{Meeting}\n%^T\n\n%?")
      ;; Diary -- for the special Diary file
      ("j" "Diary entry" entry
           (file+olp+datetree ,acdw/org-diary-file)
