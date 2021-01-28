@@ -1845,6 +1845,31 @@ much -- but until I figure out a proper syncing solution, it'll do.
     (elfeed-protocol-enable))
 #+end_src
 
+For whatever reason, =G= (=elfeed-search-fetch=) doesn't fetch anything
+new from TTRSS.  So I rebind it to ... =elfeed-protocol-ttrss-reinit=
+(=elfeed-protocol-ttrss-update= doesn't pull everything for some reason
+... this kind of thing is why I'm looking at other elfeed-sync
+options).
+
+#+begin_src emacs-lisp :noweb-ref bindings
+  (defun acdw-elfeed-protocol-ttrss-update-then-reinit ()
+    "Update, then reinit, the first entry in `elfeed-feeds'."
+    (interactive)
+    (let ((url (caar elfeed-feeds))
+          (msg-update "Elfeed Protocol: Updating...")
+          (msg-reinit "Elfeed Protocol: Re-initializing..."))
+      (message "%s" msg-update)
+      (elfeed-protocol-ttrss-update url)
+      (message "%s Done." msg-update)
+
+      (message "%s" msg-reinit)
+      (elfeed-protocol-ttrss-reinit url)
+      (message "%s Done." msg-reinit)))
+
+  (define-key elfeed-search-mode-map "G"
+    #'acdw-elfeed-protocol-ttrss-update-then-reinit)
+#+end_src
+
 * Org mode                                                          :package:
 
 ** Install it with =straight.el=
