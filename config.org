@@ -1852,22 +1852,23 @@ new from TTRSS.  So I rebind it to ... =elfeed-protocol-ttrss-reinit=
 options).
 
 #+begin_src emacs-lisp :noweb-ref bindings
-  (defun acdw-elfeed-protocol-ttrss-update-then-reinit ()
-    "Update, then reinit, the first entry in `elfeed-feeds'."
-    (interactive)
-    (let ((url (caar elfeed-feeds))
-          (msg-update "Elfeed Protocol: Updating...")
-          (msg-reinit "Elfeed Protocol: Re-initializing..."))
-      (message "%s" msg-update)
-      (elfeed-protocol-ttrss-update url)
-      (message "%s Done." msg-update)
+  (with-eval-after-load 'elfeed-protocol
+    (defun acdw-elfeed-protocol-ttrss-update-then-reinit ()
+      "Update, then reinit, the first entry in `elfeed-feeds'."
+      (interactive)
+      (let ((url (caar elfeed-feeds))
+            (msg-update "Elfeed Protocol: Updating...")
+            (msg-reinit "Elfeed Protocol: Re-initializing..."))
+        (message "%s" msg-update)
+        (elfeed-protocol-ttrss-update url)
+        (message "%s Done." msg-update)
 
-      (message "%s" msg-reinit)
-      (elfeed-protocol-ttrss-reinit url)
-      (message "%s Done." msg-reinit)))
+        (message "%s" msg-reinit)
+        (elfeed-protocol-ttrss-reinit url)
+        (message "%s Done." msg-reinit)))
 
-  (define-key elfeed-search-mode-map "G"
-    #'acdw-elfeed-protocol-ttrss-update-then-reinit)
+    (define-key elfeed-search-mode-map "G"
+      #'acdw-elfeed-protocol-ttrss-update-then-reinit))
 #+end_src
 
 * Org mode                                                          :package:
