@@ -340,19 +340,23 @@ I like a vertical bar, but only in the selected window.
 
 ** Tabs
 
-*** Tab names
+*** Tab bar mode settings
 
 #+begin_src emacs-lisp :noweb-ref settings
-  (setq-default tab-bar-tab-name-function
+  (setq-default tab-bar-show 1 ; show the tab bar when more than 1 tab
+                tab-bar-new-tab-choice "*scratch*"
+                tab-bar-tab-name-function
                 #'tab-bar-tab-name-current-with-count)
 #+end_src
 
-*** When to show the tab bar
+*** Tab bar history
 
-Only when there's more than one tab.
+#+begin_src emacs-lisp :noweb-ref modes
+  (tab-bar-history-mode +1)
+#+end_src
 
 #+begin_src emacs-lisp :noweb-ref settings
-  (setq-default tab-bar-show 1)
+  (setq-default tab-bar-history-limit 25)
 #+end_src
 
 ** Fonts
