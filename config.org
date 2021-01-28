@@ -253,7 +253,10 @@ filesystem paths.
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref settings
-  (setq-default uniquify-buffer-name-style 'forward)
+  (setq-default uniquify-buffer-name-style 'forward
+                uniquify-separator "/"
+                uniquify-after-kill-buffer-p t
+                uniquify-ignore-buffers-re "^\\*")
 #+end_src
 
 *** Startup buffers
@@ -882,6 +885,12 @@ I like the rich annotations provided by =marginalia=.
                   (selectrum-exhibit))))
 #+end_src
 
+** Imenu
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default imenu-auto-rescan t)
+#+end_src
+
 ** Completion
 
 *** Hippie Expand
@@ -1007,7 +1016,8 @@ I keep all of it.
                   search-ring
                   regexp-search-ring)
                 history-length t ; Don't truncate
-                history-delete-duplicates t)
+                history-delete-duplicates t
+                savehist-autosave-interval 60)
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref modes
@@ -1046,7 +1056,8 @@ with that.
 
 #+begin_src emacs-lisp :noweb-ref settings
   (setq-default recentf-max-menu-items 100
-                recentf-max-saved-items nil)
+                recentf-max-saved-items nil
+                recentf-auto-cleanup 'never)
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref modes
@@ -1577,6 +1588,17 @@ to auto-fill in programming modes, but /only/ the comments.
   (add-hook 'prog-mode-hook #'smartparens-strict-mode)
 #+end_src
 
+**** Use =paredit= bindings
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default sp-base-keybindings 'paredit)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref modes
+  (with-eval-after-load 'smart-parens
+    (sp-use-paredit-bindings))
+#+end_src
+
 ** Formatting
 
 *** Aggressive indent                                               :package:
@@ -1588,6 +1610,13 @@ to auto-fill in programming modes, but /only/ the comments.
 #+begin_src emacs-lisp :noweb-ref modes
   (global-aggressive-indent-mode +1)
   (blackout 'aggressive-indent-mode)
+#+end_src
+
+Since aggressive indenting takes care of tabs, I can use =<TAB>= to complete
+things!
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default tab-always-indent 'complete)
 #+end_src
 
 ** Typesetting
@@ -1618,6 +1647,14 @@ checks for a shebang).
 #+begin_src emacs-lisp :noweb-ref hooks
   (add-hook 'after-save-hook
             #'executable-make-buffer-file-executable-if-script-p)
+#+end_src
+
+** Compilation
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default compilation-ask-about-save nil ; just save
+                compilation-always-kill t ; kill the old processes
+                compilation-scroll-output 'first-error)
 #+end_src
 
 ** Language-specific
@@ -2546,8 +2583,17 @@ section come from [[https://github.com/termitereform/JunkPile/blob/master/emacs-
 See also [[https://www.gnu.org/software/emacs/manual/html_mono/efaq-w32.html][the GNU FAQ for Windows]].  At some point I should really dig
 into the multiple settings available for w32 systems.
 
+See also [[https://github.com/bbatsov/prelude/blob/master/core/prelude-windows.el][the Prelude Windows configuration]] (modifier keys).
+
 #+begin_src emacs-lisp
-    (setq-default w32-allow-system-shell t) ; enable cmd.exe as shell
+  (setq-default w32-allow-system-shell t ; enable cmd.exe as shell
+                ;; modifier keys
+                w32-pass-lwindow-to-system nil
+                w32-lwindow-modifier 'super
+                w32-pass-rwindow-to-system nil
+                w32-rwindow-modifier 'super
+                w32-pass-apps-to-system nil
+                w32-apps-modifier 'hyper)
 #+end_src
 
 *** Scripts
@@ -2872,3 +2918,8 @@ It's highly likely that the WTFPL is completely incompatible with the
 GPL, for what should be fairly obvious reasons.  To that, I say:
 
 *SUE ME, RMS!*
+
+** Inspiration and further reading
+
+- [[https://github.com/bbatsov/prelude][Emacs Prelude]]
+- [[https://github.com/alphapapa/unpackaged.el][Unpackaged]]
