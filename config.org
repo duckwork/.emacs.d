@@ -2438,20 +2438,27 @@ into the multiple settings available for w32 systems.
 **** Common variables
 
 #+begin_src bat :noweb-ref w32-bat-common
-set HOME=%~dp0..\..
-set EMACS=%HOME%\Applications\Emacs\bin\runemacs.exe
-chdir %HOME%
+  if not exist %HOME% (set HOME=%~dp0..\..)
+  set EMACS=%HOME%\Applications\Emacs\bin\runemacs.exe
+  set EMACSC=%HOME%\Applications\Emacs\bin\emacsclientw.exe
+  set GIT=%HOME%\Applications\Git\bin\git.exe
 #+end_src
 
-**** Emacs Daemon
+**** Emacs Autostart
 
 Either run this once at startup, or put a shortcut of it in the
 Startup folder: 
 =%USERPROFILE%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup=.
 
-#+begin_src bat :tangle (if (eq system-type 'windows-nt) "~/Applications/cmd/Emacs Daemon.cmd" "")
-<<w32-bat-common>>
-%EMACS% --daemon
+#+begin_src bat :tangle (if (eq system-type 'windows-nt) "~/Applications/cmd/Emacs Autostart.cmd" "")
+  <<w32-bat-common>>
+  REM git pull the config
+  start "git" /wait %GIT% -C %HOME%\.emacs.d pull
+
+  REM start emacs
+  chdir %HOME%
+  start "emacs-daemon" %EMACS% --daemon=autostart
+  start "emacs" %EMACSC% -n -c --server-file=autostart %*
 #+end_src
 
 **** Emacs Client
@@ -2463,8 +2470,14 @@ run =runemacs.exe=.
 
 #+begin_src bat :tangle (if (eq system-type 'windows-nt) "~/Applications/cmd/Emacs.cmd" "")
 <<w32-bat-common>>
-set EMACSC=%HOME%\Applications\Emacs\bin\emacsclientw.exe
-"%EMACSC%" -n -c -a "%EMACS%" %*
+start "emacs" "%EMACSC%" -n -c -a "%EMACS%" %*
+#+end_src
+
+**** Emacs Daemon
+
+#+begin_src bat :tangle (if (eq system-type 'windows-nt) "~/Applications/cmd/Emacs Daemon.cmd" "")
+<<w32-bat-common>>
+start "emacs-daemon" %EMACS% --daemon
 #+end_src
 
 **** Emacs Safe Start
@@ -2473,7 +2486,7 @@ This runs Emacs with the factory settings.
 
 #+begin_src bat :tangle (if (eq system-type 'windows-nt) "~/Applications/cmd/Emacs Safe Start.cmd" "")
 <<w32-bat-common>>
-"%EMACS%" -Q %*
+start "emacs-safe" "%EMACS%" -Q %*
 #+end_src
 
 **** Emacs Debug
@@ -2482,7 +2495,7 @@ This runs Emacs with the =--debug-init= option enabled.
 
 #+begin_src bat :tangle (if (eq system-type 'windows-nt) "~/Applications/cmd/Emacs Debug.cmd" "")
 <<w32-bat-common>>
-"%EMACS%" --debug-init %*
+start "emacs-debug" "%EMACS%" --debug-init %*
 #+end_src
 
 * Appendices
