@@ -1757,6 +1757,24 @@ I love crosswords.  I love Emacs.  There ya go.
                           :repo "Boruch-Baum/emacs-crossword"))
 #+end_src
 
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default crossword-empty-position-char "#")
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref no-littering
+  (setq-default crossword-save-path
+                (no-littering-expand-var-file-name "crosswords/"))
+  (unless (file-exists-p crossword-save-path)
+    (make-directory crossword-save-path :parents))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (defun hook--setup-crossword ()
+    (setq cursor-type 'hbar))
+
+  (add-hook 'crossword-mode-hook #'hook--setup-crossword)
+#+end_src
+
 The problem with this package is that the default faces are pretty
 bad, to be honest.  Let's change em.
 
