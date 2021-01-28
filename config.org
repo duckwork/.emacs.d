@@ -2486,8 +2486,8 @@ Startup folder:
 
   REM start emacs
   chdir %HOME%
-  start "emacs-daemon" %EMACS% --daemon=autostart
-  start "emacs" %EMACSC% -n -c --server-file=autostart %*
+  start "emacs-daemon" /wait %EMACS% --daemon
+  start "emacs-client" %EMACSC% -n -c -a "" %*
 #+end_src
 
 **** Emacs Client
