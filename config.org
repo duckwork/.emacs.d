@@ -230,6 +230,16 @@ wide.
     (advice-add 'text-scale-adjust :after #'visual-fill-column-adjust))
 #+end_src
 
+*** The *Help* window
+
+I want to select the *Help* window by default, so I can easily quit it.
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default help-window-select t)
+#+end_src
+
+
+
 ** Buffers
 
 *** Uniquify buffers
