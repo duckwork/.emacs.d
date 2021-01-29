@@ -1976,6 +1976,21 @@ options).
       #'acdw-elfeed-protocol-ttrss-update-then-reinit))
 #+end_src
 
+** 0x0 (null pointer)                                                 :package:
+
+An ease-of-life package that lets me upload my shitty code to share it with
+others.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package '(0x0
+                          :repo "https://git.sr.ht/~zge/nullpointer-emacs"))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default 0x0-default-service 'ttm)
+#+end_src
+
+* Org mode                                                            :package:
 
 ** Install it with =straight.el=
 
