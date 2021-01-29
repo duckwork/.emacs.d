@@ -1765,7 +1765,7 @@ that one item is.
   (add-hook 'dired-mode-hook #'dired-collapse-mode)
 #+end_src
 
-** Git                                                              :package:
+** Git                                                                :package:
 
 *** Magit
 
@@ -1834,7 +1834,7 @@ true, please feel free to hack this repo and change this paragraph.
     (require feat))
 #+end_src
 
-** Crosswords!                                                      :package:
+** Crosswords!                                                        :package:
 
 I love crosswords.  I love Emacs.  There ya go.
 
@@ -1976,7 +1976,6 @@ options).
       #'acdw-elfeed-protocol-ttrss-update-then-reinit))
 #+end_src
 
-* Org mode                                                          :package:
 
 ** Install it with =straight.el=
 
@@ -2381,7 +2380,7 @@ TODO, and Diary.
 
 #+end_src
 
-* Package management                                                :package:
+* Package management                                                  :package:
 :PROPERTIES:
 :header-args: :noweb-ref early-init-package
 :END:
