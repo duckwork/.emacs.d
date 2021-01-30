@@ -2064,6 +2064,69 @@ others.
   (setq-default 0x0-default-service 'ttm)
 #+end_src
 
+** Gemini/gopher
+
+*** Elpher                                                            :package:
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package '(elpher
+                          :repo "git://thelambdalab.xyz/elpher.git"))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default elpher-ipv4-always t)
+
+  (doremi-face-set 'elpher-gemini-heading1
+                   '((t (:inherit (modus-theme-heading-1)))))
+  (doremi-face-set 'elpher-gemini-heading2
+                   '((t (:inherit (modus-theme-heading-2)))))
+  (doremi-face-set 'elpher-gemini-heading3
+                   '((t (:inherit (modus-theme-heading-3)))))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref no-littering
+  (setq-default elpher-certificate-directory
+                (no-littering-expand-var-file-name
+                 "elpher-certificates/"))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref bindings
+  (with-eval-after-load 'elpher
+    (define-key elpher-mode-map "n" #'elpher-next-link)
+    (define-key elpher-mode-map "p" #'elpher-prev-link)
+    (define-key elpher-mode-map "o" #'elpher-follow-current-link)
+    (define-key elpher-mode-map "G" #'elpher-go-current))
+#+end_src
+
+*** Gemini-mode                                                       :package:
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package '(gemini-mode
+                          :repo "https://git.carcosa.net/jmcbray/gemini.el.git"))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (add-to-list 'auto-mode-alist
+               '("\\.\\(gemini\\|gmi\\)\\'" . gemini-mode))
+
+  (doremi-face-set 'gemini-heading-face-1
+                   '((t (:inherit (elpher-gemini-heading1)))))
+  (doremi-face-set 'gemini-heading-face2
+                   '((t (:inherit (elpher-gemini-heading2)))))
+  (doremi-face-set 'gemini-heading-face3
+                   '((t (:inherit (elpher-gemini-heading3)))))
+#+end_src
+
+*** Gemini-write                                                      :package:
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package '(gemini-write
+                          :repo "https://alexschroeder.ch/cgit/gemini-write"))
+
+  (with-eval-after-load 'elpher
+    (require 'gemini-write))
+#+end_src
+
 * Org mode                                                            :package:
 
 ** Install it with =straight.el=
