@@ -1527,6 +1527,22 @@ don't know if it's that useful.
   (add-hook 'text-mode-hook #'hook--wc-mode-no-keybinds)
 #+end_src
 
+** Spell checking
+
+Let's use =hunspell=.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (with-eval-after-load "ispell"
+    (setenv "LANG" "en_US")
+    (setq-default ispell-program-name "hunspell"
+                  ispell-dictionary "en_US")
+    (ispell-set-spellchecker-params))
+
+  (setq ispell-personal-dictionary "~/.hunspell_personal")
+  (unless (file-exists-p ispell-personal-dictionary)
+    (write-region "" nil ispell-personal-dictionary nil 0))
+#+end_src
+
 * Programming
 
 ** Comments
