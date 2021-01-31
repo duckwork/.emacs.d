@@ -2220,6 +2220,24 @@ from [[https://github.com/KaratasFurkan/.emacs.d#org-1][Furkan Karataş]].
      'append))
 #+end_src
 
+*** Org-appear                                                        :package:
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package '(org-appear
+                          :host github
+                          :repo "awth13/org-appear"))
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default org-appear-autoemphasis t
+                org-appear-autolinks t
+                org-appear-autosubmarkers t)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (add-hook 'org-mode-hook #'org-appear-mode)
+#+end_src
+
 ** Org templates
 
 #+begin_src emacs-lisp :noweb-ref settings
