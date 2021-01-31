@@ -4,7 +4,9 @@
 ; Feel free to edit by hand, but take care to ensure
 ; the list structure remains intact.
 
-(("Cornbread Recipe" "gemini://perplexing.space/2021/cornbread-recipe.gmi")
+(("MEDUSAE directory" "gemini://medusae.space/")
+ ("Will Lewis" "gemini://wflewis.com/")
+ ("Cornbread Recipe" "gemini://perplexing.space/2021/cornbread-recipe.gmi")
  ("SMOG" "gemini://gemini.trans-neptunian.space/~smog/")
  ("Caolan - Vermont Sourdough" "gemini://caolan.uk/baking/2020-11-26_vermont_sourdough.gmi")
  ("BREADPUNK!" "gemini://breadpunk.club/")
