@@ -1933,6 +1933,7 @@ See [[https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/mast
 #+begin_src emacs-lisp :noweb-ref settings
   (setq elfeed-feeds
         `(
+          ("https://atthis.link/rss.xml" blags tech)
           ("https://rachelbythebay.com/w/atom.xml" blags tech)
           ("https://notes.neeasade.net/rss_full.xml" blags tech)
           ("https://www.uninformativ.de/blog/feeds/en.atom" blags tech)
