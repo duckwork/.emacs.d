@@ -210,26 +210,6 @@ This is extremely fiddly and I'd love another option.
   (define-key acdw/map (kbd "M-o") #'crux-other-window-or-switch-buffer)
 #+end_src
 
-*** Visual fill column mode
-
-In reading-intensive views, this mode keeps the text from getting too
-wide.
-
-#+begin_src emacs-lisp :noweb-ref packages
-  (straight-use-package 'visual-fill-column)
-#+end_src
-
-#+begin_src emacs-lisp :noweb-ref settings
-  (setq-default visual-fill-column-center-text t)
-#+end_src
-
-#+begin_src emacs-lisp :noweb-ref hooks
-  (add-hook 'visual-line-mode-hook #'visual-fill-column-mode)
-
-  (with-eval-after-load 'visual-fill-column
-    (advice-add 'text-scale-adjust :after #'visual-fill-column-adjust))
-#+end_src
-
 *** The *Help* window
 
 I want to select the *Help* window by default, so I can easily quit it.
@@ -1270,30 +1250,13 @@ that's the only time I accidentally call it, anyway.
 
 *** Auto-fill vs. Visual-line
 
-I've mostly been using visual-line mode, and it's been pretty good.
-There are some times, however, when lines are just ... really long,
-and they wrap weird or whatever.  Not to mention, in Org mode,
-=visual-line-mode= screws up the bindings for line movement.  So
-here's what I'm going to do.
-
-1. Enable =visual-line-mode= with =text-mode=, but /not/ with
-   =org-mode=.
-
-   #+begin_src emacs-lisp :noweb-ref hooks
-     (defun hook--visual-line-mode ()
-       (unless (eq major-mode 'org-mode)
-         (visual-line-mode +1)))
-
-     (add-hook 'text-mode-hook #'hook--visual-line-mode)
-   #+end_src
-
-2. Enable =auto-fill-mode= with text modes.
+1. Enable =auto-fill-mode= with text modes.
 
    #+begin_src emacs-lisp :noweb-ref hooks
      (add-hook 'text-mode-hook #'auto-fill-mode)
    #+end_src
 
-3. /Just/ in case ... let's "fix" =visual-line-mode= if we're in =org-mode=.
+2. /Just/ in case ... let's "fix" =visual-line-mode= if we're in =org-mode=.
 
    #+begin_src emacs-lisp :noweb-ref hooks
      (defun hook--visual-line-fix-org-keys ()
@@ -1309,6 +1272,26 @@ here's what I'm going to do.
 I think that'll work -- I only care about line aesthetics with text.
 Programming modes should be /allowed/ to have long lines, regardless
 of how /terrible/ it is to have them.
+
+*** Visual fill column mode
+
+In reading-intensive views, this mode keeps the text from getting too
+wide.
+
+#+begin_src emacs-lisp :noweb-ref packages
+  (straight-use-package 'visual-fill-column)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref settings
+  (setq-default visual-fill-column-center-text t)
+#+end_src
+
+#+begin_src emacs-lisp :noweb-ref hooks
+  (add-hook 'visual-fill-column-mode-hook #'visual-line-mode)
+
+  (with-eval-after-load 'visual-fill-column
+    (advice-add 'text-scale-adjust :after #'visual-fill-column-adjust))
+#+end_src
 
 *** Stay snappy with long-lined files
 
