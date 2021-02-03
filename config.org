@@ -1929,7 +1929,7 @@ See [[https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/mast
 #+end_src
 
 #+begin_src emacs-lisp :noweb-ref settings
-  (setq-default elfeed-goodies/entry-pane-position 'bottom
+  (setq-default elfeed-goodies/entry-pane-position 'top
                 elfeed-goodies/powerline-default-separator nil
                 elfeed-goodies/tag-column-width 16)
 #+end_src
