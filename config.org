@@ -2001,7 +2001,9 @@ See [[https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/mast
           ("https://hamster.dance/blog/rss/"                tildes)
           ("https://m455.neocities.org/feed.rss"            tildes fwends)
           ("https://eli.li/feed.rss"                        tildes fwends)
-          ("https://aiweirdness.com/rss" tech)))
+          ("https://aiweirdness.com/rss" tech)
+          ("https://spwhitton.name/blog/index.rss" blags)
+          ))
 #+end_src
 
 *** COMMENT Elfeed-protocol
