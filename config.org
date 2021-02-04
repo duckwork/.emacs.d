@@ -1987,6 +1987,7 @@ See [[https://github.com/redguardtoo/mastering-emacs-in-one-year-guide/blob/mast
           ("https://eli.li/feed.rss"                        tildes fwends)
           ("https://aiweirdness.com/rss" tech)
           ("https://spwhitton.name/blog/index.rss" blags)
+          ("https://www.theadvocate.com/search/?f=rss&t=article&l=50" news)
           ))
 #+end_src
 
