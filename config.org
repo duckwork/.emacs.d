@@ -385,9 +385,9 @@ On Linux, I have a custom build of Iosevka that I like.
                       :family "Iosevka Acdw"
                       :height 105)
 
-  (set-face-attribute 'fixed-pitch nil
-                      :family "Iosevka Acdw"
-                      :height 105)
+  ;; (set-face-attribute 'fixed-pitch nil
+  ;;                     :family "Iosevka Acdw"
+  ;;                     :height 105)
 #+end_src
 
 But on Windows, I use Consolas.
@@ -400,6 +400,9 @@ But on Windows, I use Consolas.
   (set-face-attribute 'fixed-pitch nil
                       :family "Consolas"
                       :height 110)
+  ;; (set-face-attribute 'fixed-pitch nil
+  ;;                     :family "Consolas"
+  ;;                     :height 100)
 #+end_src
 
 *** Underlines
