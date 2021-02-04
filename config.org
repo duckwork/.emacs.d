@@ -395,11 +395,8 @@ But on Windows, I use Consolas.
 #+begin_src emacs-lisp :noweb-ref windows-specific
   (set-face-attribute 'default nil
                       :family "Consolas"
-                      :height 110)
+                      :height 100)
 
-  (set-face-attribute 'fixed-pitch nil
-                      :family "Consolas"
-                      :height 110)
   ;; (set-face-attribute 'fixed-pitch nil
   ;;                     :family "Consolas"
   ;;                     :height 100)
