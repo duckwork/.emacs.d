@@ -1380,6 +1380,9 @@ It manages my whitespace for me, anyway.
 
 ** The Mark
 
+see also
+- [[https://spwhitton.name/blog/entry/transient-mark-mode/][Gnu Emacs' Transient Mark mode]], Sean Whitton
+
 *** Repeat popping the mark without repeating the prefix argument
 
 #+begin_src emacs-lisp :noweb-ref settings
